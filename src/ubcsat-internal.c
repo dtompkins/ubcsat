@@ -30,7 +30,7 @@
     In fact... stop looking at it now... go away.
 */
 
-const char *sValidStatCodes[NUMVALIDSTATCODES] = {"all","mean","stddev","cv","var","stderr","vmr","sum","median","min","max","q05","q10","q25","q75","q90","q95","q98","qr75/25","qr90/10","qr95/05"};
+const char *sValidStatCodes[NUMVALIDSTATCODES] = {"all","mean","stddev","cv","var","stderr","vmr","sum","median","min","max","q05","q10","q25","q75","q90","q95","q98","qr75/25","qr90/10","qr95/05","stepmean","solvemean","failmean","solvemedian","failmedian","solvemin","failmin","solvemax","failmax"};
 
 UINT32 aActiveCalcColumns[MAXITEMLIST];
 FXNPTR aActiveProcedures[NUMEVENTPOINTS][MAXFXNLIST];
@@ -109,8 +109,12 @@ BOOL bReportStateLMOnly;
 FLOAT fReportStateQuality;
 BOOL bReportBestStepVars;
 BOOL bReportOptClausesSol;
+UINT32 iReportFalseHistCount;
+BOOL bReportDistanceLMOnly;
+UINT32 iReportDistHistCount;
 BOOL bReportStateQuality;
 UINT32 iReportStateQuality;
+BOOL bReportTriggersAll;
 
 void AddContainerItem(ITEMLIST *pList,const char *sID, const char *sList);
 void AddItem(ITEMLIST *pList,const char *sID);
@@ -206,6 +210,10 @@ void ActivateStatID(UINT32 iStatID, const char *sItem) {
 
       if (pStat->iStatFlags & STATCODE_RAMMASK) {
         ParseItemList(&listColumns,pStat->sDataColumn,AddAllocateRAMColumnID);
+      }
+
+      if (pStat->iStatFlags & STATCODE_SFMASK) {
+        ActivateTriggers("SortByStepPerformance");
       }
 
     } else {
@@ -682,9 +690,6 @@ void AddStatCustom(const char *sID,
 
 }
 
-#define FLOATSTATSMIN (1E-8)
-//revisit
-
 void CalculateStats(FLOAT *fMean, FLOAT *fStddev, FLOAT *fCV, FLOAT fSum, FLOAT fSum2, UINT32 iCount) {
   
   FLOAT fCountMul;
@@ -714,7 +719,8 @@ void CalculateStats(FLOAT *fMean, FLOAT *fStddev, FLOAT *fCV, FLOAT fSum, FLOAT 
         *fCV = (*fStddev) / (*fMean);
       }
     } else {
-
+      *fStddev = FLOATZERO;
+      *fCV = FLOATZERO;
     }
   }
 }
@@ -824,11 +830,13 @@ void CheckParamterFile(int iCommandLineCount,char **aCommandLineArgs) {
                 pPos = strchr(pStart,' ');
               }
               pPos = strchr(pStart,10);
-              if (pPos) 
+              if (pPos) {
                 *pPos = 0;
+              }
               pPos = strchr(pStart,13);
-              if (pPos) 
+              if (pPos) {
                 *pPos = 0;
+              }
               if (strlen(pStart)) {
                 SetString(&aTotalParms[iNumTotalParms++],pStart);
                 if (iNumTotalParms==MAXTOTALPARMS) {
@@ -875,9 +883,10 @@ void CopyParameters(ALGORITHM *pDest, const char *sName, const char *sVar, BOOL 
     AbnormalExit();
   }
   pParmList = &pSrc->parmList;
-  pDest->parmList.iNumParms = pParmList->iNumParms;
+  pDest->parmList.iNumParms;
   for (j=0;j<pParmList->iNumParms;j++) {
-    pDest->parmList.aParms[j] = pParmList->aParms[j];
+    pDest->parmList.aParms[pDest->parmList.iNumParms] = pParmList->aParms[j];
+    pDest->parmList.iNumParms++;
   }
 }
 
@@ -1043,8 +1052,9 @@ ALGPARM *FindParm(ALGPARMLIST *pParmList, char *sSwitch) {
   UINT32 j;
 
   for (j=0;j<pParmList->iNumParms;j++) {
-    if (MatchParameter(sSwitch,pParmList->aParms[j].sSwitch))
+    if (MatchParameter(sSwitch,pParmList->aParms[j].sSwitch)) {
       return(&pParmList->aParms[j]);
+    }
   }
   return(0);
 }
@@ -1118,8 +1128,9 @@ BOOL IsLocalMinimum(BOOL bUseWeighted) {
         pClause++;
       }
 
-      if (fScore < FLOATZERO)
+      if (fScore < FLOATZERO) {
         return(FALSE);
+      }
     }
   
   } else {
@@ -1150,8 +1161,9 @@ BOOL IsLocalMinimum(BOOL bUseWeighted) {
         pClause++;
       }
 
-      if (iScore < 0)
+      if (iScore < 0) {
         return(FALSE);
+      }
     }
   }
   return(TRUE);
@@ -1211,8 +1223,9 @@ void ParseItemList(ITEMLIST *pList, char *sItems, CALLBACKPTR ItemFunction) {
   char *pPos;
   SINT32 j;
 
-  if (*sItems==0)
+  if (*sItems==0) {
     return;
+  }
 
   pPos = strchr(sItems,',');
   if (pPos) {
@@ -1510,7 +1523,7 @@ void PrintAlgParmSettings(REPORT *pRep, ALGPARMLIST *pParmList) {
         ReportHdrPrint1(pRep,"%d ", *(int *)pCurParm->pParmValue);
         break;
       case PTypeProbability:
-        ReportHdrPrint1(pRep,"%f ", ProbToFloat(*(PROBABILITY *)pCurParm->pParmValue));
+        ReportHdrPrint1(pRep,"%.4g ", ProbToFloat(*(PROBABILITY *)pCurParm->pParmValue));
         break;
       case PTypeString:
         if (**(char **)pCurParm->pParmValue ==0) {
@@ -1520,7 +1533,7 @@ void PrintAlgParmSettings(REPORT *pRep, ALGPARMLIST *pParmList) {
         }
         break;
       case PTypeFloat:
-        ReportHdrPrint1(pRep,"%f ", *(FLOAT *)pCurParm->pParmValue);
+        ReportHdrPrint1(pRep,"%.6g ", *(FLOAT *)pCurParm->pParmValue);
         break;
       case PTypeBool:
         ReportHdrPrint1(pRep,"%u ", *(UINT32 *)pCurParm->pParmValue);
@@ -1531,13 +1544,7 @@ void PrintAlgParmSettings(REPORT *pRep, ALGPARMLIST *pParmList) {
     ReportHdrPrint(pRep,"\n");
   }
 }
-/*
-void PrintFullStat(REPORTSTAT *pStat, const char *sStatID, char *sPrintID, FLOAT fValue) {
-  if ((strstr(pStat->sStatParms,sStatID))||(strstr(pStat->sStatParms,"all"))) { 
-    ReportPrint3(pRepStats,"%s_%s = %f\n",pStat->sBaseDescription,sPrintID,fValue);
-  }
-}
-*/
+
 void SetAlgorithmDefaultReports() {
   SetString((char **) &pRepOut->aParameters[0],pActiveAlgorithm->sDefaultOutput);
   SetString((char **) &pRepStats->aParameters[0],pActiveAlgorithm->sDefaultStats);
@@ -1687,8 +1694,9 @@ UINT32 SetColStatFlags (char *sStatsParms) {
     }
 
     pPos += iLen;
-    if (pPos2)
+    if (pPos2) {
       pPos++;
+    }
   }
 
   return(iFlags);

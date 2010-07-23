@@ -18,7 +18,7 @@ Future Planned Changes
 ======================
 
 * Expect several new algorithm implementations with version 1.2
-
+  - if there is an algorithm you'd like to see, let us know :)
 
 ------------------------
 Changes in version 1.1.0
@@ -27,11 +27,14 @@ Changes in version 1.1.0
  BUG     BUG    BUG
 INTRO | FIXED | DESCRIPTION
 
-1.0.0   1.1.0   Stats & RTD reports can cause segfault when no (-r out) specified with a steps column
+1.0.0   1.1.0   Stats & RTD reports can cause crash when no (-r out) specified with a steps column
 1.0.0   1.1.0   RTDs with search steps > 2^31 weren't sorted properly: (un)signed int issue
+1.0.0   1.1.0   The RTD report could be incorrect if non -cutoff termination is used (-timeout, -noimprove) and <100% success
 1.0.0   1.1.0   Wrong heuristic trigger for weighted adaptive nov+ [-alg adaptnovelty+ -w]
 1.0.0   1.1.0   Score miscalculation in [-alg novelty(+) -w] and [-alg walksat-tabu -w]
-1.0.0   1.1.0   Std. Deviation statistic calculated incorrectly for row stats (not col. stats)
+1.0.0   1.1.0   Std. Deviation statistic miscalculation for row stats (not col. stats)
+1.0.0   1.1.0   Some stats (example: VarFlipCounts) would only count from last restart
+
 
 * code cleanup: Major changes to all help messages, now specific parameter verbose/terse messages req'd
 * code cleanup: Method for adding column statistics has been changed / simplified
@@ -46,21 +49,32 @@ INTRO | FIXED | DESCRIPTION
 * parameter change: you can now specify max as a parameter value for the cutoff i.e.: -cutoff max
 * parameter change: you can now specify parameters as a factor of the # vars, i.e.: -srestart 100n 
 * parameter change: -varinitgreedy is now deterministic
+
 * report change: report "best" has been renamed "bestsol"
 * report change: report "unsatclauses" now prints for unsuccessful runs, and has a new paramter
 * report change: the default statistics provided have been modified slightly
 * column change: column/stat "time" has been renamed "timesteps"
 
-* new algorihtm: "DDFW" (-alg ddfw)
-* new algorihtm: "G2WSat" (-alg g2wsat)
-* new algorihtm: "Novelty++" (-alg novelty++)
-* new algorihtm: "PAWS" (-alg paws)
-* new algorithm: "random walk" (-alg -urwalk)
-* new algorithm: "conflict-directed random walk" (-alg -crwalk)
-* new algorithm: "Schoening's Algorithm" (-alg -crwalk -v schoening)
-* new algorithm: "SAPS/WInit" (-alg -saps -w -v winit)
-* new algorithm: "SAPS/WSmooth" (-alg -saps -w -v wsmooth)
+* new algorithm: "DDFW" (-alg ddfw)
+* new algorithm: "G2WSat" (-alg g2wsat)
+* new algorithm: "Novelty++" (-alg novelty++)
+* new algorithm: "PAWS" (-alg paws)
+* new algorithm: "random walk" (-alg urwalk)
+* new algorithm: "conflict-directed random walk" (-alg crwalk)
+* new algorithm: "Deterministic crwalk" (-alg dcrwalk)
+* new algorithm: "Deterministic Adaptive Novelty+" (-alg danovp)
+* new algorithm: "RGSAT" (-alg rgsat)
+* new algorithm: "Novelty+p" (-alg novelty+p)
+* new algorithm: "G2WSAT+p" (-alg g2wsat+p)
+* new algorithm: "Adaptive G2WSAT" (-alg adaptg2wsat)
+* new algorithm: "Adaptive G2WSAT+p" (-alg adaptg2wsat+p)
 * new algorithm: "VW1" (-alg vw1)
+* new algorithm: "VW2" (-alg vw2)
+
+* new algorithm variant: "Schoening's Algorithm" (-alg -crwalk -v schoening)
+* new algorithm variant: "SAPS/WInit" (-alg -saps -w -v winit)
+* new algorithm variant: "SAPS/WSmooth" (-alg -saps -w -v wsmooth)
+* new algorithm variant: "Paramaterized Adaptive Novelty+" (-alg adaptnovelty+ -v params)
 
 * new report: "Penalty report" (-r penalty)
 * new report: "Penalty Mean report" (-r penmean)
@@ -73,10 +87,16 @@ INTRO | FIXED | DESCRIPTION
 * new report: "Unique solutions" (-r uniquesol)
 * new report: "Best Step Solution Quality" (-r beststep)
 * new report: "Trajectory Best Local Minima" (-r tbestlm)
+* new report: "False Histogram" (-r falsehist)
+* new report: "Distance" (-r distance)
+* new report: "Distance Histogram" (-r disthist)
+* new report: "Bias Counts" (-r biascount)
+* new report: "Triggers" (-r triggers)
 
 * new column: "Time in seconds, measured" (time)
 * new column: "# of Local Minima Encountered" (localmins)
 * new column: "% of steps in Local Minima" (percentlocal)
+* new column: "Distance to known solutions(s)" (soldistance)
 * new column: "Fitness-Distance Correlation Factor" (fdc)
 * new column: "Auto-Correlation Length" (acl)
 * new column: "Auto-Correlation of distance one" (acone)
@@ -110,6 +130,8 @@ INTRO | FIXED | DESCRIPTION
 * new column: "CV of the Variable Flip Count Distribution" (flipcountcv)
 * new column: "CV of the Clause Unsat Count Distribution" (unsatcountcv)
 * new column: "Mean Branching Factor" (branchfact[_w])
+* new column: "Mean Bias - Max" (biasmax)
+* new column: "Mean Bias - Final" (biasfinal)
 
 * new statistic: added the number of runs executed (runs)
 * new statistic: added the number of successful runs (numsolve)
@@ -118,13 +140,16 @@ INTRO | FIXED | DESCRIPTION
 * new statistic: added the number of unique solutions found (numunique)
 * new statistic: added the version of UBCSAT (version)
 * new statistic: added a statistic for the agemean column example in the mylocal.c (thanks to FH)
-* new stat field: added 4 new stat fields: var+stderr+vmr+sum
+* new stat field: added var+stderr+vmr+sum
+* new stat field: added stepmean
+* new stat field: added solvemean+solvemedian+solvemin+solvemax
+* new stat field: added failmean+failmedian+failmin+failmax
 
-* new parameter: -filesoln specifies a file of known solutions for analysis & measuring FDC, etc.
+* new parameter: -filesoln specifies a file of known solutions for analysis & measuring FDC, solution distance, etc.
 * new parameter: -filerand specifies a file to read random bits from (instead of PRNG)
 * new parameter: -fileabort specifies a file that can be created to abort the current job
 * new parameter: -findunique is like -find, except it only counts unique solutions
-* new parameter: -rflush will flush out all buffers between runs
+* new parameter: -rflush will flush out all output buffers between runs
 
 * new function: CalculateStats() & CorrelationCoeff()
 * new function: ActivateTriggers() & DeActivateTriggers() for explicit activation
@@ -133,7 +158,8 @@ INTRO | FIXED | DESCRIPTION
 * new file: g2wsat.c
 * new file: random.c
 * new file: paws.c
-* new file: vw.c
+* new file: derandomized.c
+
 * new data type: VARSTATE is an array of bytes to store variable state information
 * new data type: VARSTATELIST is a linked list of VARSTATEs
 
@@ -156,6 +182,7 @@ INTRO | FIXED | DESCRIPTION
 * code cleanup: renamed ActivateTrigger to ActivateTriggerID (and ActivateStat, etc...)
 * code cleanup: changed code to use the constant FLOATZERO
 * code cleanup: increased MAXCNFLINELEN
+* code cleanup: CopyParameters() now adds to the end of the list instead of replacing it
 
 ------------------------
 Changes in version 1.0.0

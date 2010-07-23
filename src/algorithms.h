@@ -62,10 +62,21 @@ extern UINT32 iWalkSATTabuClause;
 void AddNovelty();
 void AddNoveltyPlus();
 void AddNoveltyPlusPlus();
+void PickNoveltyPlusW();
 void PickNoveltyPlusPlus();
 void PickNoveltyPlusPlusW();
 
+void PickNoveltyVarScore();
+void PickNoveltyPlusVarScore();
+void PickNoveltyPlusPlusVarScore();
+
 extern PROBABILITY iNovNoise;
+extern PROBABILITY iDp;
+
+/* novelty+p.c */
+
+void AddNoveltyPlusP();
+void PickNoveltyPlusP();
 
 /* rnovelty.c */
 
@@ -75,11 +86,15 @@ void AddRNoveltyPlus();
 /* adaptnovelty.c */
 
 void AddAdaptNoveltyPlus();
+void InitAdaptNoveltyNoise();
+void AdaptNoveltyNoiseAdjust();
 extern UINT32 iLastAdaptStep;
 extern UINT32 iLastAdaptNumFalse;
 extern FLOAT fLastAdaptSumFalseW;
-extern const UINT32 iInvPhi;
-extern const UINT32 iInvTheta;
+extern UINT32 iInvPhi;
+extern UINT32 iInvTheta;
+extern FLOAT fAdaptPhi;
+extern FLOAT fAdaptTheta;
 
 /* saps.c */
 
@@ -97,6 +112,10 @@ void AddDDFW();
 /* g2wsat.c */
 
 void AddG2WSat();
+
+/* vw.c */
+
+void AddVW();
 
 /* rots.c */
 
@@ -119,8 +138,12 @@ void AddSAMD();
 
 void AddRandom();
 
-/* vw.c */
+/* derandomized.c */
 
-void AddVW();
+void AddDerandomized();
+
+/* rgsat.c */
+
+void AddRGSat();
 
 

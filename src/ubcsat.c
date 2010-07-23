@@ -22,7 +22,7 @@
 
 #include "ubcsat.h"
 
-const char sVersion[] = "1.1.0tt2";
+const char sVersion[] = "1.1.0 (Sea to Sky Release)";
 
 int ubcsatmain(int argc, char *argv[]) {
   
@@ -84,6 +84,7 @@ int ubcsatmain(int argc, char *argv[]) {
       RunProcedures(CheckRestart);
 
       if (bRestart) {
+        RunProcedures(PreInit);
         RunProcedures(InitData);
         RunProcedures(InitStateInfo);
         RunProcedures(PostInit);

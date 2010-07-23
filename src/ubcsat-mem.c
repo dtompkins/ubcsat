@@ -99,7 +99,8 @@ void FreeRAM() {
   UINT32 j;
 
   for (j=0;j<iNumHeap;j++) {
-    if (aHeap[j].pHeap)
+    if (aHeap[j].pHeap) {
       free(aHeap[j].pHeap);
+    }
   }
 }

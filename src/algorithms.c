@@ -38,6 +38,8 @@ void AddAlgorithms() {
   AddNoveltyPlus();
   AddNoveltyPlusPlus();
 
+  AddNoveltyPlusP();
+
   AddAdaptNoveltyPlus();
 
   AddRNovelty();
@@ -51,14 +53,18 @@ void AddAlgorithms() {
 
   AddG2WSat();
 
+  AddVW();
+
   AddRoTS();
   AddIRoTS();
 
   AddSAMD();
 
-  AddVW();
-
   AddRandom();
+
+  AddDerandomized();
+
+  AddRGSat();
 
 }
 

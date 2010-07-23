@@ -36,8 +36,12 @@ REPORT *pRepBestSol;
 REPORT *pRepBestStep;
 REPORT *pRepTrajBestLM;
 REPORT *pRepOptClauses;
+REPORT *pRepFalseHist;
+REPORT *pRepDistance;
+REPORT *pRepDistHist;
 REPORT *pRepCNFStats;
 REPORT *pRepFlipCounts;
+REPORT *pRepBiasCounts;
 REPORT *pRepUnsatCounts;
 REPORT *pRepVarLast;
 REPORT *pRepClauseLast;
@@ -50,6 +54,7 @@ REPORT *pRepMobility;
 REPORT *pRepMobFixed;
 REPORT *pRepMobFixedFreq;
 REPORT *pRepAutoCorr;
+REPORT *pRepTriggers;
 REPORT *pRepSATComp;
 
 void AddReports() {
@@ -63,7 +68,7 @@ void AddReports() {
   pRepStats->bActive = TRUE;
   AddReportParmString(pRepStats,"Statistics to Display (ubcsat -hs for info)","default");
 
-  pRepRTD = CreateReport("rtd","Run-Length and Run-Time Distribution","Similar to (-r out), except results are sorted by search steps,~and result only include successful runs~you can customize the report to include a variety of columns", "stdout","ReportRTD,SortByStepPerformance");
+  pRepRTD = CreateReport("rtd","Run-Length and Run-Time Distribution","Similar to (-r out), except results are sorted by search steps,~and include successful runs~you can customize the report to include a variety of columns", "stdout","ReportRTD,SortByStepPerformance");
   AddReportParmString(pRepRTD,"Columns to Display (ubcsat -hc for info)","rtd");
 
   pRepModel = CreateReport("model","Solution Model","Prints the solution model found from the last run executed~is turned on automatically with the -solve parameter~output format example is: -1 2 3 -4 ... ~meaning variables (1,4) are true, and variables (2,3) are false","stdout","ReportModelPrint");
@@ -88,7 +93,18 @@ void AddReports() {
   pRepOptClauses = CreateReport("unsatclauses","Unsatisfied Clauses","Print unsatisfied clauses when the run is complete~mostly useful when -target > 0 -- the format is:~1101111...~where clause 3 was unsatisfied when the run terminated","stdout","ReportUnsatClausesPrint");
   AddReportParmUInt(pRepOptClauses,"Only Include runs where -target solution was reached",&bReportOptClausesSol,0);
 
+  pRepFalseHist = CreateReport("falsehist","Number of False Clauses Histogram","Prints a count (histogram) that shows the distribution~of the number of false clauses throughout the search","stdout","ReportFalseHistPrint");
+  AddReportParmUInt(pRepFalseHist,"Only include data from the last N steps",&iReportFalseHistCount,0);
+
+  pRepDistance = CreateReport("distance","Hamming Distance Information","Detailed information for each step of the Hamming Distance~to the closest known solution~Note: Requires solution file (-filesol)","stdout","ReportDistancePrint");
+  AddReportParmUInt(pRepDistance,"Only print when in local minima",&bReportDistanceLMOnly,0);
+
+  pRepDistHist = CreateReport("disthist","Hamming Distance Histogram","Prints a count (histogram) that shows the distribution~of the Hamming distance from the solution(s) throughout the search~Note: Requires solution file (-filesol)","stdout","ReportDistHistPrint");
+  AddReportParmUInt(pRepDistHist,"Only include data from the last N steps",&iReportDistHistCount,0);
+
   pRepFlipCounts = CreateReport("flipcount","Variable Flip Count","Prints the number of times each variable was flipped~restarts are counted in the first column (nullflips)","stdout","ReportFlipCountsPrint");
+
+  pRepBiasCounts = CreateReport("biascount","Variable Bias Count","Prints the number of steps each variable was true and false","stdout","ReportBiasCountsPrint");
 
   pRepUnsatCounts = CreateReport("unsatcount","Clause Unsatisfied Count","Prints the number of steps that each clause was unsatisfied","stdout","ReportUnsatCountsPrint");
 
@@ -130,6 +146,8 @@ void AddReports() {
   AddReportParmUInt(pRepAutoCorr,"Maximum window length [default = n]",&iAutoCorrMaxLen,0);
   AddReportParmFloat(pRepAutoCorr,"Cutoff Value for finding ACL [default = 1/e]",&fAutoCorrCutoff,0.3678794f);
   
+  pRepTriggers = CreateReport("triggers","Trigger Report","Prints Out All Active Triggers","stdout","ReportTriggersPrint");
+  AddReportParmUInt(pRepTriggers,"Show All Triggers (not just active) [default = 0]",&bReportTriggersAll,0);
 
   pRepSATComp = CreateReport("satcomp","SAT Competition","Prints required output for 2005 SAT Competition (use -solve)","stdout","ReportSatCompetitionPrint");
 
@@ -498,7 +516,7 @@ void AddReports() {
     " Mean #",
     "of Flip",
     " Candid",
-    "%7.2f",
+    "%7.4f",
     &iNumCandidates,"",ColTypeMean);
 
   AddStatCol("candidates","FlipCandidatesMean","mean",FALSE);
@@ -522,7 +540,6 @@ void AddReports() {
 
   AddStatCol("percentlocal","PercentLocal","mean",FALSE);
 
-
   AddColumnFloat("flipcountcv","CV of the Variable Flip Count Distribution",
     "  CV of",
     "   Flip",
@@ -532,6 +549,24 @@ void AddReports() {
 
   AddStatCol("flipcountcv","FlipCountCV","mean",FALSE);
 
+  AddColumnFloat("biasmax","Mean Frac. # steps vars spent same state as their most freq.",
+    "   Max",
+    "  Pol-",
+    " arity",
+    "%5.4f",
+    &fMeanMaxBias,"BiasStats",ColTypeFinal);
+
+  AddStatCol("biasmax","BiasMaxMean","mean",FALSE);
+
+  AddColumnFloat("biasfinal","Mean Frac. # steps vars spent same as their final state",
+    " Final",
+    "  Pol-",
+    " arity",
+    "%5.4f",
+    &fMeanFinalBias,"BiasStats",ColTypeFinal);
+
+  AddStatCol("biasfinal","BiasFinalMean","mean",FALSE);
+
   AddColumnFloat("unsatcountcv","CV of the Clause Unsat Count Distribution",
     "  CV of",
     "  Unsat",
@@ -540,6 +575,16 @@ void AddReports() {
     &fUnsatCountsCV,"UnsatCountStats",ColTypeFinal);
 
   AddStatCol("unsatcountcv","UnsatCountCV","mean",FALSE);
+
+
+  AddColumnUInt("soldistance","Mean Hamming Distance from Closest Known Solution(s)",
+    "   Mean",
+    "Dist To",
+    "kn.soln",
+    "%7.2f",
+    &iSolutionDistance,"SolutionDistance",ColTypeMean);
+
+  AddStatCol("soldistance","SolutionDistanceMean","mean",FALSE);
 
 
   AddColumnFloat("fdc","Fitness-Distance Correlation Factor (calc. in LM)",
@@ -766,7 +811,7 @@ void AddReports() {
     "in seconds",
     "(by steps)",
     "%10.6f",
-    &fDummy,"UpdateTimes,ActivateStepsColumn",ColTypeFinal);
+    &fDummy,"UpdateTimes,ActivateStepsFoundColumns",ColTypeFinal);
 
   AddStatCol("timesteps","CPUTime","mean+cv+median",TRUE);
 

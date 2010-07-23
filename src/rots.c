@@ -114,7 +114,7 @@ void PickRoTS() {
 
     } else if ((iStep - aVarLastChange[j]) > (iNumVars * 10)) {
 
-      /* check for variable stagnation  (early exit) */
+      /* check for variable stagnation (early exit) */
 
       iFlipCandidate = j;
       return;
@@ -135,29 +135,27 @@ void PickRoTS() {
 
   /* select flip candidate uniformly from candidate list */
   
-  if (iNumCandidates > 1)
+  if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  else
+  } else {
     iFlipCandidate = aCandidateList[0];
+  }
 
 }
 
 void PickRoTSW() {
+
+  /* weighted varaint -- see regular algorithm for comments */
   
   UINT32 j;
   FLOAT fScore;
   UINT32 iTabuCutoff;
-
-  /* every N steps, choose the tabu tenure uniformly from the tabu range */
 
   if (iTabuTenureLow != iTabuTenureHigh) {
     if ((iStep % iNumVars)==0) {
       iTabuTenure = iTabuTenureLow + RandomInt(iTabuTenureHigh - iTabuTenureLow);
     }
   }
-
-  /* calculation of tabu cutoff */
-  
   if (iStep > iTabuTenure) {
     iTabuCutoff = iStep - iTabuTenure;
     if (iVarLastChangeReset > iTabuCutoff) {
@@ -166,37 +164,19 @@ void PickRoTSW() {
   } else {
     iTabuCutoff = 1;
   }
-
   iNumCandidates = 0;
   fBestScore = fTotalWeight;
-
-  /* check all variables */
-
   for (j=1;j<=iNumVars;j++) {
-
-    /* use cached value of weighted score */
-
     fScore = aVarScoreW[j];
-
     if (aVarLastChange[j] >= iTabuCutoff) { 
-
-      /* check for aspiration (early exit) */
-
       if ((fSumFalseW + fScore) < fBestSumFalseW) {
         iFlipCandidate = j;
         return;
       }
     } else if ((iStep - aVarLastChange[j]) > (iNumVars * 10)) {
-      
-      /* check for variable stagnation  (early exit) */
-
       iFlipCandidate = j;
       return;
-
     } else { 
-
-      /* build candidate list of best vars */
-
       if (fScore <= fBestScore) {
         if (fScore < fBestScore) {
           iNumCandidates=0;
@@ -206,15 +186,10 @@ void PickRoTSW() {
       }
     }
   }
-
-  /* select flip candidate uniformly from candidate list */
-  
-  if (iNumCandidates > 1)
+  if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  else
+  } else {
     iFlipCandidate = aCandidateList[0];
-
+  }
 }
-
-
 

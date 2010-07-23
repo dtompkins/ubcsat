@@ -60,8 +60,9 @@ void AddRNoveltyPlus() {
 }
 
 
-void PickRNoveltyCore()
-{
+void PickRNoveltyCore() {
+
+  /* see the Novelty() code for general comments */
  
   UINT32 i;
   UINT32 j;
@@ -69,7 +70,7 @@ void PickRNoveltyCore()
   UINT32 iClause;
   UINT32 iClauseLen;
   LITTYPE *pLit;
-  LITTYPE *pClause;
+  UINT32 *pClause;
 
   UINT32 iNumOcc;
   UINT32 iVar;
@@ -85,8 +86,6 @@ void PickRNoveltyCore()
   iBestScore = iNumClauses;
   iSecondBestScore = iNumClauses;
 
-  /* select an unsatisfied clause uniformly at random */
-
   if (iNumFalse) {
     iClause = aFalseList[RandomInt(iNumFalse)];
     iClauseLen = aClauseLen[iClause];
@@ -96,46 +95,29 @@ void PickRNoveltyCore()
   }
 
   pLit = pClauseLits[iClause];
-
   iYoungestVar = GetVarFromLit(*pLit);
-
   for (j=0;j<iClauseLen;j++) {
-
-    /* for WalkSAT variants, it's faster to calculate the
-       score for each literal than to cache the values */
-
     iScore = 0;
-
     iVar = GetVarFromLit(*pLit);
-
     iNumOcc = aNumLitOcc[*pLit];
     pClause = pLitClause[*pLit];
-    
     for (i=0;i<iNumOcc;i++) {
       if (aNumTrueLit[*pClause]==0) {
         iScore--;
       }
       pClause++;
     }
-
     iNumOcc = aNumLitOcc[GetNegatedLit(*pLit)];
     pClause = pLitClause[GetNegatedLit(*pLit)];
-    
     for (i=0;i<iNumOcc;i++) {
       if (aNumTrueLit[*pClause]==1) {
         iScore++;
       }
       pClause++;
     }
-
-    /* keep track of which literal was the 'youngest' */
-
-    if (aVarLastChange[iVar] > aVarLastChange[iYoungestVar])
+    if (aVarLastChange[iVar] > aVarLastChange[iYoungestVar]) {
       iYoungestVar = iVar;
-
-    /* keep track of the 'best' and the 'second best' variables,
-       breaking ties by selecting the younger variables */
-
+    }
     if ((iScore < iBestScore) || ((iScore == iBestScore) && (aVarLastChange[iVar] < aVarLastChange[iBestVar]))) {
       iSecondBestVar = iBestVar;
       iBestVar = iVar;
@@ -145,7 +127,6 @@ void PickRNoveltyCore()
       iSecondBestVar = iVar;
       iSecondBestScore = iScore;
     }
-
     pLit++;
   }
   
@@ -153,8 +134,9 @@ void PickRNoveltyCore()
 
   /* if the best is the youngest, select it */
 
-  if (iFlipCandidate != iYoungestVar)
+  if (iFlipCandidate != iYoungestVar) {
     return;
+  }
 
   /* otherwise, calculate difference between 'best' and 'second best' */
 
@@ -164,11 +146,13 @@ void PickRNoveltyCore()
      and choose the second best with noise (novnoise * 2) if margin is 1 */
 
   if ((iNovNoise < 0x7FFFFFFF)) {
-    if (iScoreMargin > 1)
+    if (iScoreMargin > 1) {
       return;
+    }
     if (iScoreMargin == 1) {
-      if (RandomProb(iNovNoise << 1))
+      if (RandomProb(iNovNoise << 1)) {
         iFlipCandidate = iSecondBestVar;
+      }
       return;
     }
   }
@@ -181,8 +165,9 @@ void PickRNoveltyCore()
     return;
   } 
 
-  if (RandomProb(((iNovNoise - 0x7FFFFFFF)<<1)))
+  if (RandomProb(((iNovNoise - 0x7FFFFFFF)<<1))) {
     iFlipCandidate = iSecondBestVar;
+  }
 }
 
 void PickRNovelty()

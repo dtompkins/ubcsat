@@ -189,6 +189,20 @@ extern UINT32 *aChangeListW;
 extern FLOAT *aChangeOldScoreW;
 extern UINT32 *aChangeLastStepW;
 
+#define UpdateChange(var) {if(aChangeLastStep[var]!=iStep) {aChangeOldScore[var] = aVarScore[var]; aChangeLastStep[var]=iStep; aChangeList[iNumChanges++]=var;}}
+
+
+/***** Trigger DecPromVars *****/
+/*
+    iNumDecPromVars       # Decreasing Promising Variables
+    aDecPromVarsList[j]   variable # of the jth decreasing promising Variable list
+*/
+
+extern UINT32 *aDecPromVarsList;
+extern UINT32 iNumDecPromVars;
+
+extern UINT32 *aDecPromVarsListW;
+extern UINT32 iNumDecPromVarsW;
 
 
 /***** Trigger BestScoreList *****/
@@ -415,6 +429,26 @@ extern FLOAT fFlipCountsCV;
 extern FLOAT fFlipCountsStdDev;
 
 
+/***** Trigger BiasCounts *****/
+/*
+    aBiasTrueCounts[j]  # of steps that variable[j] has been True
+    aBiasFalseCounts[j] # of steps that variable[j] has been False
+*/
+
+extern UINT32 *aBiasTrueCounts;
+extern UINT32 *aBiasFalseCounts;
+
+
+/***** Trigger BiasStats *****/
+/*
+    fMeanFinalBias    Mean Fraction of # steps each variable was in its final state
+    fMeanMaxBias      Mean Fraction of # steps each variable was in its most frequent state
+*/
+
+extern FLOAT fMeanFinalBias;
+extern FLOAT fMeanMaxBias;
+
+
 /***** Trigger UnsatCounts *****/
 /*
     aUnsatCounts[j]       # of steps that clause[j] has been unsatisfied
@@ -433,6 +467,26 @@ extern UINT32 *aUnsatCounts;
 extern FLOAT fUnsatCountsMean;
 extern FLOAT fUnsatCountsCV;
 extern FLOAT fUnsatCountsStdDev;
+
+
+/***** Trigger NumFalseCounts *****/
+/*
+    aNumFalseCounts[j]        # of steps that j clauses have been unsatisfied
+    aNumFalseCountsWindow[j]  NumFalse values for the last iReportFalseHistCount steps
+*/
+
+extern UINT32 *aNumFalseCounts;
+extern UINT32 *aNumFalseCountsWindow;
+
+
+/***** Trigger DistanceCounts *****/
+/*
+    aDistanceCounts[j]        # of steps that search has been Hamming distance j from the solution
+    aDistanceCountsWindow[j]  Hamming Distance values for the last iReportDistHistCount steps
+*/
+
+extern UINT32 *aDistanceCounts;
+extern UINT32 *aDistanceCountsWindow;
 
 
 /***** Trigger ClauseLast *****/
@@ -574,6 +628,14 @@ extern UINT32 iNumRestarts;
 
 extern VARSTATELIST vslKnownSoln;
 extern BOOL bKnownSolutions;
+
+
+/***** Trigger SolutionDistance *****/
+/*
+    iSolutionDistance       Current Distance from Known Solution(s)
+*/
+
+extern UINT32 iSolutionDistance;
 
 
 /***** Trigger FDCRun *****/

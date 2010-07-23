@@ -22,35 +22,47 @@
 
 /* Column Statistic Fields */
 
-#define STATCODE_all      0xFFFFFFFF
-#define STATCODE_mean     0x00000002
-#define STATCODE_stddev   0x00000004
-#define STATCODE_cv       0x00000008
-#define STATCODE_var      0x00000010
-#define STATCODE_stderr   0x00000020
-#define STATCODE_vmr      0x00000040
-#define STATCODE_sum      0x00000080
-#define STATCODE_median   0x00000100
-#define STATCODE_min      0x00000200
-#define STATCODE_max      0x00000400
-#define STATCODE_q05      0x00000800
-#define STATCODE_q10      0x00001000
-#define STATCODE_q25      0x00002000
-#define STATCODE_q75      0x00004000
-#define STATCODE_q90      0x00008000
-#define STATCODE_q95      0x00010000
-#define STATCODE_q98      0x00020000
-#define STATCODE_qr7525   0x00040000
-#define STATCODE_qr9010   0x00080000
-#define STATCODE_qr9505   0x00100000
+#define STATCODE_all          0xFFFFFFFF
+#define STATCODE_mean         0x00000002
+#define STATCODE_stddev       0x00000004
+#define STATCODE_cv           0x00000008
+#define STATCODE_var          0x00000010
+#define STATCODE_stderr       0x00000020
+#define STATCODE_vmr          0x00000040
+#define STATCODE_sum          0x00000080
+#define STATCODE_median       0x00000100
+#define STATCODE_min          0x00000200
+#define STATCODE_max          0x00000400
+#define STATCODE_q05          0x00000800
+#define STATCODE_q10          0x00001000
+#define STATCODE_q25          0x00002000
+#define STATCODE_q75          0x00004000
+#define STATCODE_q90          0x00008000
+#define STATCODE_q95          0x00010000
+#define STATCODE_q98          0x00020000
+#define STATCODE_qr7525       0x00040000
+#define STATCODE_qr9010       0x00080000
+#define STATCODE_qr9505       0x00100000
+#define STATCODE_stepmean     0x00200000
+#define STATCODE_solvemean    0x00400000
+#define STATCODE_failmean     0x00800000
+#define STATCODE_solvemedian  0x01000000
+#define STATCODE_failmedian   0x02000000
+#define STATCODE_solvemin     0x04000000
+#define STATCODE_failmin      0x08000000
+#define STATCODE_solvemax     0x10000000
+#define STATCODE_failmax      0x20000000
 
-#define STATCODE_RAMMASK  0x001FFF00
-#define STATCODE_SORTMASK 0x001FFF00
-#define STATCODE_CALCMASK 0x0000007E
+#define STATCODE_RAMMASK      0x3FFFFF00
+#define STATCODE_SORTMASK     0x001FFF00
+#define STATCODE_CALCMASK     0x0000007E
+#define STATCODE_SFMASK       0x3FE00000
 
 #define FLOAT double
 #define FLOATMAX (1E+300)
 #define FLOATZERO (0.0f)
+
+#define FLOATSTATSMIN (1E-8)
 
 #define PROBABILITY unsigned long
 
@@ -93,6 +105,7 @@ enum EVENTPOINT
   PreStart,
   PreRun,
   CheckRestart,
+  PreInit,
   InitData,
   InitStateInfo,
   PostInit,

@@ -33,7 +33,7 @@ void AddGSatTabu() {
 
   pCurAlg = CreateAlgorithm("gsat-tabu","",FALSE,
     "GSAT-TABU: GSAT with Tabu search",
-    "Mazure, Sais, Gregoire [CP 95]",
+    "Mazure, Sais, Gregoire [AAAI 97]",
     "PickGSatTabu",
     "DefaultProcedures,Flip+VarScore,VarLastChange",
     "default","default");
@@ -44,7 +44,7 @@ void AddGSatTabu() {
 
   pCurAlg = CreateAlgorithm("gsat-tabu","",TRUE,
     "GSAT-TABU: GSAT with Tabu search (weighted)",
-    "Mazure, Sais, Gregoire [CP 95]",
+    "Mazure, Sais, Gregoire [AAAI 97]",
     "PickGSatTabuW",
     "DefaultProceduresW,Flip+VarScoreW,VarLastChange",
     "default_w","default");
@@ -99,10 +99,11 @@ void PickGSatTabu() {
 
   /* select flip candidate uniformly from candidate list */
 
-  if (iNumCandidates > 1)
+  if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  else
+  } else {
     iFlipCandidate = aCandidateList[0];
+  }
 }
 
 void PickGSatTabuW() {
@@ -149,9 +150,10 @@ void PickGSatTabuW() {
 
   /* select flip candidate uniformly from candidate list */
 
-  if (iNumCandidates > 1)
+  if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  else
+  } else {
     iFlipCandidate = aCandidateList[0];
+  }
 }
 

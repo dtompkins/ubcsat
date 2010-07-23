@@ -33,7 +33,7 @@ void AddGWSat() {
 
   pCurAlg = CreateAlgorithm("gwsat","",FALSE,
     "GWSAT: GSAT with random walk",
-    "Selman, Kautz, Cohen [AAAI 94]",
+    "Selman, Kautz [IJCAI 93]",
     "PickGWSat",
     "DefaultProcedures,Flip+VarInFalse",
     "default","default");
@@ -44,7 +44,7 @@ void AddGWSat() {
 
   pCurAlg = CreateAlgorithm("gwsat","",1,
     "GWSAT: GSAT with random walk (weighted)",
-    "Selman, Kautz, Cohen [AAAI 94]",
+    "Selman, Kautz [IJCAI 93]",
     "PickGWSatW",
     "DefaultProceduresW,VarScoreW,VarInFalse",
     "default_w","default");
@@ -97,10 +97,11 @@ void PickGWSat() {
   
     /* select flip candidate uniformly from candidate list */
     
-    if (iNumCandidates > 1)
+    if (iNumCandidates > 1) {
       iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-    else
+    } else {
       iFlipCandidate = aCandidateList[0];
+    }
   }
 }
 
@@ -143,10 +144,11 @@ void PickGWSatW() {
   
     /* select flip candidate uniformly from candidate list */
     
-    if (iNumCandidates > 1)
+    if (iNumCandidates > 1) {
       iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-    else
+    } else {
       iFlipCandidate = aCandidateList[0];
+    }
   }
 }
 

@@ -89,10 +89,11 @@ void PickGSatSimple() {
 
   /* select flip candidate uniformly from candidate list */
 
-  if (iNumCandidates > 1)
+  if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  else
+  } else {
     iFlipCandidate = aCandidateList[0];
+  }
 }
 
 void PickGSatWithBSL() {
@@ -137,8 +138,9 @@ void PickGSatW() {
   
   /* select flip candidate uniformly from candidate list */
   
-  if (iNumCandidates > 1)
+  if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  else
+  } else {
     iFlipCandidate = aCandidateList[0];
+  }
 }

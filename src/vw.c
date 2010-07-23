@@ -82,7 +82,7 @@ void PickVW1() {
   UINT32 iClauseLen;
   UINT32 iVar;
   LITTYPE *pLit;
-  LITTYPE *pClause;
+  UINT32 *pClause;
   LITTYPE litPick;
   UINT32 iNumOcc;
   UINT32 iBestVarFlipCount;
@@ -109,7 +109,7 @@ void PickVW1() {
     /* for WalkSAT variants, it's faster to calculate the
        score for each literal than to cache the values 
     
-       note that in this case, score is the breakcount[] */
+       note that in this case, score is just the breakcount[] */
 
     iScore = 0;
     
@@ -133,7 +133,7 @@ void PickVW1() {
         iBestScore = iScore;
         aCandidateList[iNumCandidates++] = iVar;
       } else {
-	      if(iBestScore == 0) {
+	      if (iBestScore == 0) {
           aCandidateList[iNumCandidates++] = iVar;
         } else {
 
@@ -141,8 +141,8 @@ void PickVW1() {
              prefer variables that have have been 
              flipped less frequently */
 
-	        if(aFlipCounts[iVar] <= iBestVarFlipCount) {
-		        if(aFlipCounts[iVar] < iBestVarFlipCount) {
+	        if (aFlipCounts[iVar] <= iBestVarFlipCount) {
+		        if (aFlipCounts[iVar] < iBestVarFlipCount) {
 		          iNumCandidates=0;
 		          iBestVarFlipCount = aFlipCounts[iVar];
 		        }
@@ -167,10 +167,11 @@ void PickVW1() {
 
   /* select flip candidate uniformly from candidate list */
   
-  if (iNumCandidates > 1)
+  if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  else
+  } else {
     iFlipCandidate = aCandidateList[0];
+  }
 
 }
 
@@ -183,7 +184,7 @@ void PickVW2() {
   UINT32 iClauseLen;
   UINT32 iVar;
   LITTYPE *pLit;
-  LITTYPE *pClause;
+  UINT32 *pClause;
   LITTYPE litPick;
   UINT32 iNumOcc;
   FLOAT fCurVW2Score;
@@ -202,7 +203,6 @@ void PickVW2() {
     iFlipCandidate = 0;
     return;
   }
-
 
   pLit = pClauseLits[iClause];
 
@@ -223,24 +223,28 @@ void PickVW2() {
     for (i=0;i<iNumOcc;i++) {
       if (aNumTrueLit[*pClause]==1) {
         iScore++;
-        // TODO: See if it's faster to check for early exit if freebie was previously found
       }
       pClause++;
     }
 
     if (iScore == 0) {
+
+      /* Note: in author's original source code, it exits on the first freebie variable it discovers */
+
       if (iBestScore > 0) {
         iNumCandidates=0;
         iBestScore = 0;
       } 
       aCandidateList[iNumCandidates++] = iVar;
     } else {
-      if(iBestScore > 0) {
+      if (iBestScore > 0) {
+
+        /* if no freebie found yet, use the VW2 weighted score */
 
         fCurVW2Score = (FLOAT) iScore + fVW2WeightFactor * (aVW2Weights[iVar] - fVW2WeightMean);
 
-        if(fCurVW2Score <= fBestVW2Score) {
-	        if(fCurVW2Score < fBestVW2Score) {
+        if (fCurVW2Score <= fBestVW2Score) {
+	        if (fCurVW2Score < fBestVW2Score) {
 	          iNumCandidates=0;
 	          fBestVW2Score = fCurVW2Score;
 	        }
@@ -264,11 +268,11 @@ void PickVW2() {
 
   /* select flip candidate uniformly from candidate list */
   
-  if (iNumCandidates > 1)
+  if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  else
+  } else {
     iFlipCandidate = aCandidateList[0];
-
+  }
 }
 
 
@@ -278,7 +282,7 @@ void CreateVW2Weights() {
 
 void InitVW2Weights() {
   memset(aVW2Weights,0,(iNumVars+1)*sizeof(FLOAT));
-  fVW2WeightMean = 0.0f;
+  fVW2WeightMean = FLOATZERO;
 }
 
 void UpdateVW2Weights() {
@@ -286,5 +290,4 @@ void UpdateVW2Weights() {
   aVW2Weights[iFlipCandidate] = (1.0f - fVW2Smooth) * (aVW2Weights[iFlipCandidate] + 1.0f) + (fVW2Smooth * (FLOAT) iStep);
   fVW2WeightMean += (aVW2Weights[iFlipCandidate] - fPrevWeight) / iNumVars;
 }
-
 

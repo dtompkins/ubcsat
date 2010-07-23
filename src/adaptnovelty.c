@@ -22,8 +22,11 @@
 
 #include "ubcsat.h"
 
-const UINT32 iInvPhi=5;               /* = 1/phi   */
-const UINT32 iInvTheta=6;             /* = 1/theta */
+UINT32 iInvPhi=5;               /* = 1/phi   */
+UINT32 iInvTheta=6;             /* = 1/theta */
+
+FLOAT fAdaptPhi;
+FLOAT fAdaptTheta;
 
 UINT32 iLastAdaptStep;
 UINT32 iLastAdaptNumFalse;
@@ -31,6 +34,7 @@ FLOAT fLastAdaptSumFalseW;
 
 void InitAdaptNoveltyNoise();
 void AdaptNoveltyNoise();
+void AdaptNoveltyNoiseAdjust();
 void AdaptNoveltyNoiseW();
 
 void AddAdaptNoveltyPlus() {
@@ -48,6 +52,18 @@ void AddAdaptNoveltyPlus() {
 
   CreateTrigger("InitAdaptNoveltyNoise",PostInit,InitAdaptNoveltyNoise,"","");
   CreateTrigger("AdaptNoveltyNoise",PostFlip,AdaptNoveltyNoise,"InitAdaptNoveltyNoise","");
+
+  pCurAlg = CreateAlgorithm("adaptnovelty+","params",FALSE,
+    "Adaptive Novelty+ with changable adaptability parameters",
+    "Hoos [AAAI 02]",
+    "PickNoveltyPlus",
+    "DefaultProcedures,Flip+FalseClauseList,AdaptNoveltyNoiseAdjust,VarLastChange",
+    "default","default");
+
+  CopyParameters(pCurAlg,"adaptnovelty+","",FALSE);
+  AddParmFloat(&pCurAlg->parmList,"-phi","adjustment parameter phi [default %s]","phi determines the rate of change of noise","",&fAdaptPhi,(1.0f/5.0f));
+  AddParmFloat(&pCurAlg->parmList,"-theta","adjustment parameter theta [default %s]","theta determines the stagnation detection","",&fAdaptTheta,(1.0f/6.0f));
+  CreateTrigger("AdaptNoveltyNoiseAdjust",PostFlip,AdaptNoveltyNoiseAdjust,"InitAdaptNoveltyNoise","");
 
   pCurAlg = CreateAlgorithm("adaptnovelty+","",TRUE,
     "Adaptive Novelty+: Novelty+ with adaptive noise (weighted)",
@@ -76,28 +92,44 @@ void AdaptNoveltyNoise() {
     /* if no improvement in a while, increase noise */
 
     iNovNoise += (PROBABILITY) ((UINT32MAX - iNovNoise)/iInvPhi);
+
     iLastAdaptStep = iStep;
     iLastAdaptNumFalse = iNumFalse;
 
   } else if (iNumFalse < iLastAdaptNumFalse) {
 
     /* if improving, then decrease noise */
+    /* note: this is how the original code was implemented: [wp := wp - wp * phi / 2] */
+    /* it was incorrectly listed in AAAI02 paper as [wp := wp - wp * 2 * phi] */
 
     iNovNoise -= (PROBABILITY) (iNovNoise / iInvPhi / 2);
 
-    /* note: this is how the original code was implemented: [wp := wp - wp * phi / 2] */
-    /* it was incorrectly listed in AAAI02 paper as [wp := wp - wp * 2 * phi] */
-    
     iLastAdaptStep = iStep;
     iLastAdaptNumFalse = iNumFalse;
   }
 }
 
+void AdaptNoveltyNoiseAdjust() {
+
+  /* this varaint allows for different values of Phi & Theta */
+  
+  if (iStep-iLastAdaptStep > iNumClauses*fAdaptTheta) {
+    iNovNoise += (PROBABILITY) ((UINT32MAX - iNovNoise)*fAdaptPhi);
+    iLastAdaptStep = iStep;
+    iLastAdaptNumFalse = iNumFalse;
+  } else if (iNumFalse < iLastAdaptNumFalse) {
+    iNovNoise -= (PROBABILITY) (iNovNoise * fAdaptPhi / 2);
+    iLastAdaptStep = iStep;
+    iLastAdaptNumFalse = iNumFalse;
+  }
+}
+
+
 void AdaptNoveltyNoiseW() {
 
-  if (iStep-iLastAdaptStep > iNumClauses/iInvTheta) {
+  /* weighted varaint -- see regular algorithm for comments */
 
-    /* if no improvement in a while, increase noise */
+  if (iStep-iLastAdaptStep > iNumClauses/iInvTheta) {
 
     iNovNoise += (PROBABILITY) ((UINT32MAX - iNovNoise)/iInvPhi);
     iLastAdaptStep = iStep;
@@ -105,13 +137,8 @@ void AdaptNoveltyNoiseW() {
   
   } else if (fSumFalseW < fLastAdaptSumFalseW) {
 
-    /* if improving, then decrease noise */
-    
     iNovNoise -= (PROBABILITY) (iNovNoise / iInvPhi / 2);
     
-    /* note: this is how the original code was implemented: [wp := wp - wp * phi / 2] */
-    /* it was incorrectly listed in the paper as [wp := wp - wp * 2 * phi] */
-
     iLastAdaptStep = iStep;
     fLastAdaptSumFalseW = fSumFalseW;
   }

@@ -72,8 +72,20 @@ void ReportTrajBestLMPostRun();
 /***** Trigger ReportUnsatClausesPrint *****/
 void ReportUnsatClausesPrint();
 
+/***** Trigger ReportFalseHistPrint *****/
+void ReportFalseHistPrint();
+
+/***** Trigger ReportDistHistPrint *****/
+void ReportDistancePrint();
+
+/***** Trigger ReportDistHistPrint *****/
+void ReportDistHistPrint();
+
 /***** Trigger ReportFlipCountsPrint *****/
 void ReportFlipCountsPrint();
+
+/***** Trigger ReportBiasCountsPrint *****/
+void ReportBiasCountsPrint();
 
 /***** Trigger ReportUnsatCountsPrint *****/
 void ReportUnsatCountsPrint();
@@ -123,11 +135,14 @@ void ReportMobFixedFreqPrint();
 /***** Trigger ReportAutoCorrPrint *****/
 void ReportAutoCorrPrint();
 
+/***** Trigger ReportTriggersPrint *****/
+void ReportTriggersPrint();
+
 /***** Trigger ReportSatCompetitionPrint *****/
 void ReportSatCompetitionPrint();
 
-/***** Trigger ActivateStepsColumn *****/
-void ActivateStepsColumn();
+/***** Trigger ActivateStepsFoundColumns *****/
+void ActivateStepsFoundColumns();
 
 /***** Trigger AllocateColumnRAM *****/
 void AllocateColumnRAM();
@@ -171,7 +186,9 @@ void UpdateTimes();
 UINT32 *aSortedBySteps;
 BOOL bSortedByStepsValid;
 UINT32 *aSortedByCurrent;
+UINT32 *aSortedByStepsAndFound;
 void SortByCurrentColData(REPORTCOL *pCol);
+void SortByCurrentColDataAndFound(REPORTCOL *pCol);
 void SortByStepPerformance();
 
 /***** Trigger CalcFPS *****/
@@ -218,7 +235,15 @@ void AddReportTriggers() {
 
   CreateTrigger("ReportUnsatClausesPrint",PostRun,ReportUnsatClausesPrint,"","");
 
+  CreateTrigger("ReportFalseHistPrint",PostRun,ReportFalseHistPrint,"NumFalseCounts","");
+
+  CreateTrigger("ReportDistancePrint",PostStep,ReportDistancePrint,"SolutionDistance","");
+
+  CreateTrigger("ReportDistHistPrint",PostRun,ReportDistHistPrint,"DistanceCounts","");
+
   CreateTrigger("ReportFlipCountsPrint",PostRun,ReportFlipCountsPrint,"FlipCounts","");
+
+  CreateTrigger("ReportBiasCountsPrint",PostRun,ReportBiasCountsPrint,"BiasCounts","");
 
   CreateTrigger("ReportUnsatCountsPrint",PostRun,ReportUnsatCountsPrint,"UnsatCounts","");
 
@@ -243,9 +268,11 @@ void AddReportTriggers() {
 
   CreateTrigger("ReportAutoCorrPrint",PostRun,ReportAutoCorrPrint,"AutoCorr","");
 
+  CreateTrigger("ReportTriggersPrint",PreStart,ReportTriggersPrint,"","");
+
   CreateTrigger("ReportSatCompetitionPrint",FinalReports,ReportSatCompetitionPrint,"","");
 
-  CreateTrigger("ActivateStepsColumn",PostParameters,ActivateStepsColumn,"","");
+  CreateTrigger("ActivateStepsFoundColumns",PostParameters,ActivateStepsFoundColumns,"","");
 
   CreateTrigger("AllocateColumnRAM",PostRead,AllocateColumnRAM,"","");
 
@@ -263,7 +290,7 @@ void AddReportTriggers() {
   CreateTrigger("MobilityColumn",RunCalculations,UpdateMobilityColumn,"MobilityWindow","");
 
   CreateTrigger("UpdateTimes",FinalCalculations,UpdateTimes,"SortByStepPerformance","");  
-  CreateTrigger("SortByStepPerformance",FinalCalculations,SortByStepPerformance,"","");
+  CreateTrigger("SortByStepPerformance",FinalCalculations,SortByStepPerformance,"ActivateStepsFoundColumns","");
 
 }
 
@@ -337,10 +364,12 @@ void PrintColHeaders(REPORT *pRep,UINT32 iNumCols, UINT32 *aCols) {
 void ReportOutHeader() {
   ReportHdrPrefix(pRepOut);
   ReportHdrPrint1(pRepOut," -alg %s",pActiveAlgorithm->sName);
-  if (*(pActiveAlgorithm->sVariant))
+  if (*(pActiveAlgorithm->sVariant)) {
     ReportHdrPrint1(pRepOut," -v %s",pActiveAlgorithm->sVariant);
-  if (pActiveAlgorithm->bWeighted)
+  }
+  if (pActiveAlgorithm->bWeighted) {
     ReportHdrPrint(pRepOut," -w");
+  }
   
   ReportHdrPrint(pRepOut,"\n");
 
@@ -449,8 +478,9 @@ FLOAT GetRowElement(REPORTCOL *pCol,UINT32 iRowRequested, BOOL bSorted, BOOL bSo
 
 void ReportStatsPrint() {
   
-  UINT32 j,k;
+  UINT32 j,k,l;
   REPORTCOL *pCol;
+  REPORTCOL *pColSteps;
   REPORTSTAT *pStat;
 
   FLOAT fMean;
@@ -464,6 +494,8 @@ void ReportStatsPrint() {
   FLOAT fVal;
   FLOAT fVal2;
   UINT32 iPos;
+
+  UINT32 iNumFail;
 
   char **pString;
 
@@ -514,32 +546,32 @@ void ReportStatsPrint() {
               }
 
               if (pStat->iStatFlags & STATCODE_mean) {
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Mean",fMean);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Mean",fMean);
               }
 
               if (pStat->iStatFlags & STATCODE_stddev) {
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"StdDev",fStdDev);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"StdDev",fStdDev);
               }
 
               if (pStat->iStatFlags & STATCODE_cv) {
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"CoeffVariance",fCV);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"CoeffVariance",fCV);
               }
 
               if (pStat->iStatFlags & STATCODE_var) {
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Variance",fVar);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Variance",fVar);
               }
 
               if (pStat->iStatFlags & STATCODE_stderr) {
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"StdErr",fStdErr);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"StdErr",fStdErr);
               }
 
               if (pStat->iStatFlags & STATCODE_vmr) {
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"VarMeanRatio",fVMR);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"VarMeanRatio",fVMR);
               }
             }
 
             if (pStat->iStatFlags & STATCODE_sum) {
-              ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Sum",pCol->fColSum);
+              ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Sum",pCol->fColSum);
             }
 
             if (pStat->iStatFlags & STATCODE_SORTMASK) {
@@ -553,54 +585,54 @@ void ReportStatsPrint() {
                   fMedian += GetRowElement(pCol,(iRun)>>1,TRUE,pStat->bSortByStep);
                   fMedian /= 2.0;
                 }
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Median",fMedian);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Median",fMedian);
               }
 
               if (pStat->iStatFlags & STATCODE_min) {
                 iPos = 0;
                 fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Min",fVal);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Min",fVal);
               }
 
               if (pStat->iStatFlags & STATCODE_max) {
                 iPos = iRun - 1;
                 fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Max",fVal);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Max",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q05) {
                 iPos = (UINT32)(floor(0.05 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Q.05",fVal);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.05",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q10) {
                 iPos = (UINT32)(floor(0.10 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Q.10",fVal);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.10",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q25) {
                 iPos = (UINT32)(floor(0.25 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Q.25",fVal);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.25",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q75) {
                 iPos = (UINT32)(floor(0.75 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Q.75",fVal);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.75",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q90) {
                 iPos = (UINT32)(floor(0.90 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Q.90",fVal);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.90",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q95) {
                 iPos = (UINT32)(floor(0.95 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Q.95",fVal);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.95",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q98) {
                 iPos = (UINT32)(floor(0.98 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Q.98",fVal);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.98",fVal);
               }
               if (pStat->iStatFlags & STATCODE_qr7525) {
                 iPos = (UINT32)(floor(0.75 * (FLOAT) (iRun-1)));
@@ -610,7 +642,7 @@ void ReportStatsPrint() {
                 if (fVal2 != FLOATZERO) {
                   fVal2 = fVal / fVal2;
                 }
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Q.75/25",fVal2);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.75/25",fVal2);
               }
               
               if (pStat->iStatFlags & STATCODE_qr9010) {
@@ -621,7 +653,7 @@ void ReportStatsPrint() {
                 if (fVal2 != FLOATZERO) {
                   fVal2 = fVal / fVal2;
                 }
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Q.90/10",fVal2);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.90/10",fVal2);
               }
 
               if (pStat->iStatFlags & STATCODE_qr9505) {
@@ -632,9 +664,110 @@ void ReportStatsPrint() {
                 if (fVal2 != FLOATZERO) {
                   fVal2 = fVal / fVal2;
                 }
-                ReportPrint3(pRepStats,"%s_%s = %g\n",pStat->sBaseDescription,"Q.95/05",fVal2);
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.95/05",fVal2);
               } 
+            }
+            if (pStat->iStatFlags & STATCODE_SFMASK) {
+              SortByCurrentColDataAndFound(pCol);
+              iNumFail = iRun - iNumSolutionsFound;
 
+              if (pStat->iStatFlags & STATCODE_stepmean) {
+                pColSteps = &aColumns[FindItem(&listColumns,"steps")];
+                fVal = FLOATZERO;
+                for (l=0;l<iRun;l++) {
+                  fVal += (GetRowElement(pColSteps,l,FALSE,FALSE) * GetRowElement(pCol,l,FALSE,FALSE));
+                }
+                if (pColSteps->fColSum != FLOATZERO) {
+                  fVal /= pColSteps->fColSum;
+                } else {
+                  fVal = FLOATZERO;
+                }
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"StepMean",fVal);
+              }
+            
+              if (pStat->iStatFlags & STATCODE_solvemean) {
+                fVal = FLOATZERO;
+                if (iNumSolutionsFound != 0) {
+                  for (l=0;l<iNumSolutionsFound;l++) {
+                    fVal += GetRowElement(pCol,l,TRUE,FALSE);
+                  }
+                  fVal /= iNumSolutionsFound;
+                }
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"SuccessMean",fVal);
+              }
+
+              if (pStat->iStatFlags & STATCODE_failmean) {
+                fVal = FLOATZERO;
+                if (iNumFail != 0) {
+                  for (l=iNumSolutionsFound;l<iRun;l++) {
+                    fVal += GetRowElement(pCol,l,TRUE,FALSE);
+                  }
+                  fVal /= iNumFail;
+                }
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"FailureMean",fVal);
+              }
+
+              if (pStat->iStatFlags & STATCODE_solvemedian) {
+                if (iNumSolutionsFound == 0) {
+                  fVal = FLOATZERO;
+                } else {
+                  fVal = GetRowElement(pCol,(iNumSolutionsFound-1)>>1,TRUE,FALSE);
+                  if (iNumSolutionsFound % 2 == 0) {
+                    fVal += GetRowElement(pCol,(iNumSolutionsFound)>>1,TRUE,FALSE);
+                    fVal /= 2.0;
+                  }
+                }
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"SuccessMedian",fVal);
+              }
+
+              if (pStat->iStatFlags & STATCODE_failmedian) {
+                if (iNumFail == 0) {
+                  fVal = FLOATZERO;
+                } else {
+                  fVal = GetRowElement(pCol,((iNumFail-1)>>1) + iNumSolutionsFound,TRUE,FALSE);
+                  if (iNumFail % 2 == 0) {
+                    fVal += GetRowElement(pCol,((iNumFail)>>1) + iNumSolutionsFound,TRUE,FALSE);
+                    fVal /= 2.0;
+                  }
+                }
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"FailureMedian",fVal);
+              }
+
+              if (pStat->iStatFlags & STATCODE_solvemin) {
+                if (iNumSolutionsFound == 0) {
+                  fVal = FLOATZERO;
+                } else {
+                  fVal = GetRowElement(pCol,0,TRUE,FALSE);
+                }
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"SuccessMin",fVal);
+              }
+
+              if (pStat->iStatFlags & STATCODE_failmin) {
+                if (iNumFail == 0) {
+                  fVal = FLOATZERO;
+                } else {
+                  fVal = GetRowElement(pCol,iNumSolutionsFound,TRUE,FALSE);
+                }
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"FailureMin",fVal);
+              }
+
+              if (pStat->iStatFlags & STATCODE_solvemax) {
+                if (iNumSolutionsFound == 0) {
+                  fVal = FLOATZERO;
+                } else {
+                  fVal = GetRowElement(pCol,iNumSolutionsFound-1,TRUE,FALSE);
+                }
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"SuccessMax",fVal);
+              }
+
+              if (pStat->iStatFlags & STATCODE_failmax) {
+                if (iNumFail == 0) {
+                  fVal = FLOATZERO;
+                } else {
+                  fVal = GetRowElement(pCol,iRun-1,TRUE,FALSE);
+                }
+                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"FailureMax",fVal);
+              }
             }
           }
         }
@@ -655,7 +788,7 @@ void ReportRTDSetup() {
 }
 
 void PrintRTDRow(UINT32 iRow) {
-  PrintRow(pRepRTD,aSortedBySteps[iRow],iNumRTDColumns,aRTDColumns);
+  PrintRow(pRepRTD,aSortedByStepsAndFound[iRow],iNumRTDColumns,aRTDColumns);
 }
 
 void ReportRTDPrint() {
@@ -687,7 +820,7 @@ void ReportModelPrint() {
       ReportHdrPrint(pRepModel,"\n");
       ReportHdrPrefix(pRepModel);
       if (bWeighted) {
-        ReportHdrPrint1(pRepModel,"Solution found for -wtarget %f\n\n", fTargetW);
+        ReportHdrPrint1(pRepModel,"Solution found for -wtarget %.6g\n\n", fTargetW);
       } else {
         ReportHdrPrint1(pRepModel,"Solution found for -target %u\n\n", iTarget);
       }
@@ -697,15 +830,17 @@ void ReportModelPrint() {
         } else {
           ReportPrint1(pRepModel," %u",j);
         }
-        if (j % 10 == 0)
+        if (j % 10 == 0) {
           ReportPrint(pRepModel,"\n");
+        }
       }
-      if ((j-1) % 10 != 0) 
+      if ((j-1) % 10 != 0) {
         ReportPrint(pRepModel,"\n");
+      }
     } else {
       ReportHdrPrefix(pRepModel);
       if (bWeighted) {
-        ReportHdrPrint1(pRepModel,"No Solution found for -wtarget %f\n\n", fTargetW);
+        ReportHdrPrint1(pRepModel,"No Solution found for -wtarget %.6g\n\n", fTargetW);
       } else {
         ReportHdrPrint1(pRepModel,"No Solution found for -target %u\n", iTarget);
       }
@@ -723,9 +858,9 @@ void ReportCNFStatsPrint() {
 
   UINT32 j;
   UINT32 iMaxClauseLen;
-  FLOAT fAvgLitClause = 0.0;
-  FLOAT fAvgVarOccur = 0.0;
-  FLOAT fStdDevVarOccur = 0.0;
+  FLOAT fAvgLitClause = FLOATZERO;
+  FLOAT fAvgVarOccur = FLOATZERO;
+  FLOAT fStdDevVarOccur = FLOATZERO;
   FLOAT fTemp;
   UINT32 iNumPos;
   UINT32 iNumNeg;
@@ -740,8 +875,9 @@ void ReportCNFStatsPrint() {
 
   iMaxClauseLen = 0;
   for (j=0;j<iNumClauses;j++) {
-    if (aClauseLen[j] > iMaxClauseLen)
+    if (aClauseLen[j] > iMaxClauseLen) {
       iMaxClauseLen = aClauseLen[j];
+    }
   }
   ReportPrint1(pRepCNFStats,"MaxClauseLen = %u\n",iMaxClauseLen);
 
@@ -771,12 +907,12 @@ void ReportCNFStatsPrint() {
     ReportPrint(pRepCNFStats,"\n");
 
     fAvgLitClause = (FLOAT)iNumLits / (FLOAT) iNumClauses;
-    ReportPrint1(pRepCNFStats,"MeanClauseLen = %f \n",fAvgLitClause);
+    ReportPrint1(pRepCNFStats,"MeanClauseLen = %.12g \n",fAvgLitClause);
     
     fAvgVarOccur = (FLOAT) iNumLits / (FLOAT) iNumVars;
-    ReportPrint1(pRepCNFStats,"MeanVariableOcc = %f \n",fAvgVarOccur);
+    ReportPrint1(pRepCNFStats,"MeanVariableOcc = %.12g \n",fAvgVarOccur);
 
-    fStdDevVarOccur = 0.0; 
+    fStdDevVarOccur = FLOATZERO; 
     for (j=1;j<=iNumVars;j++) {
       fTemp = (aNumLitOcc[GetPosLit(j)] + aNumLitOcc[GetNegLit(j)])-fAvgVarOccur;
       fStdDevVarOccur += (fTemp*fTemp);
@@ -784,7 +920,7 @@ void ReportCNFStatsPrint() {
     fStdDevVarOccur /= (FLOAT) (iNumVars-1);
     fStdDevVarOccur = sqrt(fStdDevVarOccur);
     
-    ReportPrint1(pRepCNFStats,"StdDevVariableOcc = %f \n",fStdDevVarOccur);
+    ReportPrint1(pRepCNFStats,"StdDevVariableOcc = %.12g \n",fStdDevVarOccur);
 
     iNumPos = 0;
     iNumNeg = 0;
@@ -795,7 +931,7 @@ void ReportCNFStatsPrint() {
     fPosNegRatio = (FLOAT) iNumPos / (FLOAT) iNumNeg;
     ReportPrint1(pRepCNFStats,"NumPosLit = %u \n",iNumPos);
     ReportPrint1(pRepCNFStats,"NumNegLit = %u \n",iNumNeg);
-    ReportPrint1(pRepCNFStats,"RatioPos:NegLit = %f \n",fPosNegRatio);
+    ReportPrint1(pRepCNFStats,"RatioPos:NegLit = %.12g \n",fPosNegRatio);
   }
 }
 
@@ -845,7 +981,7 @@ void ReportStatePrint() {
     ReportPrint1(pRepState,"%u ",iStep);
 
     if (bWeighted) {
-      ReportPrint1(pRepState,"%f ",fSumFalseW);
+      ReportPrint1(pRepState,"%.12g ",fSumFalseW);
     } else {
       ReportPrint1(pRepState,"%u ",iNumFalse);
     }
@@ -879,7 +1015,7 @@ void ReportBestSolPrint() {
   }
   ReportPrint2(pRepBestSol,"%u %u ",iRun, bSolutionFound);
   if (bWeighted) {
-    ReportPrint1(pRepBestSol,"%f ",fBestSumFalseW);
+    ReportPrint1(pRepBestSol,"%.12g ",fBestSumFalseW);
   } else {
     ReportPrint1(pRepBestSol,"%u ",iBestNumFalse);
   }
@@ -912,7 +1048,7 @@ void ReportBestStepPrint() {
 
   if (bWeighted) {
     if (iBestStepSumFalseW == iStep) {
-      ReportPrint3(pRepBestStep,"%u %u %f ",iRun, iStep, fBestSumFalseW);
+      ReportPrint3(pRepBestStep,"%u %u %.12g ",iRun, iStep, fBestSumFalseW);
       if (bReportBestStepVars) {
         for (j=1;j<=iNumVars;j++) {
           if (aVarValue[j]) {
@@ -954,7 +1090,7 @@ void ReportTrajBestLMPostStep() {
   if (iStep > 1) {
     if (bWeighted) {
       if (iBestStepSumFalseW==(iStep-1)) {
-        ReportPrint3(pRepTrajBestLM,"%u %u %f\n",iRun, iStep-1, fBestSumFalseW);
+        ReportPrint3(pRepTrajBestLM,"%u %u %.12g\n",iRun, iStep-1, fBestSumFalseW);
 
       }
     } else {
@@ -970,7 +1106,7 @@ void ReportTrajBestLMPostRun() {
 
   if (bWeighted) {
     if (iBestStepSumFalseW==(iStep)) {
-      ReportPrint3(pRepTrajBestLM,"%u %u %f\n",iRun, iStep, fBestSumFalseW);
+      ReportPrint3(pRepTrajBestLM,"%u %u %.12g\n",iRun, iStep, fBestSumFalseW);
 
     }
   } else {
@@ -1052,6 +1188,83 @@ void ReportUnsatClausesPrint() {
 
 
 
+/***** Report -r falsehist *****/
+
+void ReportFalseHistPrint() {
+  UINT32 j;
+  if (iRun==1) {
+    ReportHdrPrefix(pRepFalseHist);
+    ReportHdrPrint(pRepFalseHist," Run ID | # times where numfalse = 0 | 1 | 2 | ....\n");
+    if (iReportFalseHistCount) {
+      ReportHdrPrefix(pRepFalseHist);
+      ReportHdrPrint1(pRepFalseHist,"Note: For the last %u steps of the search\n",iReportFalseHistCount);
+    }
+  }
+  ReportPrint1(pRepFalseHist,"%u ",iRun);
+  for (j=0;j<(iNumClauses+1);j++) {
+    ReportPrint1(pRepFalseHist,"%u ",aNumFalseCounts[j]);
+  }
+  ReportPrint(pRepFalseHist,"\n");
+}
+
+
+
+/***** Report -r distance *****/
+
+void ReportDistancePrint() {
+  UINT32 bLocalMin = FALSE;
+  UINT32 bPrint;
+  if ((iRun==1)&&(iStep==1)) {
+    ReportHdrPrefix(pRepDistance);
+    ReportHdrPrint(pRepDistance," Run ID | Step No. | Hamming Distance to Known Solution(s) | Num False (or sum of false weights)\n");
+  }
+
+  bPrint = TRUE;
+  if (bReportDistanceLMOnly) {
+    bLocalMin = IsLocalMinimum(bWeighted);
+    if (!bLocalMin) {
+      bPrint = FALSE;
+    }
+  }
+
+  if (bPrint) {
+    ReportPrint1(pRepDistance,"%u ",iRun);
+    ReportPrint1(pRepDistance,"%u ",iStep);
+
+    ReportPrint1(pRepDistance,"%u ",iSolutionDistance);
+
+    if (bWeighted) {
+      ReportPrint1(pRepDistance,"%.12g ",fSumFalseW);
+    } else {
+      ReportPrint1(pRepDistance,"%u ",iNumFalse);
+    }
+  }
+  ReportPrint(pRepDistance,"\n");
+}
+
+
+
+/***** Report -r DistHistPrint *****/
+
+void ReportDistHistPrint() {
+  UINT32 j;
+  if (iRun==1) {
+    ReportHdrPrefix(pRepDistHist);
+    ReportHdrPrint(pRepDistHist," Run ID | # times where hamming distance to solution(s) = 0 | 1 | 2 | ....\n");
+    if (iReportDistHistCount) {
+      ReportHdrPrefix(pRepDistHist);
+      ReportHdrPrint1(pRepDistHist,"For the last %u steps of the search\n",iReportDistHistCount);
+    }
+  }
+  ReportPrint1(pRepDistHist,"%u ",iRun);
+  for (j=0;j<(iNumVars+1);j++) {
+    ReportPrint1(pRepDistHist,"%u ",aDistanceCounts[j]);
+  }
+  ReportPrint(pRepDistHist,"\n");
+}
+
+
+
 /***** Report -r flipcount *****/
 
 void ReportFlipCountsPrint() {
@@ -1065,6 +1278,32 @@ void ReportFlipCountsPrint() {
     ReportPrint1(pRepFlipCounts," %u",aFlipCounts[j]);
   }
   ReportPrint(pRepFlipCounts,"\n");
+}
+
+
+
+/***** Report -r biascount *****/
+
+void ReportBiasCountsPrint() {
+  UINT32 j;
+  if (iRun==1) {
+    ReportHdrPrefix(pRepBiasCounts);
+    ReportHdrPrint(pRepBiasCounts," Run ID | # Steps False Var[1] | # Steps True Var[1] | Fraction of Steps Same as at End Var[1] | .... Var[2]...\n");
+  }
+  ReportPrint1(pRepBiasCounts,"%u",iRun);
+  for (j=1;j<(iNumVars+1);j++) {
+    ReportPrint2(pRepBiasCounts," %u %u",aBiasFalseCounts[j], aBiasTrueCounts[j]);
+    if (aBiasFalseCounts[j]+aBiasTrueCounts[j]>0) {
+      if (aVarValue[j]) {
+        ReportPrint1(pRepBiasCounts," %5.4f",((FLOAT)aBiasTrueCounts[j])/((FLOAT)(aBiasTrueCounts[j]+aBiasFalseCounts[j])));
+      } else {
+        ReportPrint1(pRepBiasCounts," %5.4f",((FLOAT)aBiasFalseCounts[j])/((FLOAT)(aBiasTrueCounts[j]+aBiasFalseCounts[j])));
+      }
+    } else {
+        ReportPrint1(pRepBiasCounts," %5.4f",FLOATZERO);
+    }
+  }
+  ReportPrint(pRepBiasCounts,"\n");
 }
 
 
@@ -1141,7 +1380,7 @@ void ReportSQGridPrint() {
 
     if (bWeighted) {
       for (j=0;j<iNumLogDistValues;j++) {
-        ReportPrint1(pRepSQGrid," %f",aSQGridW[iNumLogDistValues * (iRun-1) + j]);
+        ReportPrint1(pRepSQGrid," %.12g",aSQGridW[iNumLogDistValues * (iRun-1) + j]);
       }
     } else {
       for (j=0;j<iNumLogDistValues;j++) {
@@ -1192,28 +1431,28 @@ void ReportPenaltyPrintStep() {
       if (bClausePenaltyFLOAT) {
         if (bReportPenaltyReNormFraction) {
           for (j=0;j<iNumClauses;j++) {
-            ReportPrint1(pRepPenalty," %12.10f",aClausePenaltyFL[j] / fTotalPenaltyFL);
+            ReportPrint1(pRepPenalty," %.12g",aClausePenaltyFL[j] / fTotalPenaltyFL);
           }
         } else {
           if (bReportPenaltyReNormBase) {
             for (j=0;j<iNumClauses;j++) {
-              ReportPrint1(pRepPenalty," %f",aClausePenaltyFL[j] / fBasePenaltyFL);
+              ReportPrint1(pRepPenalty," %.12g",aClausePenaltyFL[j] / fBasePenaltyFL);
             }
           } else {
             for (j=0;j<iNumClauses;j++) {
-              ReportPrint1(pRepPenalty," %f",aClausePenaltyFL[j]);
+              ReportPrint1(pRepPenalty," %.12g",aClausePenaltyFL[j]);
             }
           }
         }
       } else {
         if (bReportPenaltyReNormFraction) {
           for (j=0;j<iNumClauses;j++) {
-            ReportPrint1(pRepPenalty," %12.10f",((FLOAT) aClausePenaltyINT[j]) / (FLOAT) iTotalPenaltyINT);
+            ReportPrint1(pRepPenalty," %.12g",((FLOAT) aClausePenaltyINT[j]) / (FLOAT) iTotalPenaltyINT);
           }
         } else {
           if (bReportPenaltyReNormBase) {
             for (j=0;j<iNumClauses;j++) {
-              ReportPrint1(pRepPenalty," %f",((FLOAT) aClausePenaltyINT[j]) / (FLOAT) iBasePenaltyINT);
+              ReportPrint1(pRepPenalty," %.12g",((FLOAT) aClausePenaltyINT[j]) / (FLOAT) iBasePenaltyINT);
             }
           } else {
             for (j=0;j<iNumClauses;j++) {
@@ -1251,7 +1490,7 @@ void ReportPenaltyPrintRun() {
 
       ReportPrint3(pRepPenalty,"%u %u %u ",iRun, iStep, bSolutionFound);
       if (bWeighted) {
-        ReportPrint1(pRepPenalty,"%12f",fBestSumFalseW);
+        ReportPrint1(pRepPenalty,"%.12g",fBestSumFalseW);
       } else {
         ReportPrint1(pRepPenalty,"%u",iBestNumFalse);
       }
@@ -1259,18 +1498,18 @@ void ReportPenaltyPrintRun() {
         if (bReportPenaltyReNormFraction) {
           for (j=0;j<iNumClauses;j++) {
             aPenaltyStatsFinal[j] = aClausePenaltyFL[j] / fTotalPenaltyFL;
-            ReportPrint1(pRepPenalty," %12.10f",aPenaltyStatsFinal[j]);
+            ReportPrint1(pRepPenalty," %.12g",aPenaltyStatsFinal[j]);
           }
         } else {
           if (bReportPenaltyReNormBase) {
             for (j=0;j<iNumClauses;j++) {
               aPenaltyStatsFinal[j] = aClausePenaltyFL[j] / fBasePenaltyFL;
-              ReportPrint1(pRepPenalty," %f",aPenaltyStatsFinal[j]);
+              ReportPrint1(pRepPenalty," %.12g",aPenaltyStatsFinal[j]);
             }
           } else {
             for (j=0;j<iNumClauses;j++) {
               aPenaltyStatsFinal[j] = aClausePenaltyFL[j];
-              ReportPrint1(pRepPenalty," %f",aPenaltyStatsFinal[j]);
+              ReportPrint1(pRepPenalty," %.12g",aPenaltyStatsFinal[j]);
             }
           }
         }
@@ -1278,13 +1517,13 @@ void ReportPenaltyPrintRun() {
         if (bReportPenaltyReNormFraction) {
           for (j=0;j<iNumClauses;j++) {
             aPenaltyStatsFinal[j] = ((FLOAT) aClausePenaltyINT[j]) / (FLOAT) iTotalPenaltyINT;
-            ReportPrint1(pRepPenalty," %12.10f",aPenaltyStatsFinal[j]);
+            ReportPrint1(pRepPenalty," %.12g",aPenaltyStatsFinal[j]);
           }
         } else {
           if (bReportPenaltyReNormBase) {
             for (j=0;j<iNumClauses;j++) {
               aPenaltyStatsFinal[j] = ((FLOAT) aClausePenaltyINT[j]) / (FLOAT) iBasePenaltyINT;
-              ReportPrint1(pRepPenalty," %f",aPenaltyStatsFinal[j]);
+              ReportPrint1(pRepPenalty," %.12g",aPenaltyStatsFinal[j]);
             }
           } else {
             for (j=0;j<iNumClauses;j++) {
@@ -1307,9 +1546,9 @@ void ReportPenaltyPrintRun() {
         for (j=0;j<iNumClauses;j++) {
           CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsFinalSum[j],aPenaltyStatsFinalSum2[j],iRun);
           if (bReportPenaltyReNormFraction) {
-            ReportPrint1(pRepPenalty," %12.10f",fMean);
+            ReportPrint1(pRepPenalty," %.12g",fMean);
           } else {
-            ReportPrint1(pRepPenalty," %f",fMean);
+            ReportPrint1(pRepPenalty," %.12g",fMean);
           }
         }
         ReportPrint(pRepPenalty,"\n");
@@ -1319,11 +1558,11 @@ void ReportPenaltyPrintRun() {
         for (j=0;j<iNumClauses;j++) {
           CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsFinalSum[j],aPenaltyStatsFinalSum2[j],iRun);
           if (bReportPenaltyReNormFraction) {
-            ReportPrint1(pRepPenalty," %12.10f",fStddev);
+            ReportPrint1(pRepPenalty," %.12g",fStddev);
           } else {
-            ReportPrint1(pRepPenalty," %f",fStddev);
+            ReportPrint1(pRepPenalty," %.12g",fStddev);
           }
-          ReportPrint1(pRepPenalty," %f",fStddev);
+          ReportPrint1(pRepPenalty," %.12g",fStddev);
         }
         ReportPrint(pRepPenalty,"\n");
 
@@ -1331,7 +1570,7 @@ void ReportPenaltyPrintRun() {
         ReportHdrPrint(pRepPenalty,"CV");
         for (j=0;j<iNumClauses;j++) {
           CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsFinalSum[j],aPenaltyStatsFinalSum2[j],iRun);
-          ReportPrint1(pRepPenalty," %f",fCV);
+          ReportPrint1(pRepPenalty," %.12g",fCV);
         }
         ReportPrint(pRepPenalty,"\n");
       }
@@ -1363,7 +1602,7 @@ void ReportPenMeanPrint() {
   if (bClausePenaltyCreated) {
     ReportPrint1(pRepPenMean,"%u",iRun);
     for (j=0;j<iNumClauses;j++) {
-      ReportPrint1(pRepPenMean," %f",aPenaltyStatsMean[j]);
+      ReportPrint1(pRepPenMean," %.12g",aPenaltyStatsMean[j]);
     }
     ReportPrint(pRepPenMean,"\n");
 
@@ -1372,7 +1611,7 @@ void ReportPenMeanPrint() {
       ReportHdrPrint(pRepPenMean,"Mean");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsMeanSum[j],aPenaltyStatsMeanSum2[j],iRun);
-        ReportPrint1(pRepPenMean," %f",fMean);
+        ReportPrint1(pRepPenMean," %.12g",fMean);
       }
       ReportPrint(pRepPenMean,"\n");
 
@@ -1380,7 +1619,7 @@ void ReportPenMeanPrint() {
       ReportHdrPrint(pRepPenMean,"Stddev");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsMeanSum[j],aPenaltyStatsMeanSum2[j],iRun);
-        ReportPrint1(pRepPenMean," %f",fStddev);
+        ReportPrint1(pRepPenMean," %.12g",fStddev);
       }
       ReportPrint(pRepPenMean,"\n");
 
@@ -1388,7 +1627,7 @@ void ReportPenMeanPrint() {
       ReportHdrPrint(pRepPenMean,"CV");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsMeanSum[j],aPenaltyStatsMeanSum2[j],iRun);
-        ReportPrint1(pRepPenMean," %f",fCV);
+        ReportPrint1(pRepPenMean," %.12g",fCV);
       }
       ReportPrint(pRepPenMean,"\n");
     }
@@ -1418,7 +1657,7 @@ void ReportPenStddevPrint() {
   if (bClausePenaltyCreated) {
     ReportPrint1(pRepPenStddev,"%u",iRun);
     for (j=0;j<iNumClauses;j++) {
-      ReportPrint1(pRepPenStddev," %f",aPenaltyStatsStddev[j]);
+      ReportPrint1(pRepPenStddev," %.12g",aPenaltyStatsStddev[j]);
     }
     ReportPrint(pRepPenStddev,"\n");
 
@@ -1427,7 +1666,7 @@ void ReportPenStddevPrint() {
       ReportHdrPrint(pRepPenStddev,"Mean");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsStddevSum[j],aPenaltyStatsStddevSum2[j],iRun);
-        ReportPrint1(pRepPenStddev," %f",fMean);
+        ReportPrint1(pRepPenStddev," %.12g",fMean);
       }
       ReportPrint(pRepPenStddev,"\n");
 
@@ -1435,7 +1674,7 @@ void ReportPenStddevPrint() {
       ReportHdrPrint(pRepPenStddev,"Stddev");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsStddevSum[j],aPenaltyStatsStddevSum2[j],iRun);
-        ReportPrint1(pRepPenStddev," %f",fStddev);
+        ReportPrint1(pRepPenStddev," %.12g",fStddev);
       }
       ReportPrint(pRepPenStddev,"\n");
 
@@ -1443,7 +1682,7 @@ void ReportPenStddevPrint() {
       ReportHdrPrint(pRepPenStddev,"CV");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsStddevSum[j],aPenaltyStatsStddevSum2[j],iRun);
-        ReportPrint1(pRepPenStddev," %f",fCV);
+        ReportPrint1(pRepPenStddev," %.12g",fCV);
       }
       ReportPrint(pRepPenStddev,"\n");
     }
@@ -1473,7 +1712,7 @@ void ReportPenCVPrint() {
   if (bClausePenaltyCreated) {
     ReportPrint1(pRepPenCV,"%u",iRun);
     for (j=0;j<iNumClauses;j++) {
-      ReportPrint1(pRepPenCV," %f",aPenaltyStatsCV[j]);
+      ReportPrint1(pRepPenCV," %.12g",aPenaltyStatsCV[j]);
     }
     ReportPrint(pRepPenCV,"\n");
 
@@ -1482,7 +1721,7 @@ void ReportPenCVPrint() {
       ReportHdrPrint(pRepPenCV,"Mean");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsCVSum[j],aPenaltyStatsCVSum2[j],iRun);
-        ReportPrint1(pRepPenCV," %f",fMean);
+        ReportPrint1(pRepPenCV," %.12g",fMean);
       }
       ReportPrint(pRepPenCV,"\n");
 
@@ -1490,7 +1729,7 @@ void ReportPenCVPrint() {
       ReportHdrPrint(pRepPenCV,"Stddev");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsCVSum[j],aPenaltyStatsCVSum2[j],iRun);
-        ReportPrint1(pRepPenCV," %f",fStddev);
+        ReportPrint1(pRepPenCV," %.12g",fStddev);
       }
       ReportPrint(pRepPenCV,"\n");
 
@@ -1498,7 +1737,7 @@ void ReportPenCVPrint() {
       ReportHdrPrint(pRepPenCV,"CV");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsCVSum[j],aPenaltyStatsCVSum2[j],iRun);
-        ReportPrint1(pRepPenCV," %f",fCV);
+        ReportPrint1(pRepPenCV," %.12g",fCV);
       }
       ReportPrint(pRepPenCV,"\n");
     }
@@ -1529,7 +1768,7 @@ void ReportMobilityPrint() {
         fMean /= (FLOAT) iNumVars;
       }
     }
-    ReportPrint1(pRepMobility," %f",fMean);
+    ReportPrint1(pRepMobility," %.12g",fMean);
   }
   ReportPrint(pRepMobility,"\n");
 }
@@ -1582,8 +1821,8 @@ void ReportMobFixedFreqPrint() {
 
         ReportPrint2(pRepMobFixedFreq,"%u %u",iRun,j);
         ReportPrint1(pRepMobFixedFreq," %u",aMobilityFixedFrequencies[j]);
-        ReportPrint1(pRepMobFixedFreq," %g",fCurrent);
-        ReportPrint1(pRepMobFixedFreq," %g\n",fCumulative);
+        ReportPrint1(pRepMobFixedFreq," %.12g",fCurrent);
+        ReportPrint1(pRepMobFixedFreq," %.12g\n",fCumulative);
       }
     }
   } else {
@@ -1605,8 +1844,8 @@ void ReportMobFixedFreqPrint() {
 
       ReportPrint2(pRepMobFixedFreq,"%u %u",iRun,j);
       ReportPrint1(pRepMobFixedFreq," %u",aMobilityFixedFrequencies[j]);
-      ReportPrint1(pRepMobFixedFreq," %g",fCurrent);
-      ReportPrint1(pRepMobFixedFreq," %g\n",fCumulative);
+      ReportPrint1(pRepMobFixedFreq," %.12g",fCurrent);
+      ReportPrint1(pRepMobFixedFreq," %.12g\n",fCumulative);
     }
   }
 }
@@ -1624,9 +1863,84 @@ void ReportAutoCorrPrint() {
   ReportPrint1(pRepAutoCorr,"%u",iRun);
   ReportPrint1(pRepAutoCorr," %u",iAutoCorrLen);
   for (j=1;j<iAutoCorrMaxLen;j++) {
-    ReportPrint1(pRepAutoCorr," %f",aAutoCorrValues[j]);
+    ReportPrint1(pRepAutoCorr," %.12g",aAutoCorrValues[j]);
   }
   ReportPrint(pRepAutoCorr,"\n");
+}
+
+/***** report -r triggers *****/
+/*
+typedef struct typeITEM {
+  char *sID;
+  BOOL bContainer;
+  char *sContainerList;
+} ITEM;
+
+typedef struct typeITEMLIST {
+  UINT32 iNumItems;
+  ITEM aItems[MAXITEMLIST];
+} ITEMLIST;
+
+typedef struct typeTRIGGER {
+  
+  enum EVENTPOINT eEventPoint;
+  FXNPTR pProcedure;
+  
+  BOOL bActive;
+  BOOL bDisabled;
+
+  char *sDependencyList;
+  char *sDeactivateList;
+
+} TRIGGER;
+*/
+void ReportTriggersPrint() {
+
+  UINT32 j,k,l;
+  BOOL bFoundPos;
+  TRIGGER *pTrig;
+  ITEM *pItem;
+
+  ReportHdrPrefix(pRepTriggers);
+  ReportHdrPrint(pRepTriggers," Stage ID | Order | bActive? | bDisabled? | Trigger Name:\n");
+  ReportPrint(pRepTriggers,"\n");
+
+  if (bReportTriggersAll) {
+    for (j=0;j<NUMEVENTPOINTS;j++) {
+      for (k=0;k<listTriggers.iNumItems;k++) {
+        pTrig = &aTriggers[k];
+        pItem = &listTriggers.aItems[k];
+        if (pTrig->eEventPoint== (enum EVENTPOINT) j) {
+          bFoundPos = FALSE;
+          for (l=0;l<aNumActiveProcedures[j];l++) {
+            if (aActiveProcedures[j][l] == pTrig->pProcedure) {
+              ReportPrint2(pRepTriggers,"%2u %u",j,l+1);
+              ReportPrint3(pRepTriggers," %u %u %s\n",pTrig->bActive,pTrig->bDisabled,pItem->sID);
+              bFoundPos = TRUE;
+              break;
+            }
+          }
+          if (!bFoundPos) {
+            ReportPrint1(pRepTriggers,"%2u -",j);
+            ReportPrint3(pRepTriggers," %u %u %s\n",pTrig->bActive,pTrig->bDisabled,pItem->sID);
+          }
+        }
+      }
+    }
+  } else {
+    for (j=0;j<NUMEVENTPOINTS;j++) {
+      for (l=0;l<aNumActiveProcedures[j];l++) {
+        for (k=0;k<listTriggers.iNumItems;k++) {
+          pTrig = &aTriggers[k];
+          pItem = &listTriggers.aItems[k];
+          if ((pTrig->eEventPoint== (enum EVENTPOINT) j)&&(aActiveProcedures[j][l] == pTrig->pProcedure)) {
+            ReportPrint2(pRepTriggers,"%2u %u",j,l+1);
+            ReportPrint3(pRepTriggers," %u %u %s\n",pTrig->bActive,pTrig->bDisabled,pItem->sID);
+          }
+        }
+      }
+    }
+  }
 }
 
 /***** Report -r satcomp *****/
@@ -1653,8 +1967,9 @@ void ReportSatCompetitionPrint() {
       } else {
         ReportPrint1(pRepSATComp," %u",j);
       }
-      if (j % 10 == 0)
+      if (j % 10 == 0) {
         ReportPrint(pRepSATComp,"\nv ");
+      }
     }
     ReportPrint(pRepSATComp," 0\n");
     exit(10);
@@ -1674,11 +1989,12 @@ void CalcPercentSolve() {
 
 
 
-/***** Trigger ActivateStepsColumn *****/
+/***** Trigger ActivateStepsFoundColumns *****/
 
-void ActivateStepsColumn() {
-  ActivateColumns("steps");
+void ActivateStepsFoundColumns() {
+  ActivateColumns("steps,found");
   AddAllocateRAMColumnID(FindItem(&listColumns,"steps"),"");
+  AddAllocateRAMColumnID(FindItem(&listColumns,"found"),"");
 }
 
 
@@ -1930,7 +2246,7 @@ void CalcFPS() {
   REPORTCOL *pCol;
 
   pCol = &aColumns[FindItem(&listColumns,"steps")];
-  fFlipsPerSecond = 0.0;
+  fFlipsPerSecond = FLOATZERO;
   for (j=0;j< iRun;j++) {
     fFlipsPerSecond += GetRowElement(pCol,j,FALSE,FALSE);
   }
@@ -1949,10 +2265,12 @@ void StringAlgParms() {
   
   pNext = sStringAlgParms;
   pNext += sprintf(pNext,"-alg %s",pActiveAlgorithm->sName);
-  if (*(pActiveAlgorithm->sVariant))
+  if (*(pActiveAlgorithm->sVariant)) {
     pNext += sprintf(pNext," -v %s",pActiveAlgorithm->sVariant);
-  if (pActiveAlgorithm->bWeighted)
+  }
+  if (pActiveAlgorithm->bWeighted) {
     pNext += sprintf(pNext," -w");
+  }
   
   for (j=0;j<pActiveAlgorithm->parmList.iNumParms;j++) {
     pCurParm = &pActiveAlgorithm->parmList.aParms[j];
@@ -1966,7 +2284,7 @@ void StringAlgParms() {
         pNext += sprintf(pNext,"%d ", *(int *)pCurParm->pParmValue);
         break;
       case PTypeProbability:
-        pNext += sprintf(pNext,"%f ", ProbToFloat(*(PROBABILITY *)pCurParm->pParmValue));
+        pNext += sprintf(pNext,"%.4g ", ProbToFloat(*(PROBABILITY *)pCurParm->pParmValue));
         break;
       case PTypeString:
         if (**(char **)pCurParm->pParmValue ==0) {
@@ -1976,7 +2294,7 @@ void StringAlgParms() {
         }
         break;
       case PTypeFloat:
-        pNext += sprintf(pNext,"%f ", *(FLOAT *)pCurParm->pParmValue);
+        pNext += sprintf(pNext,"%.6g ", *(FLOAT *)pCurParm->pParmValue);
         break;
       case PTypeBool:
         pNext += sprintf(pNext,"%u ", *(UINT32 *)pCurParm->pParmValue);
@@ -1998,7 +2316,7 @@ void UpdatePercents() {
   REPORTCOL *pCol;
   pCol = &aColumns[FindItem(&listColumns,"prob")];
   for (j=0;j<iRun;j++) {
-    pCol->pfColumnData[aSortedBySteps[j]] = ((FLOAT) (j+1))/((FLOAT)iRun);
+    pCol->pfColumnData[aSortedByStepsAndFound[j]] = ((FLOAT) (j+1))/((FLOAT)iRun);
   }
 
 }
@@ -2015,7 +2333,7 @@ void UpdateTimes() {
   FLOAT *aTimes;
   UINT32 *aSteps;
 
-  FLOAT fTotalSteps = 0.0;
+  FLOAT fTotalSteps = FLOATZERO;
 
   pColTimes = &aColumns[FindItem(&listColumns,"timesteps")];
 
@@ -2097,6 +2415,7 @@ void UpdateMobilityColumn() {
 /***** Trigger CompareSorted *****/
 
 REPORTCOL *pSortCol;
+UINT32 *aFoundData;
 UINT32 *auiSortColData;
 SINT32 *asiSortColData;
 FLOAT *afSortColData;
@@ -2156,6 +2475,87 @@ void SortByCurrentColData(REPORTCOL *pCol) {
 
 }
 
+int CompareFoundSortedUInt(const void *a, const void *b) {
+  UINT32 a1,b1;
+
+  if (aFoundData[*(UINT32 *)a] != aFoundData[*(UINT32 *)b]) {
+    if (aFoundData[*(UINT32 *)a]) {
+      return(-1);
+    } else {
+      return(1);
+    }
+  }
+
+  a1 = auiSortColData[*(UINT32 *)a];
+  b1 = auiSortColData[*(UINT32 *)b];
+  if (a1 < b1) {
+    return(-1);
+  } else if (a1 > b1) {
+    return(1);
+  };
+  return(0);
+}
+
+int CompareFoundSortedSInt(const void *a, const void *b) {
+  if (aFoundData[*(UINT32 *)a] != aFoundData[*(UINT32 *)b]) {
+    if (aFoundData[*(UINT32 *)a]) {
+      return(-1);
+    } else {
+      return(1);
+    }
+  }
+  return (asiSortColData[*(UINT32 *)a] - asiSortColData[*(UINT32 *)b]);
+}
+
+int CompareFoundSortedFloat(const void *a, const void *b) {
+  FLOAT fCompare;
+  if (aFoundData[*(UINT32 *)a] != aFoundData[*(UINT32 *)b]) {
+    if (aFoundData[*(UINT32 *)a]) {
+      return(-1);
+    } else {
+      return(1);
+    }
+  }
+  fCompare = afSortColData[*(UINT32 *)a] - afSortColData[*(UINT32 *)b];
+  if (fCompare < FLOATZERO) {
+    return(-1);
+  } else if (fCompare > FLOATZERO) {
+    return(1);
+  }
+  return(0);
+}
+
+void SortByCurrentColDataAndFound(REPORTCOL *pCol) {
+  
+  UINT32 j;
+  REPORTCOL *pColFound;
+  
+  pColFound = &aColumns[FindItem(&listColumns,"found")];
+  aFoundData = pColFound->puiColumnData;
+  
+  if (aSortedByCurrent == NULL) {
+    aSortedByCurrent = AllocateRAM(sizeof(UINT32) * (iRun));
+  }
+
+  for (j=0;j<iRun;j++) {
+    aSortedByCurrent[j] = j;
+  }
+  
+  pSortCol = pCol;
+
+  if (pSortCol->eFinalDataType == DTypeUInt) {
+    auiSortColData = pSortCol->puiColumnData;
+    qsort((void *)aSortedByCurrent,iRun,sizeof(UINT32),CompareFoundSortedUInt);
+  } else if (pSortCol->eFinalDataType == DTypeSInt) {
+    asiSortColData = pSortCol->psiColumnData;
+    qsort((void *)aSortedByCurrent,iRun,sizeof(UINT32),CompareFoundSortedSInt);
+  } else {
+    afSortColData = pSortCol->pfColumnData;
+    qsort((void *)aSortedByCurrent,iRun,sizeof(UINT32),CompareFoundSortedFloat);
+  }
+
+}
+
 void SortByStepPerformance() {
 
   UINT32 j;
@@ -2168,11 +2568,15 @@ void SortByStepPerformance() {
   pCol = &aColumns[FindItem(&listColumns,"steps")];
 
   SortByCurrentColData(pCol);
-
   aSortedBySteps = AllocateRAM(sizeof(UINT32) * (iRun));
-
   for (j=0;j<iRun;j++) {
     aSortedBySteps[j] = aSortedByCurrent[j];
+  }
+
+  SortByCurrentColDataAndFound(pCol);
+  aSortedByStepsAndFound = AllocateRAM(sizeof(UINT32) * (iRun));
+  for (j=0;j<iRun;j++) {
+    aSortedByStepsAndFound[j] = aSortedByCurrent[j];
   }
 
   bSortedByStepsValid = TRUE;

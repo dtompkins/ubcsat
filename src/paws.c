@@ -103,7 +103,8 @@ void PickPAWS() {
         iBestScore = iScore;
       }
 
-      /* using the "Monte Carlo" method */
+      /* using the "Monte Carlo" method, each variable appears
+         'Make Count' times in the candidate list */
 
       iLoopEnd = iNumCandidates + aMakeCount[iVar];
       
@@ -122,7 +123,7 @@ void PickPAWS() {
 
   if (iBestScore < 0) {
 
-    /* select flip candidate uniformly from candidate list */
+    /* if improving step can be made, select flip candidate uniformly from candidate list */
     
     if (iNumCandidates > 1) {
       iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
@@ -133,8 +134,8 @@ void PickPAWS() {
     
     if (iBestScore == 0) {
 
-      /* with probability (iPAWSFlatMove) flip candidate from candidate list,
-         otherwise it's a null flip */
+      /* if a flat / sideways step can be made, with probability (iPAWSFlatMove) 
+         flip candidate from candidate list, otherwise it's a null flip */
     
       if (RandomProb(iPAWSFlatMove)) {
         if (iNumCandidates > 1) {
@@ -155,7 +156,11 @@ void SmoothPAWS() {
   UINT32 iLoopMax;
   LITTYPE *pLit;
 
+  /* Because iNumPenClauseList can change, keep track of # Initial Clauses in list */
+
   iLoopMax = iNumPenClauseList;
+
+  /* Each clause penalty is going down by one, so total is going down by # clauses */
 
   iTotalPenaltyINT -= iNumPenClauseList;
 
@@ -163,12 +168,23 @@ void SmoothPAWS() {
     
     iClause = aPenClauseList[j];
 
+    /* decrease the clause penalty by one */
+
     aClausePenaltyINT[iClause]--;
+
+    /* if clause penalty is equal to one, remove it from the list of penalized clauses. */
+    
+    /* Note that moving the 'last' penalty to the current location j 
+       doesn't prevent that other penalty from being adjusted as j loops 
+       all the way to iLoopMax */
 
     if (aClausePenaltyINT[iClause]==1) {
       aPenClauseList[aPenClauseListPos[iClause]] = aPenClauseList[--iNumPenClauseList];
       aPenClauseListPos[aPenClauseList[iNumPenClauseList]] = aPenClauseListPos[iClause];
     }
+
+    /* For all false clauses, the 'make' score for each variable in the clause 
+       has to be reduced by one */
 
     if (aNumTrueLit[iClause]==0) { 
       pLit = pClauseLits[iClause];
@@ -177,6 +193,10 @@ void SmoothPAWS() {
         pLit++;
       }
     }
+
+    /* For critically satisfied clauses, the 'break' score for that critical variable 
+       has to be reduced by one */
+
     if (aNumTrueLit[iClause]==1) {
       aBreakPenaltyINT[aCritSat[iClause]]--;
     }
@@ -201,12 +221,14 @@ void ScalePAWS() {
 
     if (aClausePenaltyINT[iClause]==2) {
 
+      /* if the penalty is 2, then add it to the list of penalized clauses */
+
       aPenClauseList[iNumPenClauseList] = iClause;
       aPenClauseListPos[iClause] = iNumPenClauseList++;
 
     }
 
-    /* update cached values */
+    /* The 'make' score for each variable in the clause has to be increased */
 
     pLit = pClauseLits[iClause];
     for (k=0;k<aClauseLen[iClause];k++) {
@@ -219,8 +241,9 @@ void ScalePAWS() {
 
 void PostFlipPAWS() {
 
-  if (iFlipCandidate)
+  if (iFlipCandidate) {
     return;
+  }
 
   /* if a 'null flip' */
 

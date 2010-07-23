@@ -23,7 +23,7 @@ README Release Notes
 
 The website should be consulted for the latest news on the ubcsat project
 
-http://www.satlib.org/ubcsat
+http://www.satlib.org/ubcsat  (or, alternatively, www.cs.ubc.ca/~davet/ubcsat)
 
 * to get started with ubcsat, we recommend you consult the online "Quick Start" guide
 

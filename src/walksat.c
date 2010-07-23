@@ -63,7 +63,7 @@ void PickWalkSatSKC() {
   UINT32 iClauseLen;
   UINT32 iVar;
   LITTYPE *pLit;
-  LITTYPE *pClause;
+  UINT32 *pClause;
   LITTYPE litPick;
   UINT32 iNumOcc;
 
@@ -80,7 +80,6 @@ void PickWalkSatSKC() {
     return;
   }
 
-
   pLit = pClauseLits[iClause];
 
   for (j=0;j<iClauseLen;j++) {
@@ -88,7 +87,7 @@ void PickWalkSatSKC() {
     /* for WalkSAT variants, it's faster to calculate the
        score for each literal than to cache the values 
     
-       note that in this case, score is the breakcount[] */
+       note that in this case, score is just the breakcount[] */
 
     iScore = 0;
     
@@ -130,11 +129,11 @@ void PickWalkSatSKC() {
 
   /* select flip candidate uniformly from candidate list */
   
-  if (iNumCandidates > 1)
+  if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  else
+  } else {
     iFlipCandidate = aCandidateList[0];
-
+  }
 }
 
 
@@ -167,7 +166,7 @@ UINT32 PickClauseWCS() {
 
 void PickWalkSatSKCW() {
 
-  /* for general comments, review the unweighted version */
+  /* weighted varaint -- see regular algorithm for comments */
 
   UINT32 i;
   UINT32 j;
@@ -176,7 +175,7 @@ void PickWalkSatSKCW() {
   UINT32 iClauseLen;
   UINT32 iVar;
   LITTYPE *pLit;
-  LITTYPE *pClause;
+  UINT32 *pClause;
   LITTYPE litPick;
   UINT32 iNumOcc;
 
@@ -194,22 +193,17 @@ void PickWalkSatSKCW() {
   }
 
   pLit = pClauseLits[iClause];
-
   for (j=0;j<iClauseLen;j++) {
-    fScore = 0.0;
-    
+    fScore = FLOATZERO;
     iVar = GetVarFromLit(*pLit);
-    
     iNumOcc = aNumLitOcc[GetNegatedLit(*pLit)];
     pClause = pLitClause[GetNegatedLit(*pLit)];
-    
     for (i=0;i<iNumOcc;i++) {
       if (aNumTrueLit[*pClause]==1) {
         fScore += aClauseWeight[*pClause];
       }
       pClause++;
     }
-
     if (fScore <= fBestScore) {
       if (fScore < fBestScore) {
         iNumCandidates=0;
@@ -217,22 +211,19 @@ void PickWalkSatSKCW() {
       }
       aCandidateList[iNumCandidates++] = iVar;
     }
-
     pLit++;
   }
-
-  if (fBestScore > 0) {
+  if (fBestScore > FLOATZERO) {
     if (RandomProb(iWp)) {
       litPick = pClauseLits[iClause][RandomInt(iClauseLen)];
       iFlipCandidate = GetVarFromLit(litPick);
       return;
     }
   }
-
-  if (iNumCandidates > 1)
+  if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  else
+  } else {
     iFlipCandidate = aCandidateList[0];
-
+  }
 }
 

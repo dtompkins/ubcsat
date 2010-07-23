@@ -28,7 +28,7 @@
 #define RunProcedures2(A) {if (aNumActiveProcedures[A]) {for (iRunProceduresLoop2=0;iRunProceduresLoop2<aNumActiveProcedures[A];iRunProceduresLoop2++) aActiveProcedures[A][iRunProceduresLoop2]();} }
 /* Use RunProcedures2 when calling from outside of the main loop in ubcsat.c */
 
-#define NUMVALIDSTATCODES 21
+#define NUMVALIDSTATCODES 30
 extern const char *sValidStatCodes[];
 
 extern ALGORITHM aAlgorithms[];
@@ -40,6 +40,7 @@ extern ALGPARMLIST parmUBCSAT;
 
 extern BOOL bShowHelp;
 extern BOOL bShowHelpA;
+extern BOOL bShowHelpW;
 extern BOOL bShowHelpP;
 extern BOOL bShowHelpV;
 extern BOOL bShowHelpT;
@@ -56,9 +57,13 @@ extern FXNPTR aActiveProcedures[][MAXFXNLIST];
 extern BOOL bReportOutputSuppress;
 
 extern BOOL bReportStateLMOnly;
+extern BOOL bReportDistanceLMOnly;
 extern FLOAT fReportStateQuality;
 extern BOOL bReportBestStepVars;
 extern BOOL bReportOptClausesSol;
+extern UINT32 iReportFalseHistCount;
+extern BOOL bReportDistanceLMOnly;
+extern UINT32 iReportDistHistCount;
 extern BOOL bReportStateQuality;
 extern UINT32 iReportStateQuality;
 
@@ -66,6 +71,7 @@ extern BOOL bReportPenaltyEveryLM;
 extern BOOL bReportPenaltyReNormBase;
 extern BOOL bReportPenaltyReNormFraction;
 
+extern BOOL bReportTriggersAll;
 
 extern FLOAT fDummy;
 extern FLOAT fFlipsPerSecond;
@@ -137,7 +143,6 @@ UINT32 FindItem(ITEMLIST *pList,char *sID);
 void HelpBadParm();
 void ParseAllParameters(int argc, char *argv[]);
 void PrintAlgParmSettings(REPORT *pRep, ALGPARMLIST *pParmList);
-void PrintFullStat(REPORTSTAT *pStat, const char *sStatID, char *sPrintID, FLOAT fValue);
 void ParseItemList(ITEMLIST *pList, char *sItems, CALLBACKPTR ItemFunction);
 void PrintUBCSATHeader(REPORT *pRep);
 void SetupUBCSAT();

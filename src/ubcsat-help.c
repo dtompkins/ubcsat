@@ -28,6 +28,7 @@
 
 BOOL bShowHelp;
 BOOL bShowHelpA;
+BOOL bShowHelpW;
 BOOL bShowHelpP;
 BOOL bShowHelpV;
 BOOL bShowHelpT;
@@ -38,6 +39,7 @@ BOOL bShowHelpS;
 void HelpNoAlgorithm();
 void HelpBadReport();
 void HelpPrintAlgorithms();
+void HelpPrintAlgorithmsW();
 void HelpPrintParms();
 void HelpShowBasic();
 void HelpShowVerbose();
@@ -54,13 +56,14 @@ void CheckPrintHelp() {
   if (bShowHelp)  HelpShowBasic();
   if (bShowHelpP) HelpPrintParms();
   if (bShowHelpA) HelpPrintAlgorithms();
+  if (bShowHelpW) HelpPrintAlgorithmsW();
   if (bShowHelpR) HelpPrintReports();
   if (bShowHelpC) HelpPrintColumns();
   if (bShowHelpS) HelpPrintStats();
   if (bShowHelpV) HelpShowVerbose();
   if (bShowHelpT) HelpShowTerse();
 
-  if ((bShowHelp)||(bShowHelpP)||(bShowHelpA)||(bShowHelpV)||(bShowHelpT)||(bShowHelpR)||(bShowHelpC)||(bShowHelpS)) {
+  if ((bShowHelp)||(bShowHelpP)||(bShowHelpA)||(bShowHelpW)||(bShowHelpV)||(bShowHelpT)||(bShowHelpR)||(bShowHelpC)||(bShowHelpS)) {
     AbnormalExit();
   }
 
@@ -107,6 +110,7 @@ void HelpShowBasic() {
   ReportPrint(pRepHelp,"For additional help, consult one of the following:\n\n");
   ReportPrint(pRepHelp,"  ubcsat -hp    list all of the [p]arameters\n");
   ReportPrint(pRepHelp,"  ubcsat -ha    list the available [a]lgorithms\n");
+  ReportPrint(pRepHelp,"  ubcsat -hw    list the available [w]eighted algorithms\n");
   ReportPrint(pRepHelp,"  ubcsat -hr    list the available [r]eports\n");
   ReportPrint(pRepHelp,"  ubcsat -hc    For help with the [c]olumns of the default output report\n");
   ReportPrint(pRepHelp,"  ubcsat -hs    For help with the [s]tatistics report\n\n");
@@ -157,11 +161,31 @@ void HelpPrintAlgorithms() {
 
   HelpShowHeader();
 
-  ReportPrint(pRepHelp,"SUPPORTED ALGORITHMS:\n");
-  ReportPrint(pRepHelp,"====================\n\n");
+  ReportPrint(pRepHelp,"SUPPORTED ALGORITHMS: (unweighted)\n");
+  ReportPrint(pRepHelp,"==================================\n\n");
+  ReportPrint(pRepHelp,"see http://www.satlib.org/ubcsat/algorithms for additional info\n\n");
 
   for (j=0;j<iNumAlg;j++) {
-    HelpPrintAlgorithm(&aAlgorithms[j],FALSE,FALSE);
+    if (aAlgorithms[j].bWeighted == FALSE) {
+      HelpPrintAlgorithm(&aAlgorithms[j],FALSE,FALSE);
+    }
+  }
+}
+
+
+void HelpPrintAlgorithmsW() {
+  UINT32 j;
+
+  HelpShowHeader();
+
+  ReportPrint(pRepHelp,"SUPPORTED ALGORITHMS: (weighted)\n");
+  ReportPrint(pRepHelp,"================================\n\n");
+  ReportPrint(pRepHelp,"see http://www.satlib.org/ubcsat/algorithms for additional info\n\n");
+
+  for (j=0;j<iNumAlg;j++) {
+    if (aAlgorithms[j].bWeighted) {
+      HelpPrintAlgorithm(&aAlgorithms[j],FALSE,FALSE);
+    }
   }
 }
 
@@ -258,30 +282,36 @@ void HelpPrintStats() {
   ReportPrint(pRepHelp,"  using the format column[field1+field2+field3...]\n\n");
   ReportPrint(pRepHelp,"Available Fields:   fieldname -  description <Suffix>\n\n");
 
-  ReportPrint(pRepHelp,"      all -  all of the following fields\n");
-  ReportPrint(pRepHelp,"     mean -  mean <Mean>\n");
-  ReportPrint(pRepHelp,"   stddev -  standard deviation <StdDev>\n");
-  ReportPrint(pRepHelp,"       cv -  coefficient of variance: stddev / mean <CoeffVariance>\n");
-  ReportPrint(pRepHelp,"      var -  variance: stddev^2 <Variance>\n");
-  ReportPrint(pRepHelp,"   stderr -  standard error: stddev / sqrt(count) <StdErr>\n");
-  ReportPrint(pRepHelp,"      vmr -  variance to mean ratio: variance / mean <VarMeanRatio>\n");
-  ReportPrint(pRepHelp,"      sum -  sum <Sum>\n");
-  ReportPrint(pRepHelp,"   median -  median value <Median>\n");
-  ReportPrint(pRepHelp,"      min -  minimum <Min>\n");
-  ReportPrint(pRepHelp,"      max -  maximum <Max>\n");
-  ReportPrint(pRepHelp,"      q05 -  corresponding quantile value <Q.05>\n");
-  ReportPrint(pRepHelp,"      q10 -  corresponding quantile value <Q.10>\n");
-  ReportPrint(pRepHelp,"      q25 -  corresponding quantile value <Q.25>\n");
-  ReportPrint(pRepHelp,"      q75 -  corresponding quantile value <Q.75>\n");
-  ReportPrint(pRepHelp,"      q90 -  corresponding quantile value <Q.90>\n");
-  ReportPrint(pRepHelp,"      q95 -  corresponding quantile value <Q.95>\n");
-  ReportPrint(pRepHelp,"      q98 -  corresponding quantile value <Q.98>\n");
-  ReportPrint(pRepHelp,"  qr75/25 -  ratio of the two quantile values <Q.75/25>\n");
-  ReportPrint(pRepHelp,"  qr90/10 -  ratio of the two quantile values <Q.90/10>\n");
-  ReportPrint(pRepHelp,"  qr95/05 -  ratio of the two quantile values <Q.95/05>\n");
-  //ReportPrint(pRepHelp,"  stepavg -  TODO: step-weighted average (mean) <StepAvg>\n");
-  //ReportPrint(pRepHelp," solveavg -  TODO: mean for all successful runs <SuccessAvg>\n");
-  //ReportPrint(pRepHelp,"  failavg -  TODO: mean for all unsuccessful runs <FailAvg>\n");
+  ReportPrint(pRepHelp,"         all -  all of the following fields\n");
+  ReportPrint(pRepHelp,"        mean -  mean <Mean>\n");
+  ReportPrint(pRepHelp,"      stddev -  standard deviation <StdDev>\n");
+  ReportPrint(pRepHelp,"          cv -  coefficient of variance: stddev / mean <CoeffVariance>\n");
+  ReportPrint(pRepHelp,"         var -  variance: stddev^2 <Variance>\n");
+  ReportPrint(pRepHelp,"      stderr -  standard error: stddev / sqrt(count) <StdErr>\n");
+  ReportPrint(pRepHelp,"         vmr -  variance to mean ratio: variance / mean <VarMeanRatio>\n");
+  ReportPrint(pRepHelp,"         sum -  sum <Sum>\n");
+  ReportPrint(pRepHelp,"      median -  median value <Median>\n");
+  ReportPrint(pRepHelp,"         min -  minimum <Min>\n");
+  ReportPrint(pRepHelp,"         max -  maximum <Max>\n");
+  ReportPrint(pRepHelp,"         q05 -  corresponding quantile value <Q.05>\n");
+  ReportPrint(pRepHelp,"         q10 -  corresponding quantile value <Q.10>\n");
+  ReportPrint(pRepHelp,"         q25 -  corresponding quantile value <Q.25>\n");
+  ReportPrint(pRepHelp,"         q75 -  corresponding quantile value <Q.75>\n");
+  ReportPrint(pRepHelp,"         q90 -  corresponding quantile value <Q.90>\n");
+  ReportPrint(pRepHelp,"         q95 -  corresponding quantile value <Q.95>\n");
+  ReportPrint(pRepHelp,"         q98 -  corresponding quantile value <Q.98>\n");
+  ReportPrint(pRepHelp,"     qr75/25 -  ratio of the two quantile values <Q.75/25>\n");
+  ReportPrint(pRepHelp,"     qr90/10 -  ratio of the two quantile values <Q.90/10>\n");
+  ReportPrint(pRepHelp,"     qr95/05 -  ratio of the two quantile values <Q.95/05>\n");
+  ReportPrint(pRepHelp,"    stepmean -  mean weighted by the length of the run <StepMean>\n");
+  ReportPrint(pRepHelp,"   solvemean -  mean from only successful runs <SuccessMean>\n");
+  ReportPrint(pRepHelp,"    failmean -  mean from only unsuccessful runs <FailureMean>\n");
+  ReportPrint(pRepHelp," solvemedian -  median from only successful runs <SuccessMedian>\n");
+  ReportPrint(pRepHelp,"  failmedian -  median from only unsuccessful runs <FailureMedian>\n");
+  ReportPrint(pRepHelp,"    solvemin -  minimum from only successful runs <SuccessMedian>\n");
+  ReportPrint(pRepHelp,"     failmin -  minimum from only unsuccessful runs <FailureMedian>\n");
+  ReportPrint(pRepHelp,"    solvemax -  maxiumum from only successful runs <SuccessMedian>\n");
+  ReportPrint(pRepHelp,"     failmax -  maxiumum from only unsuccessful runs <FailureMedian>\n");
   ReportPrint(pRepHelp,"\n");
 
   ReportPrint(pRepHelp,"Column Statistics available:   colname - <Prefix> [default field(s)]\n");
@@ -406,7 +436,7 @@ void HelpPrintReport(REPORT *pRep) {
           ReportPrint1(pRepHelp," [%u] \n",*(int *)pRep->aParameters[k]);
           break;
         case PTypeFloat:
-          ReportPrint1(pRepHelp," [%g] \n",*(FLOAT *)pRep->aParameters[k]);
+          ReportPrint1(pRepHelp," [%.6g] \n",*(FLOAT *)pRep->aParameters[k]);
           break;
         case PTypeString:
           ReportPrint1(pRepHelp," [%s] \n",(char *)pRep->aParameters[k]);          
@@ -492,13 +522,13 @@ void HelpPrintParameter(ALGPARM *pCurParm, BOOL bAlgOffset) {
       sprintf(sHelpString,"%d",pCurParm->defDefault.iSInt);
       break;
     case PTypeProbability:
-      sprintf(sHelpString,"%3.2f",ProbToFloat(pCurParm->defDefault.iProb));
+      sprintf(sHelpString,"%.4g",ProbToFloat(pCurParm->defDefault.iProb));
       break;
     case PTypeString:
       sprintf(sHelpString,"");
       break;
     case PTypeFloat:
-      sprintf(sHelpString,"%g",pCurParm->defDefault.fFloat);
+      sprintf(sHelpString,"%.6g",pCurParm->defDefault.fFloat);
       break;
     case PTypeReport:
       sprintf(sHelpString,"");
@@ -607,13 +637,13 @@ void HelpPrintParametersTerse(ALGPARMLIST *pParmList) {
         sprintf(sHelpString,"%d",pCurParm->defDefault.iSInt);
         break;
       case PTypeProbability:
-        sprintf(sHelpString,"%3,2f",ProbToFloat(pCurParm->defDefault.iProb));
+        sprintf(sHelpString,"%.4g",ProbToFloat(pCurParm->defDefault.iProb));
         break;
       case PTypeString:
         sprintf(sHelpString,"");
         break;
       case PTypeFloat:
-        sprintf(sHelpString,"%g",pCurParm->defDefault.fFloat);
+        sprintf(sHelpString,"%.6g",pCurParm->defDefault.fFloat);
         break;
       case PTypeReport:
         sprintf(sHelpString,"");
@@ -644,10 +674,12 @@ void HelpPrintAlgParameters(ALGORITHM *pCurAlg) {
 
   if (pCurAlg) {
     ReportPrint1(pRepHelp,"-alg %s",pCurAlg->sName);
-    if (*pCurAlg->sVariant != 0)
+    if (*pCurAlg->sVariant != 0) {
       ReportPrint1(pRepHelp," -v %s",pCurAlg->sVariant);
-    if (pCurAlg->bWeighted)
+    }
+    if (pCurAlg->bWeighted) {
       ReportPrint(pRepHelp," -w");
+    }
     ReportPrint(pRepHelp,"\n");
 
     ReportPrint1(pRepHelp,"  %s\n",pCurAlg->sDescription);
@@ -661,10 +693,12 @@ void HelpPrintAlgParametersTerse(ALGORITHM *pCurAlg) {
 
   if (strcmp(pCurAlg->sName,"default")!=0) {
     ReportPrint1(pRepHelp,"-alg %s",pCurAlg->sName);
-    if (*pCurAlg->sVariant != 0)
+    if (*pCurAlg->sVariant != 0) {
       ReportPrint1(pRepHelp," -v %s",pCurAlg->sVariant);
-    if (pCurAlg->bWeighted)
+    }
+    if (pCurAlg->bWeighted) {
       ReportPrint(pRepHelp," -w");
+    }
     ReportPrint(pRepHelp,"");
   }
   HelpPrintParametersTerse(&pCurAlg->parmList);

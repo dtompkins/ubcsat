@@ -22,34 +22,34 @@
 
 #include "ubcsat.h"
 
-void PickHSat();
-void PickHSatW();
+void PickRGSat();
+void PickRGSatW();
 
-void AddHSat() {
+void AddRGSat() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("hsat","",FALSE,
-    "HSAT",
-    "Gent, Walsh [AAAI 93]",
-    "PickHSat",
-    "DefaultProcedures,Flip+VarScore,VarLastChange",
+  pCurAlg = CreateAlgorithm("rgsat","",FALSE,
+    "RGSAT: Restarting GSAT (poor algorithm -- academic use only)",
+    "Tompkins, Hoos [SAIM 04]",
+    "PickRGSat",
+    "DefaultProcedures,Flip+VarScore",
     "default","default");
-  
-  CreateTrigger("PickHSat",ChooseCandidate,PickHSat,"","");
 
-  pCurAlg = CreateAlgorithm("hsat","",TRUE,
-    "HSAT (weighted)",
-    "Gent, Walsh [AAAI 93]",
-    "PickHSatW",
-    "DefaultProceduresW,Flip+VarScoreW,VarLastChange",
+  CreateTrigger("PickRGSat",CheckRestart,PickRGSat,"","");
+
+  pCurAlg = CreateAlgorithm("rgsat","",TRUE,
+    "RGSAT: Restarting GSAT (poor algorithm -- academic use only) (weighted)",
+    "Tompkins, Hoos [SAIM 04]",
+    "PickRGSatW",
+    "DefaultProceduresW,Flip+VarScoreW",
     "default_w","default");
   
-  CreateTrigger("PickHSatW",ChooseCandidate,PickHSatW,"","");
- 
+  CreateTrigger("PickRGSatW",CheckRestart,PickRGSatW,"","");
+
 }
 
-void PickHSat() {
+void PickRGSat() {
   
   UINT32 j;
   SINT32 iScore;
@@ -57,77 +57,66 @@ void PickHSat() {
   iNumCandidates = 0;
   iBestScore = iNumClauses;
 
-  /* check score of all variables */
+  /* Algorithm is essentially GSAT */
 
   for (j=1;j<=iNumVars;j++) {
-
-    /* use cached value of score */
-
     iScore = aVarScore[j];
-
-    /* build candidate list of best vars */
-
     if (iScore <= iBestScore) {
-
-      /* if 2 variables are tied, and one is 'older' then choose older var */
-
-      if ((iScore < iBestScore)||(aVarLastChange[j]<aVarLastChange[*aCandidateList])) {
+      if (iScore < iBestScore) {
         iNumCandidates=0;
         iBestScore = iScore;
       }
       aCandidateList[iNumCandidates++] = j;
     }
-
   }
-  
-  /* select flip candidate uniformly from candidate list */
-  
-  if (iNumCandidates > 1) {
-    iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
+
+  /* If improving step possible, select flip candidate uniformly from candidate list */
+
+  if (iBestScore < 0) {   
+    if (iNumCandidates > 1) {
+      iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
+    } else {
+      iFlipCandidate = aCandidateList[0];
+    }
   } else {
-    iFlipCandidate = aCandidateList[0];
+
+    /* Otherwise, restart  */
+
+    iFlipCandidate = 0;
+    bRestart = TRUE;
   }
 }
 
-void PickHSatW() {
+
+void PickRGSatW() {
+
+  /* weighted varaint -- see regular algorithm for comments */
   
   UINT32 j;
   FLOAT fScore;
 
   iNumCandidates = 0;
   fBestScore = fTotalWeight;
-
-  /* check score of all variables */
-
   for (j=1;j<=iNumVars;j++) {
-
-    /* use cached value of weighted score */
-
     fScore = aVarScoreW[j];
-
-    /* build candidate list of best vars */
-
     if (fScore <= fBestScore) {
-      
-      /* if 2 variables are tied, and one is 'older' then choose older var */
-
-      if ((fScore < fBestScore)||(aVarLastChange[j]<aVarLastChange[*aCandidateList])) {
+      if (fScore < fBestScore) {
         iNumCandidates=0;
         fBestScore = fScore;
       }
       aCandidateList[iNumCandidates++] = j;
     }
-
   }
-  
-  /* select flip candidate uniformly from candidate list */
-  
-  if (iNumCandidates > 1) {
-    iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
+  if (fBestScore < FLOATZERO) {   
+    if (iNumCandidates > 1) {
+      iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
+    } else {
+      iFlipCandidate = aCandidateList[0];
+    }
   } else {
-    iFlipCandidate = aCandidateList[0];
+    iFlipCandidate = 0;
+    bRestart = TRUE;
   }
 }
-
 
 

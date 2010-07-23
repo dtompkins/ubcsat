@@ -65,7 +65,7 @@ void PickWalkSatTabu()
   SINT32 iScore;
   UINT32 iClauseLen;
   LITTYPE *pLit;
-  LITTYPE *pClause;
+  UINT32 *pClause;
   UINT32 iNumOcc;
   UINT32 iVar;
   
@@ -139,10 +139,11 @@ void PickWalkSatTabu()
 
   /* select flip candidate uniformly from candidate list */
 
-  if (iNumCandidates > 1)
+  if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  else
+  } else {
     iFlipCandidate = aCandidateList[0];
+  }
 
 }
 
@@ -154,7 +155,7 @@ void PickWalkSatTabuW()
   FLOAT fScore;
   UINT32 iClauseLen;
   LITTYPE *pLit;
-  LITTYPE *pClause;
+  UINT32 *pClause;
   UINT32 iNumOcc;
   UINT32 iVar;
   
@@ -229,9 +230,10 @@ void PickWalkSatTabuW()
 
   /* select flip candidate uniformly from candidate list */
   
-  if (iNumCandidates > 1)
+  if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  else
+  } else {
     iFlipCandidate = aCandidateList[0];
+  }
 }
 

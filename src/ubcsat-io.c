@@ -76,10 +76,11 @@ BOOL RandomProb(PROBABILITY iProb) {
   if (iProb==0) {
     return(FALSE);
   }
-  if (fxnRandUInt32() <= iProb)
+  if (fxnRandUInt32() <= iProb) {
     return(TRUE);
-  else
+  } else {
     return(FALSE);
+  }
 }
 
 UINT32 RandomMax() {

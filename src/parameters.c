@@ -30,7 +30,8 @@ void AddParameters() {
 
   AddParmBool(&parmHelp,"-help,--help,-h","general help","","",&bShowHelp,FALSE);
   AddParmBool(&parmHelp,"-helpparam,-hp","list ubcsat parameters","","",&bShowHelpP,FALSE);
-  AddParmBool(&parmHelp,"-helpalg,-ha","list of available algorithms","","",&bShowHelpA,FALSE);
+  AddParmBool(&parmHelp,"-helpalg,-ha","list of available (unweighted) algorithms","","",&bShowHelpA,FALSE);
+  AddParmBool(&parmHelp,"-helpalg,-hw","list of available (weighted) algorithms","","",&bShowHelpW,FALSE);
   AddParmBool(&parmHelp,"-helpreports,-hr","list all reports","","",&bShowHelpR,FALSE);
   AddParmBool(&parmHelp,"-helpcolumns,-hc","help for reports with columns (-r out),(-r rtd)","","",&bShowHelpC,FALSE);
   AddParmBool(&parmHelp,"-helpstats,-hs","help for the statistics report (-r stats)","","",&bShowHelpS,FALSE);
@@ -72,7 +73,7 @@ void AddParameters() {
 
   AddParmString(&parmIO, "-rcomment","specify comment character for report headers (# is default)","","",&sCommentString,"#");
 
-  AddParmString(&parmIO,"-filesol,-fs","specify a file with known solutions (for FDC calc, etc...)","file format is same as output from (-r solution)","LoadKnownSolutions",&sFilenameSoln,"");
+  AddParmString(&parmIO,"-filesol,-fs","specify a file with known solutions","(for FDC calc, distance report, etc...)~file format is same as output from (-r solution)","LoadKnownSolutions",&sFilenameSoln,"");
 
   AddParmString(&parmIO,"-filerand,-fr","specify a file to read random bits from","can be used instead of a pseudo-random number generator~reads 32 bits of random data at a time, and will loop~back to the start of the file if it runs out of bits~file format is binary","FileRandom",&sFilenameRandomData,"");
 

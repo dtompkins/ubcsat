@@ -286,8 +286,9 @@ void ScaleSAPS() {
 
 void PostFlipSAPS() {
 
-  if (iFlipCandidate)
+  if (iFlipCandidate) {
     return;
+  }
 
   /* if a 'null flip' */
 
@@ -341,8 +342,9 @@ void SmoothSAPSWSmooth() {
 }
 
 void PostFlipSAPSWSmooth() {
-  if (iFlipCandidate)
+  if (iFlipCandidate) {
     return;
+  }
 
   if (RandomProb(iPs)) {
     SmoothSAPSWSmooth();
@@ -411,8 +413,9 @@ void PostFlipRSAPS() {
 }
 
 void PostFlipSAPSNR() {
-  if (iFlipCandidate)
+  if (iFlipCandidate) {
     return;
+  }
 
   /* with SAPS/NR, smoothing is made periodic instead of probabilistic */
 
