@@ -1,0 +1,25 @@
+================
+Current Bug List
+================
+
+* none so far, but there will be...
+
+=================================
+Planned changes for version 1.0.1
+=================================
+
+* modify columns so that memory is only allocated when necessary (i.e.: for supressed output & median stats)
+  - for large values of iNumRuns (>10000) memory allocation can be problematic
+
+* add back the following features that were removed temporarily from version 1.0.0 to reduce the scope of testing
+  - statistics used by satzilla
+  - weighted variants of saps and several DLS/penalty reports
+  - 'search visualisation' report
+
+------------------------
+Changes in version 1.0.0
+------------------------
+
+* The changes in 1.0.0 (from 0.9.7) are far too numerous to list
+
+* consult the archive section of the website for older revisions
