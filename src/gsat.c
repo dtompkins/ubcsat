@@ -53,7 +53,7 @@ void AddGSat() {
     "Selman, Levesque, Mitchell [AAAI 93]",
     "PickGSatW",
     "DefaultProceduresW,Flip+VarScoreW",
-    "wdefault","default");
+    "default_w","default");
   
   CreateTrigger("PickGSatW",ChooseCandidate,PickGSatW,"","");
 

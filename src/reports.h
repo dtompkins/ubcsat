@@ -22,24 +22,33 @@
 
 void AddReports();
 
+extern REPORT *pRepHelp;
 extern REPORT *pRepErr;
 
 extern REPORT *pRepOut;
-extern REPORT *pRepStats;
 extern REPORT *pRepRTD;
+extern REPORT *pRepStats;
 extern REPORT *pRepState;
 extern REPORT *pRepModel;
 extern REPORT *pRepSolution;
-extern REPORT *pRepBest;
+extern REPORT *pRepUniqueSol;
+extern REPORT *pRepBestSol;
+extern REPORT *pRepBestStep;
+extern REPORT *pRepTrajBestLM;
 extern REPORT *pRepOptClauses;
 extern REPORT *pRepCNFStats;
 extern REPORT *pRepFlipCounts;
 extern REPORT *pRepUnsatCounts;
 extern REPORT *pRepVarLast;
 extern REPORT *pRepClauseLast;
-extern REPORT *pRepSATComp;
-extern REPORT *pRepPenalty;
-extern REPORT *pRepPenSol;
-extern REPORT *pRepPenMean;
-extern REPORT *pRepPenCV;
 extern REPORT *pRepSQGrid;
+extern REPORT *pRepPenalty;
+extern REPORT *pRepPenMean;
+extern REPORT *pRepPenStddev;
+extern REPORT *pRepPenCV;
+extern REPORT *pRepMobility;
+extern REPORT *pRepMobFixed;
+extern REPORT *pRepMobFixedFreq;
+extern REPORT *pRepAutoCorr;
+extern REPORT *pRepSATComp;
+

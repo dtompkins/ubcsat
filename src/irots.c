@@ -49,9 +49,15 @@ FLOAT fIrotsSavedValueW;
 
 UINT32 iIrotsMode;
 
+UINT32 *aIrotsBackup;
+
 void InitIRoTSParms();
 void InitIRoTS();
 void PostStepIRoTS();
+
+void CreateIRoTSBackup();
+void IRoTSBackup();
+void IRoTSRestore();
 
 void AddIRoTS() {
 
@@ -61,26 +67,28 @@ void AddIRoTS() {
     "IRoTS: Iterated Robust TABU Search",
     "Smyth, Hoos, Stuetzle [AI 2003]",
     "PickRoTS,PostStepIRoTS",
-    "DefaultProcedures,Flip+VarScore,CreateVarStateBackup",
+    "DefaultProcedures,Flip+VarScore,CreateIRoTSBackup",
     "default","default");
   
-  AddParmUInt(&pCurAlg->parmList,"-ltabu","local search tabu tenure","median tabu tenure for local search (default to N/10 + 4)","",&iLSTabuTenure,0);
-  AddParmUInt(&pCurAlg->parmList,"-tabuinterval","tabu interval","tabu +/- interval size as a percent of tabu tenure","",&iTabuTenureInterval,25);
-  AddParmUInt(&pCurAlg->parmList,"-esteps","escape steps", "continue for [esteps] beyond last improving step (default to N^2/4)","",&iIrotsEscapeSteps,0);
-  AddParmUInt(&pCurAlg->parmList,"-psteps","perturb steps", "perturb for exactly [psteps] (default to 0.9*N)","",&iIrotsPerturbSteps,0);
-  AddParmUInt(&pCurAlg->parmList,"-ptabu","perturb tabu tenure", "median tabu tenure for perturbation phase (default to psteps/2)","",&iPerturbTabuTenure,0);
-  AddParmProbability(&pCurAlg->parmList,"-pnoise","IRoTS noise","probability of selecting worst candidate","",&iIrotsNoise,0.10);
+  AddParmUInt(&pCurAlg->parmList,"-ltabu","local search phase median tabu tenure","[default is 0.1n + 4]","",&iLSTabuTenure,0);
+  AddParmUInt(&pCurAlg->parmList,"-tabuinterval","interval size: percent of tabu tenure [default %s]","range of tabu tenure is: tt +/- tt * (INT/100)","",&iTabuTenureInterval,25);
+  AddParmUInt(&pCurAlg->parmList,"-esteps","perturb after INT steps beyond last improving step", "[default is n^2/4]","",&iIrotsEscapeSteps,0);
+  AddParmUInt(&pCurAlg->parmList,"-psteps","perturb for exactly INT steps", "[default is 0.9n]","",&iIrotsPerturbSteps,0);
+  AddParmUInt(&pCurAlg->parmList,"-ptabu","perturb phase median tabu tenure", "[default to psteps/2]","",&iPerturbTabuTenure,0);
+  AddParmProbability(&pCurAlg->parmList,"-pnoise","irots noise [default %s]","probability of selecting the worst of the two candidates","",&iIrotsNoise,0.10);
 
   CreateTrigger("InitIRoTSParms",PreStart,InitIRoTSParms,"","");
   CreateTrigger("InitIRoTS",PreRun,InitIRoTS,"","");
   CreateTrigger("PostStepIRoTS",PostStep,PostStepIRoTS,"InitIRoTS,InitIRoTSParms","");
 
+  CreateTrigger("CreateIRoTSBackup",CreateStateInfo,CreateIRoTSBackup,"","");
+
   pCurAlg = CreateAlgorithm("irots","",TRUE,
     "IRoTS: Iterated Robust TABU Search (weighted)",
     "Smyth, Hoos, Stuetzle [AI 2003]",
     "PickRoTSW,PostStepIRoTS",
-    "DefaultProceduresW,Flip+VarScoreW,CreateVarStateBackup",
-    "wdefault","default");
+    "DefaultProceduresW,Flip+VarScoreW,CreateIRoTSBackup",
+    "default_w","default");
   
   CopyParameters(pCurAlg,"irots","",FALSE);
 
@@ -88,7 +96,7 @@ void AddIRoTS() {
 
 void InitIRoTSParms() {
 
-  /* this variable initialisation scheme is from the paper */
+  /* this variable initialization scheme is from the paper */
   
   if (iLSTabuTenure == 0) iLSTabuTenure = iNumVars / 10 + 4;
   if (iIrotsEscapeSteps == 0) iIrotsEscapeSteps = iNumVars * iNumVars / 4;
@@ -269,7 +277,7 @@ void PostStepIRoTS() {
 
   if (bSave) {
     
-    BackupVarState();
+    IRoTSBackup();
 
     if (bWeighted) {
       fIrotsSavedValueW = fSumFalseW;
@@ -280,7 +288,7 @@ void PostStepIRoTS() {
 
   if (bRestore) {
     
-    RestoreVarState();
+    IRoTSRestore();
 
     /* after restoring the variables, we must reset all state information */
 
@@ -290,4 +298,22 @@ void PostStepIRoTS() {
 
 }
 
+
+void CreateIRoTSBackup() {
+  aIrotsBackup = AllocateRAM((iNumVars+1)*sizeof(UINT32));
+}
+
+void IRoTSBackup() {
+  UINT32 j;
+  for (j=1;j<=iNumVars;j++) {
+    aIrotsBackup[j] = aVarValue[j];
+  }
+}
+
+void IRoTSRestore() {
+  UINT32 j;
+  for (j=1;j<=iNumVars;j++) {
+    aVarValue[j] = aIrotsBackup[j];
+  }
+}
 

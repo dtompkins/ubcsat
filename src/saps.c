@@ -28,11 +28,13 @@ FLOAT fPenaltyImprove;
 PROBABILITY iPs;
 PROBABILITY iRPs;
 
-FLOAT fMaxClausePenalty = 1000.0f;
+const FLOAT fMaxClausePenalty = 1000.0f;
 
 
 void PickSAPS();
 void PostFlipSAPS();
+
+void PostFlipSAPSWSmooth();
 
 void InitRSAPS();
 void PickRSAPS();
@@ -50,24 +52,49 @@ void AddSAPS() {
     "SAPS: Scaling And Probabilistic Smoothing",
     "Hutter, Tompkins, Hoos [CP 02]",
     "PickSAPS,PostFlipSAPS",
-    "DefaultProcedures,Flip+MBP+FCL+VIF",
+    "DefaultProcedures,Flip+MBPFL+FCL+VIF",
     "default","default");
   
-  AddParmFloat(&pCurAlg->parmList,"-alpha","alpha","Algorithm scaling parameter alpha","",&fAlpha,1.3f);
-  AddParmFloat(&pCurAlg->parmList,"-rho","rho","Algorithm smoothing parameter rho","",&fRho,0.8f);
-  AddParmProbability(&pCurAlg->parmList,"-ps","smooth probabilty","When a local minimum is encountered, Smooth Penalties with prob. [ps]","",&iPs,0.05);
-  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability","When a local minimum is encountered, walk with prob. [wp]","",&iWp,0.01);
-  AddParmFloat(&pCurAlg->parmList,"-sapsthresh","SAPS Threshold for Improvement","Sets threshold for detecting a local minimum","",&fPenaltyImprove,-1.0e-01f);
+  AddParmFloat(&pCurAlg->parmList,"-alpha","scaling parameter alpha [default %s]","when a local minimum is encountered,~multiply all unsatisfied cluase penalties by FL","",&fAlpha,1.3f);
+  AddParmFloat(&pCurAlg->parmList,"-rho","smoothing parameter rho [default %s]","when smoothing occurs, smooth penalties by a factor of FL","",&fRho,0.8f);
+  AddParmProbability(&pCurAlg->parmList,"-ps","smooth probabilty [default %s]","when a local minimum is encountered,~smooth penalties with probability PR","",&iPs,0.05);
+  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","when a local minimum is encountered,~flip a random variable with probability PR","",&iWp,0.01);
+  AddParmFloat(&pCurAlg->parmList,"-sapsthresh","threshold for detecting local minima [default %s]","the algorithm considers a local minima to occur when no~improvement greater than FL is possible~the default reflects the value used in SAPS 1.0","",&fPenaltyImprove,-1.0e-01f);
 
   CreateTrigger("PickSAPS",ChooseCandidate,PickSAPS,"","");
   CreateTrigger("PostFlipSAPS",PostFlip,PostFlipSAPS,"","");
+
+
+
+  pCurAlg = CreateAlgorithm("saps","winit",TRUE,
+    "SAPS: (weighted -- init to weights)",
+    "Hutter, Tompkins, Hoos [CP 02]",
+    "PickSAPS,PostFlipSAPS",
+    "DefaultProceduresW,InitClausePenaltyFLW,Flip+MBPFL+FCL+VIF+W",
+    "default_w","default");
+  
+  CopyParameters(pCurAlg,"saps","",FALSE);
+
+
+
+  pCurAlg = CreateAlgorithm("saps","wsmooth",TRUE,
+    "SAPS: (weighted -- init and smooth to weights)",
+    "Hutter, Tompkins, Hoos [CP 02]",
+    "PickSAPS,PostFlipSAPSWSmooth",
+    "DefaultProceduresW,InitClausePenaltyFLW,Flip+MBPFL+FCL+VIF+W",
+    "default_w","default");
+  
+  CopyParameters(pCurAlg,"saps","",FALSE);
+
+  CreateTrigger("PostFlipSAPSWSmooth",PostFlip,PostFlipSAPSWSmooth,"","");
+
 
 
   pCurAlg = CreateAlgorithm("rsaps","",FALSE,
     "RSAPS: Reactive Scaling And Probabilistic Smoothing",
     "Hutter, Tompkins, Hoos [CP 02]",
     "PickSAPS,InitRSAPS,PostFlipRSAPS",
-    "DefaultProcedures,Flip+MBP+FCL+VIF",
+    "DefaultProcedures,Flip+MBPFL+FCL+VIF",
     "default","default");
 
   CopyParameters(pCurAlg,"saps","",FALSE);
@@ -76,17 +103,18 @@ void AddSAPS() {
   CreateTrigger("InitRSAPS",PostInit,InitRSAPS,"","");
 
 
+
   pCurAlg = CreateAlgorithm("sapsnr","",FALSE,
-  "SAPS/NR: De-randomised version of SAPS",
+  "SAPS/NR: De-randomized version of SAPS",
   "Tompkins, Hoos [SAIM 04]",
   "PickSAPSNR,PostFlipSAPSNR",
-  "DefaultProcedures,Flip+MBP+FCL+VIF",
+  "DefaultProcedures,Flip+MBPFL+FCL+VIF",
   "default","default");
 
-  AddParmFloat(&pCurAlg->parmList,"-alpha","alpha","Algorithm scaling parameter alpha","",&fAlpha,1.3f);
-  AddParmFloat(&pCurAlg->parmList,"-rho","rho","Algorithm smoothing parameter rho","",&fRho,0.8f);
-  AddParmProbability(&pCurAlg->parmList,"-ps","smooth periodicity","when a local minimum is encountered, peridically smooth every 1/[ps] steps","",&iPs,0.05);
-  AddParmFloat(&pCurAlg->parmList,"-sapsthresh","SAPS Threshold for Improvement","Sets threshold for detecting a local minimum","",&fPenaltyImprove,-1.0e-01f);
+  AddParmFloat(&pCurAlg->parmList,"-alpha","scaling parameter alpha [default %s]","when a local minimum is encountered,~multiply all unsatisfied cluase penalties by FL","",&fAlpha,1.3f);
+  AddParmFloat(&pCurAlg->parmList,"-rho","smoothing parameter rho [default %s]","when smoothing occurs, smooth penalties by a factor of FL","",&fRho,0.8f);
+  AddParmProbability(&pCurAlg->parmList,"-ps","smooth periodicity [default %s]","peridically smooth every 1/PR local minima","",&iPs,0.05);
+  AddParmFloat(&pCurAlg->parmList,"-sapsthresh","threshold for detecting local minima [default %s]","the algorithm considers a local minima to occur when no~improvement greater than FL is possible~the default reflects the value used in SAPS 1.0","",&fPenaltyImprove,-1.0e-01f);
 
   CreateTrigger("PickSAPSNR",ChooseCandidate,PickSAPSNR,"","");
   CreateTrigger("PostFlipSAPSNR",PostFlip,PostFlipSAPSNR,"NullFlips","");
@@ -109,7 +137,7 @@ void PickSAPS() {
 
     /* use cached value of breakcount - makecount */
 
-    fScore = aBreakPenalty[iVar] - aMakePenalty[iVar];
+    fScore = aBreakPenaltyFL[iVar] - aMakePenaltyFL[iVar];
 
     /* build candidate list of best vars */
 
@@ -153,34 +181,33 @@ void SmoothSAPS() {
 
   /* calculate the average penalty, and adjust by rho */
 
-  fAveragePenalty = fTotalPenalty / (FLOAT) iNumClauses;
+  fAveragePenalty = fTotalPenaltyFL / (FLOAT) iNumClauses;
   fAveragePenalty *= (1.0f - fRho);
 
   /* add the average penalty to each clause penalty */
 
   for(j=0;j<iNumClauses;j++) {
-    aClausePenalty[j] += fAveragePenalty;
+    aClausePenaltyFL[j] += fAveragePenalty;
   }
 
   /* update cached values */
 
-  fBasePenalty += fAveragePenalty;
+  fBasePenaltyFL += fAveragePenalty;
     
-  fTotalPenalty += (fAveragePenalty * (FLOAT) iNumClauses);
+  fTotalPenaltyFL += (fAveragePenalty * (FLOAT) iNumClauses);
 
   for (j=1;j<=iNumVars;j++) {
-    aMakePenalty[j] += fAveragePenalty * (FLOAT) aMakeCount[j];
-    aBreakPenalty[j] += fAveragePenalty * (FLOAT) aBreakCount[j];
+    aMakePenaltyFL[j] += fAveragePenalty * (FLOAT) aMakeCount[j];
+    aBreakPenaltyFL[j] += fAveragePenalty * (FLOAT) aBreakCount[j];
   }
 
 }
-
 
 void AdjustPenalties() {
   
   UINT32 j;
   UINT32 k;
-  BOOL bReScale = 0;
+  BOOL bReScale = FALSE;
   FLOAT fDiff;
   FLOAT fOld;
   LITTYPE *pLit;
@@ -189,37 +216,37 @@ void AdjustPenalties() {
      penalty exceeds the value (1000), divide all penalties by 1000 */
 
   for(j=0;j<iNumFalse;j++) {
-    if (aClausePenalty[aFalseList[j]] > fMaxClausePenalty) {
-      bReScale = 1;
+    if (aClausePenaltyFL[aFalseList[j]] > fMaxClausePenalty) {
+      bReScale = TRUE;
       break;
     }
   }
   
   if (bReScale) {
 
-    fTotalPenalty = 0;
+    fTotalPenaltyFL = 0;
 
-    fBasePenalty /= fMaxClausePenalty;
+    fBasePenaltyFL /= fMaxClausePenalty;
 
     for(j=0;j<iNumClauses;j++) {
 
-      fOld = aClausePenalty[j];
-      aClausePenalty[j] /= fMaxClausePenalty;
-      fDiff = aClausePenalty[j] - fOld;
+      fOld = aClausePenaltyFL[j];
+      aClausePenaltyFL[j] /= fMaxClausePenalty;
+      fDiff = aClausePenaltyFL[j] - fOld;
 
       if (aNumTrueLit[j]==0) {
         pLit = pClauseLits[j];
         for (k=0;k<aClauseLen[j];k++) {
-          aMakePenalty[GetVarFromLit(*pLit)] += fDiff;
+          aMakePenaltyFL[GetVarFromLit(*pLit)] += fDiff;
           pLit++;
         }
       }
 
       if (aNumTrueLit[j]==1) {
-        aBreakPenalty[aCritSat[j]] += fDiff;
+        aBreakPenaltyFL[aCritSat[j]] += fDiff;
       }
 
-      fTotalPenalty += aClausePenalty[j];
+      fTotalPenaltyFL += aClausePenaltyFL[j];
     }
   }
 
@@ -239,20 +266,20 @@ void ScaleSAPS() {
     
     iClause = aFalseList[j];
 
-    fOld = aClausePenalty[iClause];
+    fOld = aClausePenaltyFL[iClause];
 
-    aClausePenalty[iClause] *= fAlpha;
+    aClausePenaltyFL[iClause] *= fAlpha;
 
-    fDiff = aClausePenalty[iClause] - fOld;
+    fDiff = aClausePenaltyFL[iClause] - fOld;
 
     /* update cached values */
 
     pLit = pClauseLits[iClause];
     for (k=0;k<aClauseLen[iClause];k++) {
-      aMakePenalty[GetVarFromLit(*pLit)] += fDiff;
+      aMakePenaltyFL[GetVarFromLit(*pLit)] += fDiff;
       pLit++;
     }
-		fTotalPenalty += fDiff;
+    fTotalPenaltyFL += fDiff;
   }
 }
 
@@ -280,14 +307,61 @@ void PostFlipSAPS() {
 
 }
 
+void SmoothSAPSWSmooth() {
+  
+  UINT32 j;
+  UINT32 k;
+  FLOAT fOld;
+  FLOAT fDiff;
+  LITTYPE *pLit;
+
+  fTotalPenaltyFL = FLOATZERO;
+ 
+  for(j=0;j<iNumClauses;j++) {
+
+  /* smooth penalties back towards original clause weights */
+
+    fOld = aClausePenaltyFL[j];
+    aClausePenaltyFL[j] = aClausePenaltyFL[j] * fRho + aClauseWeight[j] * (1-fRho);
+    fDiff = aClausePenaltyFL[j] - fOld;
+
+    if (aNumTrueLit[j]==0) {
+      pLit = pClauseLits[j];
+      for (k=0;k<aClauseLen[j];k++) {
+        aMakePenaltyFL[GetVarFromLit(*pLit)] += fDiff;
+        pLit++;
+      }
+    }
+    if (aNumTrueLit[j]==1) {
+      aBreakPenaltyFL[aCritSat[j]] += fDiff;
+    }
+    fTotalPenaltyFL += aClausePenaltyFL[j];
+  }
+
+}
+
+void PostFlipSAPSWSmooth() {
+  if (iFlipCandidate)
+    return;
+
+  if (RandomProb(iPs)) {
+    SmoothSAPSWSmooth();
+  }
+
+  /* no call to AdjustPenalties() for WSmooth variant*/
+  
+  ScaleSAPS();
+
+}
+
 void InitRSAPS() {
-	iLastAdaptStep=0;
-	iLastAdaptNumFalse=iNumFalse;
-	iRPs = iPs;
+  iLastAdaptStep=0;
+  iLastAdaptNumFalse=iNumFalse;
+  iRPs = iPs;
 }
 
 void RSAPSAdaptSmooth() {
-	
+  
   UINT32 iInvTheta = 6;
   FLOAT fDelta = 0.1f;
   FLOAT fProb;
@@ -300,10 +374,10 @@ void RSAPSAdaptSmooth() {
     fProb *= fDelta;
     iRPs = FloatToProb(fProb);
 
-	  iLastAdaptStep=iStep;
-	  iLastAdaptNumFalse = iNumFalse;
+    iLastAdaptStep=iStep;
+    iLastAdaptNumFalse = iNumFalse;
 
-	} else if (iNumFalse < iLastAdaptNumFalse) {
+  } else if (iNumFalse < iLastAdaptNumFalse) {
 
     /* if improvement, increase smoothing probability */
 
@@ -311,8 +385,8 @@ void RSAPSAdaptSmooth() {
     fProb += (1.0f - fProb) * 2.0f * fDelta;
     iRPs = FloatToProb(fProb);
 
-	  iLastAdaptStep=iStep;
-	  iLastAdaptNumFalse = iNumFalse;
+    iLastAdaptStep=iStep;
+    iLastAdaptNumFalse = iNumFalse;
   }
 
 }
@@ -371,7 +445,7 @@ void PickSAPSNR() {
 
     /* use cached value of breakcount - makecount */
 
-    fScore = aBreakPenalty[iVar] - aMakePenalty[iVar];
+    fScore = aBreakPenaltyFL[iVar] - aMakePenaltyFL[iVar];
 
     /* build candidate list of best vars */
 

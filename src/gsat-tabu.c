@@ -38,7 +38,7 @@ void AddGSatTabu() {
     "DefaultProcedures,Flip+VarScore,VarLastChange",
     "default","default");
   
-  AddParmUInt(&pCurAlg->parmList,"-tabu","tabu tenure","variables flipped within the last [tabu] steps are tabu","",&iTabuTenure,10);
+  AddParmUInt(&pCurAlg->parmList,"-tabu","tabu tenure [default %s]","variables flipped within the last INT steps are tabu","",&iTabuTenure,10);
 
   CreateTrigger("PickGSatTabu",ChooseCandidate,PickGSatTabu,"","");
 
@@ -47,7 +47,7 @@ void AddGSatTabu() {
     "Mazure, Sais, Gregoire [CP 95]",
     "PickGSatTabuW",
     "DefaultProceduresW,Flip+VarScoreW,VarLastChange",
-    "wdefault","default");
+    "default_w","default");
   
   CopyParameters(pCurAlg,"gsat-tabu","",FALSE);
 

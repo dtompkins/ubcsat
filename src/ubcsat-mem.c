@@ -27,7 +27,7 @@
 */
 
 
-UINT32  iNumHeap = 0;
+UINT32 iNumHeap;
 size_t iLastRequestSize;
 UINT32 iLastHeap;
 
@@ -41,7 +41,7 @@ UBCSATHEAP aHeap[MAXHEAPS];
 
 void *AllocateRAM( size_t size ) {
   UINT32 j;
-  BOOL bFound = 0;
+  BOOL bFound;
   UINT32 iHeapID = 0;
   void *pReturn;
 
@@ -49,11 +49,11 @@ void *AllocateRAM( size_t size ) {
 
   iLastRequestSize = size;
   
-  bFound = 0;
+  bFound = FALSE;
 
   for (j=0;j<iNumHeap;j++) {
     if (aHeap[j].iBytesFree >= size) {
-      bFound = 1;
+      bFound = TRUE;
       iHeapID = j;
       break;
     }

@@ -36,9 +36,9 @@ void AddGWSat() {
     "Selman, Kautz, Cohen [AAAI 94]",
     "PickGWSat",
     "DefaultProcedures,Flip+VarInFalse",
-    "wdefault","default");
+    "default","default");
 
-  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability","Choose random variable from an unsat clause with prob [wp]","",&iWp,0.50);
+  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","with probability PR, select a random variable from those~that appear in unsat clauses","",&iWp,0.50);
 
   CreateTrigger("PickGWSat",ChooseCandidate,PickGWSat,"","");
 
@@ -47,7 +47,7 @@ void AddGWSat() {
     "Selman, Kautz, Cohen [AAAI 94]",
     "PickGWSatW",
     "DefaultProceduresW,VarScoreW,VarInFalse",
-    "wdefault","default");
+    "default_w","default");
 
   CopyParameters(pCurAlg,"gwsat","",FALSE);
 

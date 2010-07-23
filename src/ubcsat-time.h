@@ -30,9 +30,16 @@
 
 void InitSeed();
 
-void StartClock();
-void StopClock();
-double TimeElapsed();
+void StartTotalClock();
+void StopTotalClock();
+
+void StartRunClock();
+void StopRunClock();
+
+double TotalTimeElapsed();
+double RunTimeElapsed();
 
 extern double fTotalTime;
+extern double fRunTime;
+
 

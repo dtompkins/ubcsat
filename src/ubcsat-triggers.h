@@ -63,18 +63,20 @@ extern UINT32 **pLitClause;
 /***** Trigger CandidateList *****/
 /* 
     aCandidateList        array used by algorithms to store 'best' flip candidates
-    iNumCandidates        number of 'best' flip candidates
+    iNumCandidates        current number of 'best' flip candidates
+    iMaxCandidates        maximum size of the array
 */
 
 extern UINT32 *aCandidateList;
 extern UINT32 iNumCandidates;
+extern UINT32 iMaxCandidates;
 
 
 /***** Trigger InitVarsFromFile *****/
 /***** Trigger DefaultInitVars *****/
 /*
-    aVarInit[j]           how variable[j] is initialised each run (0,1,2 => False,True,Random)
-    iInitVarFlip          # of variables to be 're-flipped' after initialisation
+    aVarInit[j]           how variable[j] is initialized each run (0,1,2 => False,True,Random)
+    iInitVarFlip          # of variables to be 're-flipped' after initialization
     bVarInitGreedy        if true, then greedily init vars that have a biased # of pos/neg literals
 */
   
@@ -182,6 +184,12 @@ extern UINT32 *aChangeList;
 extern SINT32 *aChangeOldScore;
 extern UINT32 *aChangeLastStep;
 
+extern UINT32 iNumChangesW;
+extern UINT32 *aChangeListW;
+extern FLOAT *aChangeOldScoreW;
+extern UINT32 *aChangeLastStepW;
+
+
 
 /***** Trigger BestScoreList *****/
 /*
@@ -195,50 +203,72 @@ extern UINT32 *aBestScoreList;
 extern UINT32 *aBestScoreListPos;
 
 
-/***** Trigger ClausePenalty *****/
+/***** Trigger ClausePenaltyFL *****/
 /*
-    aClausePenalty[j]       dynamic clause penalty for clause[j]
+    aClausePenaltyFL[j]     dynamic clause penalty for clause[j]
     bClausePenaltyCreated   boolean to indicate clause penalties exist
-    fBasePenalty            value of smallest possible penalty
-    fTotalPenalty           sum of all penalties
+    bClausePenaltyFLOAT     boolean to indicate clause penalties are floating point values
+    fBasePenaltyFL          value of a "never been modified" clause penalty
+    fTotalPenaltyFL         sum of all penalties
 */
 
-extern FLOAT *aClausePenalty;
+extern FLOAT *aClausePenaltyFL;
 extern BOOL bClausePenaltyCreated;
-extern FLOAT fBasePenalty;
-extern FLOAT fTotalPenalty;
+extern BOOL bClausePenaltyFLOAT;
+extern FLOAT fBasePenaltyFL;
+extern FLOAT fTotalPenaltyFL;
 
 
-/***** Trigger MakeBreakPenalty *****/
+/***** Trigger MakeBreakPenaltyFL *****/
 /*
-    aMakePenalty[j]       (same as aMakeCount, but as a sum of dynaimc clause penalties)  
-    aBreakPenalty[j]      (same as aBreakCount, but as a sum of dynaimc clause penalties)  
+    aMakePenaltyFL[j]       (same as aMakeCount, but as a sum of dynaimc clause penalties)  
+    aBreakPenaltyFL[j]      (same as aBreakCount, but as a sum of dynaimc clause penalties)  
 */
 
-extern FLOAT *aMakePenalty;
-extern FLOAT *aBreakPenalty;
+extern FLOAT *aMakePenaltyFL;
+extern FLOAT *aBreakPenaltyFL;
+
+
+/***** Trigger ClausePenaltyINT *****/
+/*
+    aClausePenaltyINT[j]     dynamic clause penalty for clause[j]
+    bClausePenaltyCreated    boolean to indicate clause penalties exist
+    bClausePenaltyFLOAT      boolean to indicate clause penalties are floating point values
+    iInitPenaltyINT          initialization value for penalties
+    iBasePenaltyINT          value of a "never been modified" clause penalty
+    iTotalPenaltyINT         sum of all penalties
+*/
+
+extern UINT32 *aClausePenaltyINT;
+extern UINT32 iInitPenaltyINT;
+extern UINT32 iBasePenaltyINT;
+extern UINT32 iTotalPenaltyINT;
+
+
+/***** Trigger MakeBreakPenaltyINT *****/
+/*
+    aMakePenaltyINT[j]       (same as aMakeCount, but as a sum of dynaimc clause penalties)  
+    aBreakPenaltyINT[j]      (same as aBreakCount, but as a sum of dynaimc clause penalties)  
+*/
+
+extern UINT32 *aMakePenaltyINT;
+extern UINT32 *aBreakPenaltyINT;
 
 
 /***** Trigger NullFlips *****/
 /*
-    iNumNullFlip          number of null flips (steps where iFlipCandidate == 0)
+    iNumNullFlips         number of null flips (steps where iFlipCandidate == 0)
 */
 
 extern UINT32 iNumNullFlips;
 
  
-/***** Trigger VarStateBackup *****/
-/*    
-    aVarStateBackup[j]    backup value of variable[j]...used with BackupVarState() & RestoreVarState
-
-    BackupVarState()      routine to back up current variable state
-    RestoreVarState()     routine to restore backed up variable state
+/***** Trigger LocalMins *****/
+/*
+    LocalMins              number of local minima encountered this run
 */
 
-extern void BackupVarState();
-extern void RestoreVarState();
-
-extern UINT32 *aVarStateBackup;
+extern UINT32 iNumLocalMins;
 
 
 /***** Trigger LogDist *****/
@@ -269,9 +299,70 @@ extern UINT32 iBestStepSumFalseW;
 
 /***** Trigger SaveBest *****/
 /*
-    aVarStateBest[j]          the candidate solution for the best solution quality seen this run   
+    vsBest                the candidate solution for the best solution quality seen this run   
 */
-extern UINT32 *aVarStateBest;
+extern VARSTATE vsBest;
+
+
+/***** Trigger StartFalse *****/
+/*
+    iStartNumFalse            value of iNumFalse on Step 1
+    fStartSumFalseW           value of fSumFalseW on Step 1
+*/
+
+extern UINT32 iStartNumFalse;
+extern FLOAT fStartSumFalseW;
+
+
+/***** Trigger ImproveMean *****/
+/*
+    fImproveMean              Mean Improvement per Step to Best Solution
+    fImproveMeanW             Mean Improvement per Step to Best Solution Quality
+*/
+
+extern FLOAT fImproveMean;
+extern FLOAT fImproveMeanW;
+
+
+/***** Trigger FirstLM *****/
+
+/*
+    iFirstLM                  # of false clauses @ first local minimum
+    iFirstLMStep              step of the first local minimum encountered
+    fFirstLMW                 Solution quality @ first weighted local minimum
+    iFirstLMStepW             step of the first weighted local minimum encountered
+*/
+
+extern UINT32 iFirstLM;
+extern UINT32 iFirstLMStep;
+extern FLOAT fFirstLMW;
+extern UINT32 iFirstLMStepW;
+
+
+/***** Trigger FirstLMRatio *****/
+
+/*
+    fFirstLMRatio             (iStartNumFalse - iFirstLM) / (iStartNumFalse - iBestNumFalse)
+    fFirstLMRatioW            (fStartSumFalseW - fFirstLMW) / (fStartSumFalseW - fBestSumFalseW)
+*/
+
+extern FLOAT fFirstLMRatio;
+extern FLOAT fFirstLMRatioW;
+
+
+/***** Trigger TrajBestLM *****/
+
+/*
+    fTrajBestLMMean           Mean of # False @ every new best encountered that's a LM on the trajectory
+    fTrajBestLMMeanW          Weighted Mean of Sol. Quality @ ... 
+    fTrajBestLMMeanCV         CV of # False @ ... 
+    fTrajBestLMMeanCVW        Weighted CV of Sol. Quality @ ... 
+*/
+
+extern FLOAT fTrajBestLMMean;
+extern FLOAT fTrajBestLMMeanW;
+extern FLOAT fTrajBestLMCV;
+extern FLOAT fTrajBestLMCVW;
 
 
 /***** Trigger NoImprove *****/
@@ -312,12 +403,36 @@ extern UINT32 iStartSeed;
 extern UINT32 *aFlipCounts;
 
 
+/***** Trigger FlipCountStats *****/
+/*
+    fFlipCountsMean       Mean of aFlipCounts[] excluding [0] (NullFlips)
+    fFlipCountsStdDev     StdDev of aFlipCounts[] excluding [0] (NullFlips)
+    fFlipCountsCV         CV of aFlipCounts[] excluding [0] (NullFlips)
+*/
+
+extern FLOAT fFlipCountsMean;
+extern FLOAT fFlipCountsCV;
+extern FLOAT fFlipCountsStdDev;
+
+
 /***** Trigger UnsatCounts *****/
 /*
     aUnsatCounts[j]       # of steps that clause[j] has been unsatisfied
 */
 
 extern UINT32 *aUnsatCounts;
+
+
+/***** Trigger UnsatCountStats *****/
+/*
+    fUnsatCountsMean      Mean of aUnsatCounts[]
+    fUnsatCountsStdDev    StdDev of aUnsatCounts[]
+    fUnsatCountsCV        CV of aUnsatCounts[]
+*/
+
+extern FLOAT fUnsatCountsMean;
+extern FLOAT fUnsatCountsCV;
+extern FLOAT fUnsatCountsStdDev;
 
 
 /***** Trigger ClauseLast *****/
@@ -337,3 +452,154 @@ extern UINT32 *aClauseLast;
 extern FLOAT *aSQGridW;
 extern UINT32 *aSQGrid;
 
+/***** Trigger PenaltyStats *****/
+/*
+    aPenaltyStatsMean[j]    for current run, clause j, Clause Penalty Mean
+    aPenaltyStatsStddev[j]  for current run, clause j, Clause Penalty Stddev
+    aPenaltyStatsCV[j]      for current run, clause j, Clause Penalty CV
+*/
+
+extern FLOAT *aPenaltyStatsMean;
+extern FLOAT *aPenaltyStatsStddev;
+extern FLOAT *aPenaltyStatsCV;
+
+extern FLOAT *aPenaltyStatsSum;
+extern FLOAT *aPenaltyStatsSum2;
+
+extern FLOAT *aPenaltyStatsMeanSum;
+extern FLOAT *aPenaltyStatsMeanSum2;
+extern FLOAT *aPenaltyStatsStddevSum;
+extern FLOAT *aPenaltyStatsStddevSum2;
+extern FLOAT *aPenaltyStatsCVSum;
+extern FLOAT *aPenaltyStatsCVSum2;
+
+
+/***** Trigger VarFlipHistory *****/
+/* 
+    aVarFlipHistory[j]      circular array: last iVarFlipHistoryLen variables flipped
+    iVarFlipHistoryLen      size of circular array aVarFlipHistory [default = 2 * #Vars]
+*/
+
+extern UINT32 *aVarFlipHistory;
+extern UINT32 iVarFlipHistoryLen;
+
+
+
+/***** Trigger MobilityWindow *****/
+/*
+    aMobilityWindow[j]      Current hamming distance for mobility window length of j
+    aMobilityWindowSum[j]   Cumulative sum of aMobilityWindow[j]
+    aMobilityWindowSum2[j]  Cumulative sum of aMobilityWindow[j] ^2
+*/
+
+extern UINT32 *aMobilityWindow;
+extern FLOAT *aMobilityWindowSum;
+extern FLOAT *aMobilityWindowSum2;
+
+
+/***** Trigger MobilityFixedFrequencies *****/
+/*
+    aMobilityFixedFrequencies[j]  # of times value j has occured for aMobilityWindow[iMobFixedWindow]
+*/
+
+extern UINT32 *aMobilityFixedFrequencies;
+
+
+
+/***** Trigger AutoCorr *****/
+/*
+    iAutoCorrMaxLen     Length of auto-correlation window (Maximum value of ACL)
+    fAutoCorrCutoff     Value at which the auto-correlation value drops below to set ACL
+    iAutoCorrLen        Auto-correlation length (calculated at the end of each run)
+    aAutoCorrValues     Auto-correlation values (calculated at the end of each run)
+*/
+
+extern UINT32 iAutoCorrMaxLen;
+extern FLOAT fAutoCorrCutoff;
+extern UINT32 iAutoCorrLen;
+extern FLOAT *aAutoCorrValues;
+
+
+
+/***** Trigger AutoCorrOne *****/
+/*
+    fAutoCorrOneVal     Auto-correlation of distance one
+    fAutoCorrOneEst     Estimated ACL from fAutoCorrOneVal = -1/ln(|.|)
+*/
+
+extern FLOAT fAutoCorrOneVal;
+extern FLOAT fAutoCorrOneEst;
+
+
+
+/***** Trigger BranchFactor *****/
+/*
+    fBranchFactor       Branching Factor: # "sideways" step vars / # vars
+    fBranchFactorW      Weighted Branching Factor: # "sideways" step vars / # vars
+*/
+
+extern FLOAT fBranchFactor;
+extern FLOAT fBranchFactorW;
+
+
+
+/***** Trigger StepsUpDownSide *****/
+/*  
+    iNumUpSteps         Number of "up" steps this run
+    iNumDownSteps       Number of "down" steps this run
+    iNumSideSteps       Number of "sideways" steps this run
+*/
+  
+extern UINT32 iNumUpSteps;
+extern UINT32 iNumDownSteps;
+extern UINT32 iNumSideSteps;
+extern UINT32 iNumUpStepsW;
+extern UINT32 iNumDownStepsW;
+extern UINT32 iNumSideStepsW;
+
+
+/***** Trigger NumRestarts *****/
+/*  
+    iNumRestarts        Number of Restarts (excl. initialization)
+*/
+  
+extern UINT32 iNumRestarts;
+
+
+/***** Trigger LoadKnownSolutions *****/
+/*
+    bKnownSolutions         TRUE if Known Solutions > 0
+    vslKnownSoln            VARSTATELIST of Known Solutions
+*/
+
+extern VARSTATELIST vslKnownSoln;
+extern BOOL bKnownSolutions;
+
+
+/***** Trigger FDCRun *****/
+/*
+    fFDCRun                 FDC for the current run (updated at end), using LM points only
+*/
+
+extern FLOAT fFDCRun;
+
+
+/***** Trigger DynamicParms *****/
+
+
+/***** Trigger FlushBuffers *****/
+
+
+/***** Trigger CheckWeighted *****/
+
+
+/***** Trigger UniqueSolutions *****/
+/*
+    vslUnique               linked list of all unique solutions
+    iNumUniqueSolutions     number of unique solutions found so far
+    iLastUnique             Run of the last unique solution found
+*/
+
+extern VARSTATELIST vslUnique;
+extern UINT32 iNumUniqueSolutions;
+extern UINT32 iLastUnique;

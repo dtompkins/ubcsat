@@ -108,8 +108,15 @@ void AddAgeStat() {
     UpdateCurVarAge,
     "VarLastChange",
     "");
+
+  AddStatCol("agemean",                                           /* column statistic for the -r stats report */
+    "MeanAge",                                                    /* prefix for the report */
+    "mean+cv+median+min+max",                                     /* default stats to show */
+    FALSE);                                                       /* specify TRUE to sort by the steps column (for median, etc.) instead of this column */
+
 }
 
 void UpdateCurVarAge() {
   iCurVarAge = iStep - aVarLastChange[iFlipCandidate];
 }
+

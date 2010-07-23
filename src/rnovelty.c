@@ -112,18 +112,20 @@ void PickRNoveltyCore()
     pClause = pLitClause[*pLit];
     
     for (i=0;i<iNumOcc;i++) {
-      if (aNumTrueLit[*pClause++]==0) {
+      if (aNumTrueLit[*pClause]==0) {
         iScore--;
       }
+      pClause++;
     }
 
     iNumOcc = aNumLitOcc[GetNegatedLit(*pLit)];
     pClause = pLitClause[GetNegatedLit(*pLit)];
     
     for (i=0;i<iNumOcc;i++) {
-      if (aNumTrueLit[*pClause++]==1) {
+      if (aNumTrueLit[*pClause]==1) {
         iScore++;
       }
+      pClause++;
     }
 
     /* keep track of which literal was the 'youngest' */

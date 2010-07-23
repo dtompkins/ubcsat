@@ -27,8 +27,21 @@
     Hopefully you won't have any problems compiling in your environment
 */
 
+void StartTotalClock();
+void StopTotalClock();
+
+void StartRunClock();
+void StopRunClock();
+
+double TotalTimeElapsed();
+double RunTimeElapsed();
+
 double fTotalTime;
-double fStartTimeStamp;
+double fRunTime;
+
+double fStartTotalTimeStamp;
+double fStartRunTimeStamp;
+
 double fCurrentTimeStamp;
 
 #ifdef WIN32
@@ -52,23 +65,14 @@ double fCurrentTimeStamp;
 
   void InitSeed() {
     _ftime( &tstruct );
-    iSeed = (( tstruct.time & 0x001FFFFF ) * 1000) + tstruct.millitm;
-  }
-
-  double TimeElapsed()
-  {
-    double answer;
-
-    CurrentTime();
-    answer = fCurrentTimeStamp - fStartTimeStamp;
-    return answer;
+    iSeed = (( ((UINT32) tstruct.time) & 0x001FFFFF ) * 1000) + tstruct.millitm;
   }
 
 #else
 
   void CurrentTime() {
     times(&prog_tms);
-    fCurrentTimeStamp = (double)prog_tms.tms_utime;
+    fCurrentTimeStamp = (double)prog_tms.tms_utime / ((double)sysconf(_SC_CLK_TCK));
   }
 
   void InitSeed() {
@@ -78,23 +82,43 @@ double fCurrentTimeStamp;
 
   }
 
-  double TimeElapsed() {
-
-    double answer;
-
-    times(&prog_tms);
-    answer = (((double)prog_tms.tms_utime-fStartTimeStamp)/((double)sysconf(_SC_CLK_TCK)));
-    return answer;
-  }
-
 #endif
 
-void StartClock() {
+double TimeElapsed(double fStart)
+{
   CurrentTime();
-  fStartTimeStamp = fCurrentTimeStamp;
+  if ((fCurrentTimeStamp - fStart) <= FLOATZERO) {
+    return(FLOATZERO);
+  } else {
+    return(fCurrentTimeStamp - fStart);
+  }
+}
+  
+void StartTotalClock() {
+  CurrentTime();
+  fStartTotalTimeStamp = fCurrentTimeStamp;
 }
 
-void StopClock() {
-  fTotalTime = TimeElapsed();
+void StartRunClock() {
+  CurrentTime();
+  fStartRunTimeStamp = fCurrentTimeStamp;
+}
+
+double TotalTimeElapsed() {
+  return(TimeElapsed(fStartTotalTimeStamp));
+}
+
+double RunTimeElapsed() {
+  return(TimeElapsed(fStartRunTimeStamp));
+}
+
+
+void StopTotalClock() {
+  fTotalTime = TotalTimeElapsed();
+}
+
+
+void StopRunClock() {
+  fRunTime = RunTimeElapsed();
 }
 

@@ -46,14 +46,21 @@ void InitVarsFromFile();
 
 extern FILE *filReportPrint;
 
-#define ReportPrint(pRep, sFormat) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if (filReportPrint) fprintf(filReportPrint,sFormat); if (bReportEcho && (filReportPrint != stdout)) fprintf(stdout,sFormat); }
-#define ReportPrint1(pRep, sFormat, pVal1) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if (filReportPrint) fprintf(filReportPrint,sFormat,pVal1); if (bReportEcho && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1); }
-#define ReportPrint2(pRep, sFormat, pVal1, pVal2) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if (filReportPrint) fprintf(filReportPrint,sFormat,pVal1,pVal2); if (bReportEcho && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1,pVal2); }
-#define ReportPrint3(pRep, sFormat, pVal1, pVal2, pVal3) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if (filReportPrint) fprintf(filReportPrint,sFormat,pVal1,pVal2,pVal3); if (bReportEcho && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1,pVal2,pVal3); }
+#define ReportPrint(pRep, sFormat) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat); }
+#define ReportPrint1(pRep, sFormat, pVal1) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat,pVal1); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1); }
+#define ReportPrint2(pRep, sFormat, pVal1, pVal2) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat,pVal1,pVal2); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1,pVal2); }
+#define ReportPrint3(pRep, sFormat, pVal1, pVal2, pVal3) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat,pVal1,pVal2,pVal3); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1,pVal2,pVal3); }
 
 
-#define ReportHdrPrefix(pRep) {if (!bReportClean) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if (filReportPrint) fprintf(filReportPrint,"%s ",sCommentString); if (bReportEcho && (filReportPrint != stdout)) fprintf(stdout,"%s ",sCommentString); }}
-#define ReportHdrPrint(pRep, sFormat) { if (!bReportClean) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if (filReportPrint) fprintf(filReportPrint,sFormat); if (bReportEcho && (filReportPrint != stdout)) fprintf(stdout,sFormat); }}
-#define ReportHdrPrint1(pRep, sFormat, pVal1) { if (!bReportClean) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if (filReportPrint) fprintf(filReportPrint,sFormat,pVal1); if (bReportEcho && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1); }}
-#define ReportHdrPrint2(pRep, sFormat, pVal1, pVal2) { if (!bReportClean) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if (filReportPrint) fprintf(filReportPrint,sFormat,pVal1,pVal2); if (bReportEcho && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1,pVal2); }}
+#define ReportHdrPrefix(pRep) {if (!bReportClean) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,"%s ",sCommentString); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,"%s ",sCommentString); }}
+#define ReportHdrPrint(pRep, sFormat) { if (!bReportClean) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat); }}
+#define ReportHdrPrint1(pRep, sFormat, pVal1) { if (!bReportClean) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat,pVal1); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1); }}
+#define ReportHdrPrint2(pRep, sFormat, pVal1, pVal2) { if (!bReportClean) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat,pVal1,pVal2); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1,pVal2); }}
+
+extern char *sFilenameRandomData;
+extern char *sFilenameAbort;
+void CreateFileRandom();
+void CloseFileRandom();
+void FileAbort();
+
 

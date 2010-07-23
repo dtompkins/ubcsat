@@ -27,7 +27,6 @@
     file access and random number generators
 */
 
-
 #define MERSENNE
 
 #ifdef MERSENNE
@@ -41,7 +40,7 @@
     FXNRAND32 fxnRandUInt32 = (UINT32 (*)()) rand;
     #define fxnRandSeed(A) srand(A)
   #else
-    FXNRAND32 fxnRandUInt32 = random;
+    FXNRAND32 fxnRandUInt32 = (UINT32 (*)()) random;
     #define fxnRandSeed(A) srandom(A)
   #endif
 #endif
@@ -65,7 +64,7 @@ FLOAT RandomFloat() {
   FLOAT fNum;
   iNum = fxnRandUInt32();
   fNum = (FLOAT) iNum;
-  fNum /= 0xFFFFFFFF;
+  fNum /= 4294967295.0;
   return(fNum);
 }
 
@@ -113,14 +112,14 @@ void SetupFile(FILE **fFil,const char *sOpenType, const char *sFilename, FILE *f
   if (*sFilename) {
     if (strcmp(sFilename,"null")==0) {
       if (bAllowNull) {
-        (*fFil) = 0;  
+        (*fFil) = NULL;  
       } else {
         fprintf(stderr,"Fatal Error: Invalid use of null i/o\n");
         AbnormalExit();
       }
     } else {
       (*fFil) = fopen(sFilename,sOpenType);
-      if ((*fFil) == 0) {
+      if ((*fFil) == NULL) {
         printf("Fatal Error: Invalid filename [%s] specified \n",sFilename);
         AbnormalExit();
       }
@@ -136,7 +135,7 @@ void ActivateReportTriggers() {
 
   for (j=0;j<iNumReports;j++) {
     if (strcmp(aReports[j].sOutputFile,"null")==0) {
-      aReports[j].bActive = 0;
+      aReports[j].bActive = FALSE;
       aReports[j].fileOut = 0;
     }
     if (aReports[j].bActive) {
@@ -145,13 +144,15 @@ void ActivateReportTriggers() {
       } else if (strcmp(aReports[j].sOutputFile,"stderr")==0) {
         aReports[j].fileOut = stderr;
       } else {
-        aReports[j].fileOut = fopen(aReports[j].sOutputFile,"w");
-        if (aReports[j].fileOut == 0) {
-          printf("Fatal Error: Invalid filename [%s] specified \n",aReports[j].sOutputFile);
-          AbnormalExit();
+        if (aReports[j].bSpecialFileIO == FALSE) {
+          aReports[j].fileOut = fopen(aReports[j].sOutputFile,"w");
+          if (aReports[j].fileOut == 0) {
+            printf("Fatal Error: Invalid filename [%s] specified \n",aReports[j].sOutputFile);
+            AbnormalExit();
+          }
         }
       }
-      ParseItemList(&listTriggers,aReports[j].sTriggers,ActivateTrigger);
+      ActivateTriggers(aReports[j].sTriggers);
     }
   }
 
@@ -167,7 +168,9 @@ void CloseReports() {
   UINT32 j;
   for (j=0;j<iNumReports;j++) {
     if (aReports[j].bActive) {
-      CloseSingleFile(aReports[j].fileOut);
+      if (aReports[j].bSpecialFileIO == FALSE) {
+        CloseSingleFile(aReports[j].fileOut);
+      }
     }
   }
 }
@@ -184,4 +187,88 @@ void CleanExit() {
 }
 
 FILE *filReportPrint;
+
+
+FILE *filRandomData;
+char *sFilenameRandomData;
+char *sFilenameAbort;
+BYTE *pRandomDataBuffer;
+UINT32 iRandomBufferRemaining;
+BYTE *pNextRandomData;
+BOOL bCycleData;
+UINT32 iCycleDataLen;
+
+UINT32 FileRandomUInt32() {
+  UINT32 iReturn = 0;
+  UINT32 j;
+  if (iRandomBufferRemaining >= 4) {
+    iReturn = *pNextRandomData++;
+    iReturn = (iReturn << 8) | *pNextRandomData++;
+    iReturn = (iReturn << 8) | *pNextRandomData++;
+    iReturn = (iReturn << 8) | *pNextRandomData++;
+    iRandomBufferRemaining -= 4;
+  } else {
+    j = 4;
+    while (j--) {
+      if (iRandomBufferRemaining==0) {
+        if (bCycleData) {
+          iRandomBufferRemaining = iCycleDataLen;
+          pNextRandomData = pRandomDataBuffer;
+        } else {
+          iRandomBufferRemaining = fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);
+          if (iRandomBufferRemaining==0) {
+            CloseSingleFile(filRandomData);
+            SetupFile(&filRandomData,"rb",sFilenameRandomData,NULL,FALSE);
+            iRandomBufferRemaining = fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);
+          }
+          pNextRandomData = pRandomDataBuffer;
+        }
+      }
+      iReturn = (iReturn << 8) | *pNextRandomData++;
+      iRandomBufferRemaining--;
+    }
+  }
+  return(iReturn);
+}
+
+void CreateFileRandom() {
+
+  pRandomDataBuffer = AllocateRAM(RANDOMFILEBUFFERSIZE);
+  
+  SetupFile(&filRandomData,"rb",sFilenameRandomData,NULL,FALSE);
+
+  if (filRandomData==NULL) {
+    ReportPrint(pRepErr,"Error! Unable to read from random data file\n");
+    AbnormalExit();
+  }
+
+  iRandomBufferRemaining = fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);
+
+  if ((iRandomBufferRemaining < RANDOMFILEBUFFERSIZE)||(feof(filRandomData))) {
+    bCycleData = TRUE;
+    iCycleDataLen = iRandomBufferRemaining;
+  } else {
+    bCycleData = FALSE;
+  }
+
+  pNextRandomData = pRandomDataBuffer;
+
+  fxnRandUInt32 = FileRandomUInt32;
+}
+
+void CloseFileRandom() {
+  CloseSingleFile(filRandomData);
+}
+
+void FileAbort() {
+
+  FILE *fileAbort;
+  
+  fileAbort = fopen(sFilenameAbort,"r");
+
+  if (fileAbort) {
+    bTerminateAllRuns = TRUE;
+    fclose(fileAbort);
+  }
+}
 

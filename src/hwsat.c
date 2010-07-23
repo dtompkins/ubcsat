@@ -36,7 +36,7 @@ void AddHWSat() {
     "DefaultProcedures,Flip+VarScore,VarLastChange,FalseClauseList",
     "default","default");
   
-  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability","choose random variable from an unsat clause with prob [wp]","",&iWp,0.10);
+  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","with probability PR, select a random variable from those~that appear in unsat clauses","",&iWp,0.10);
 
   CreateTrigger("PickHWSat",ChooseCandidate,PickHWSat,"","");
 
@@ -45,7 +45,7 @@ void AddHWSat() {
     "Gent, Walsh [Hybrid Problems... 95]",
     "PickHWSatW",
     "DefaultProceduresW,Flip+VarScoreW,VarLastChange,FalseClauseList",
-    "wdefault","default");
+    "default_w","default");
   
   CopyParameters(pCurAlg,"hwsat","",FALSE);
   

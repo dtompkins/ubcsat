@@ -43,7 +43,7 @@ void AddHSat() {
     "Gent, Walsh [AAAI 93]",
     "PickHSatW",
     "DefaultProceduresW,Flip+VarScoreW,VarLastChange",
-    "wdefault","default");
+    "default_w","default");
   
   CreateTrigger("PickHSatW",ChooseCandidate,PickHSatW,"","");
  

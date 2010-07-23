@@ -30,6 +30,8 @@
 
 #define GetNegatedLit(L) ((L) ^ 0x00000001)
 
+#define GetLitSign(L) ((L) & 0x00000001)
+
 #define GetVarFromLit(L) ((L) >> 1)
 #define GetVar(c,p) (pClauseLits[c][p] >> 1)
 

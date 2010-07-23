@@ -45,7 +45,7 @@ void AddSAMD() {
     "Hansen and Jaumard [Computing 1990]",
     "PickGSatTabuW,SAMDUpdateVarLastChangeW",
     "DefaultProceduresW,Flip+VarScoreW",
-    "wdefault","default");
+    "default_w","default");
   
   CopyParameters(pCurAlg,"gsat-tabu","",1);
 
@@ -64,7 +64,7 @@ void SAMDUpdateVarLastChange() {
 }
 
 void SAMDUpdateVarLastChangeW() {
-  if (fBestScore >= 0.0f) {
+  if (fBestScore >= FLOATZERO) {
     UpdateVarLastChange();
   }
 }

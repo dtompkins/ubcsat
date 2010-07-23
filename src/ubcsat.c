@@ -22,7 +22,7 @@
 
 #include "ubcsat.h"
 
-char sVersion[] = "1.0.0 (Grouse Mountain Release)";
+const char sVersion[] = "1.1.0tt2";
 
 int ubcsatmain(int argc, char *argv[]) {
   
@@ -49,15 +49,18 @@ int ubcsatmain(int argc, char *argv[]) {
 
   RunProcedures(ReadInInstance);
 
+  RunProcedures(PostRead);
+
   RunProcedures(CreateData);
   RunProcedures(CreateStateInfo);
 
   iRun = 0;
+  iNumSolutionsFound = 0;
   bTerminateAllRuns = FALSE;
 
   RunProcedures(PreStart);
 
-  StartClock();
+  StartTotalClock();
 
   while ((iRun < iNumRuns) && (! bTerminateAllRuns)) {
 
@@ -69,10 +72,13 @@ int ubcsatmain(int argc, char *argv[]) {
     bRestart = TRUE;
 
     RunProcedures(PreRun);
+
+    StartRunClock();
     
     while ((iStep < iCutoff) && (! bSolutionFound) && (! bTerminateRun)) {
 
       iStep++;
+      iFlipCandidate = 0;
 
       RunProcedures(PreStep);
       RunProcedures(CheckRestart);
@@ -97,6 +103,8 @@ int ubcsatmain(int argc, char *argv[]) {
       RunProcedures(CheckTerminate);
     }
 
+    StopRunClock();
+
     RunProcedures(RunCalculations);
     
     RunProcedures(PostRun);
@@ -109,7 +117,7 @@ int ubcsatmain(int argc, char *argv[]) {
     }
   }
 
-  StopClock();
+  StopTotalClock();
 
   RunProcedures(FinalCalculations);
 

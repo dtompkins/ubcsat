@@ -22,8 +22,8 @@
 
 #include "ubcsat.h"
 
-UINT32 iInvPhi=5;               /* = 1/phi   */
-UINT32 iInvTheta=6;             /* = 1/theta */
+const UINT32 iInvPhi=5;               /* = 1/phi   */
+const UINT32 iInvTheta=6;             /* = 1/theta */
 
 UINT32 iLastAdaptStep;
 UINT32 iLastAdaptNumFalse;
@@ -44,7 +44,7 @@ void AddAdaptNoveltyPlus() {
     "DefaultProcedures,Flip+FalseClauseList,AdaptNoveltyNoise,VarLastChange",
     "default","default");
   
-  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability","Choose random variable from random false clause with prob [wp]","",&iWp,0.01);
+  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iWp,0.01);
 
   CreateTrigger("InitAdaptNoveltyNoise",PostInit,InitAdaptNoveltyNoise,"","");
   CreateTrigger("AdaptNoveltyNoise",PostFlip,AdaptNoveltyNoise,"InitAdaptNoveltyNoise","");
@@ -52,9 +52,9 @@ void AddAdaptNoveltyPlus() {
   pCurAlg = CreateAlgorithm("adaptnovelty+","",TRUE,
     "Adaptive Novelty+: Novelty+ with adaptive noise (weighted)",
     "Hoos [AAAI 02]",
-    "PickNoveltyPlus",
+    "PickNoveltyPlusW",
     "DefaultProceduresW,Flip+FalseClauseListW,AdaptNoveltyNoiseW,VarLastChange",
-    "wdefault","default");
+    "default_w","default");
   
   CopyParameters(pCurAlg,"adaptnovelty+","",FALSE);
 
@@ -63,56 +63,57 @@ void AddAdaptNoveltyPlus() {
 }
 
 void InitAdaptNoveltyNoise() {
-	iLastAdaptStep=iStep;
-	iLastAdaptNumFalse=iNumFalse;
+  iLastAdaptStep=iStep;
+  iLastAdaptNumFalse=iNumFalse;
   fLastAdaptSumFalseW=fTotalWeight;
-	iNovNoise = 0;
+  iNovNoise = 0;
 }
 
 void AdaptNoveltyNoise() {
-	
+  
   if (iStep-iLastAdaptStep > iNumClauses/iInvTheta) {
     
     /* if no improvement in a while, increase noise */
 
-    iNovNoise += (PROBABILITY) ((0xFFFFFFFF - iNovNoise)/iInvPhi);
-	  iLastAdaptStep = iStep;
-	  iLastAdaptNumFalse = iNumFalse;
-	}	else if (iNumFalse < iLastAdaptNumFalse) {
+    iNovNoise += (PROBABILITY) ((UINT32MAX - iNovNoise)/iInvPhi);
+    iLastAdaptStep = iStep;
+    iLastAdaptNumFalse = iNumFalse;
+
+  } else if (iNumFalse < iLastAdaptNumFalse) {
 
     /* if improving, then decrease noise */
 
-	  iNovNoise -= (PROBABILITY) (iNovNoise / iInvPhi / 2);
+    iNovNoise -= (PROBABILITY) (iNovNoise / iInvPhi / 2);
 
     /* note: this is how the original code was implemented: [wp := wp - wp * phi / 2] */
     /* it was incorrectly listed in AAAI02 paper as [wp := wp - wp * 2 * phi] */
- 	  
+    
     iLastAdaptStep = iStep;
-	  iLastAdaptNumFalse = iNumFalse;
-	}
+    iLastAdaptNumFalse = iNumFalse;
+  }
 }
 
 void AdaptNoveltyNoiseW() {
 
-	if (iStep-iLastAdaptStep > iNumClauses/iInvTheta) {
+  if (iStep-iLastAdaptStep > iNumClauses/iInvTheta) {
 
     /* if no improvement in a while, increase noise */
 
-    iNovNoise += (PROBABILITY) ((0xFFFFFFFF - iNovNoise)/iInvPhi);
-	  iLastAdaptStep = iStep;
-	  fLastAdaptSumFalseW = fSumFalseW;
-	
-  }	else if (fSumFalseW < fLastAdaptSumFalseW) {
+    iNovNoise += (PROBABILITY) ((UINT32MAX - iNovNoise)/iInvPhi);
+    iLastAdaptStep = iStep;
+    fLastAdaptSumFalseW = fSumFalseW;
+  
+  } else if (fSumFalseW < fLastAdaptSumFalseW) {
 
     /* if improving, then decrease noise */
-	  
+    
     iNovNoise -= (PROBABILITY) (iNovNoise / iInvPhi / 2);
     
     /* note: this is how the original code was implemented: [wp := wp - wp * phi / 2] */
     /* it was incorrectly listed in the paper as [wp := wp - wp * 2 * phi] */
 
- 	  iLastAdaptStep = iStep;
-	  fLastAdaptSumFalseW = fSumFalseW;
-	}
+    iLastAdaptStep = iStep;
+    fLastAdaptSumFalseW = fSumFalseW;
+  }
 }
 

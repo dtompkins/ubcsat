@@ -61,6 +61,9 @@ extern UINT32 iWalkSATTabuClause;
 
 void AddNovelty();
 void AddNoveltyPlus();
+void AddNoveltyPlusPlus();
+void PickNoveltyPlusPlus();
+void PickNoveltyPlusPlusW();
 
 extern PROBABILITY iNovNoise;
 
@@ -74,10 +77,26 @@ void AddRNoveltyPlus();
 void AddAdaptNoveltyPlus();
 extern UINT32 iLastAdaptStep;
 extern UINT32 iLastAdaptNumFalse;
+extern FLOAT fLastAdaptSumFalseW;
+extern const UINT32 iInvPhi;
+extern const UINT32 iInvTheta;
 
 /* saps.c */
 
 void AddSAPS();
+
+/* paws.c */
+
+void AddPAWS();
+extern PROBABILITY iPAWSFlatMove;
+
+/* ddfw.c */
+
+void AddDDFW();
+
+/* g2wsat.c */
+
+void AddG2WSat();
 
 /* rots.c */
 
@@ -95,3 +114,13 @@ void AddIRoTS();
 /* samd.c */
 
 void AddSAMD();
+
+/* random.c */
+
+void AddRandom();
+
+/* vw.c */
+
+void AddVW();
+
+

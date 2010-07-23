@@ -26,3 +26,4 @@ void PrintMemUsage();
 void SetString(char **sNew, const char *sSrc);
 void FreeRAM();
 
+extern UINT32 iNumHeap;

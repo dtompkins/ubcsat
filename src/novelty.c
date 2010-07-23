@@ -23,11 +23,15 @@
 #include "ubcsat.h"
 
 PROBABILITY iNovNoise;
+PROBABILITY iDp;
 
 void PickNovelty();
 void PickNoveltyPlus();
 void PickNoveltyW();
 void PickNoveltyPlusW();
+
+void PickNoveltyPlusPlus();
+void PickNoveltyPlusPlusW();
 
 
 void AddNovelty() {
@@ -41,7 +45,7 @@ void AddNovelty() {
     "DefaultProcedures,Flip+FalseClauseList,VarLastChange",
     "default","default");
   
-  AddParmProbability(&pCurAlg->parmList,"-novnoise","Novelty Noise","novelty noise set to [novnoise]","",&iNovNoise,0.50);
+  AddParmProbability(&pCurAlg->parmList,"-novnoise","novelty noise [default %s]","","",&iNovNoise,0.50);
 
   CreateTrigger("PickNovelty",ChooseCandidate,PickNovelty,"","");
 
@@ -51,7 +55,7 @@ void AddNovelty() {
     "McAllester, Selman, Kautz [AAAI 97]",
     "PickNoveltyW",
     "DefaultProceduresW,Flip+FalseClauseListW,VarLastChange",
-    "wdefault","default");
+    "default_w","default");
   
   CopyParameters(pCurAlg,"novelty","",FALSE);
 
@@ -72,24 +76,56 @@ void AddNoveltyPlus() {
   
   CopyParameters(pCurAlg,"novelty","",FALSE);
 
-  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability","Choose random variable from random false clause with prob [wp]","",&iWp,0.01);
+  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iWp,0.01);
 
   CreateTrigger("PickNoveltyPlus",ChooseCandidate,PickNoveltyPlus,"","");
 
 
-  pCurAlg = CreateAlgorithm("novelty+","",1,
+  pCurAlg = CreateAlgorithm("novelty+","",TRUE,
     "Novelty+: Novelty with random walk (weighted)",
     "Hoos [AAAI 99]",
     "PickNoveltyPlusW",
     "DefaultProceduresW,Flip+FalseClauseListW,VarLastChange",
-    "wdefault","default");
+    "default_w","default");
   
   CopyParameters(pCurAlg,"novelty+","",FALSE);
 
   CreateTrigger("PickNoveltyPlusW",ChooseCandidate,PickNoveltyPlusW,"","");
-
  
 }
+
+void AddNoveltyPlusPlus() {
+  
+  ALGORITHM *pCurAlg;
+
+  pCurAlg = CreateAlgorithm("novelty++","",FALSE,
+    "Novelty++: Novelty+ with a modified diversification mechanism",
+    "Li, Huang  [SAT 05]",
+    "PickNoveltyPlusPlus",
+    "DefaultProcedures,Flip+FalseClauseList,VarLastChange",
+    "default","default");
+  
+  CopyParameters(pCurAlg,"novelty","",FALSE);
+
+  AddParmProbability(&pCurAlg->parmList,"-dp","diversification probability [default %s]","with probability PR, select the least recently flipped~variable from a randomly selected unsat clause","",&iDp,0.05);
+
+  CreateTrigger("PickNoveltyPlusPlus",ChooseCandidate,PickNoveltyPlusPlus,"","");
+
+
+  pCurAlg = CreateAlgorithm("novelty++","",TRUE,
+    "Novelty++: Novelty+ with a modified diversification mechanism (weighted)",
+    "Li, Huang  [SAT 05]",
+    "PickNoveltyPlusPlusW",
+    "DefaultProceduresW,Flip+FalseClauseListW,VarLastChange",
+    "default_w","default");
+  
+  CopyParameters(pCurAlg,"novelty++","",FALSE);
+
+  CreateTrigger("PickNoveltyPlusW",ChooseCandidate,PickNoveltyPlusW,"","");
+
+
+}
+
 
 void PickNovelty() {
  
@@ -140,18 +176,20 @@ void PickNovelty() {
     pClause = pLitClause[*pLit];
     
     for (i=0;i<iNumOcc;i++) {
-      if (aNumTrueLit[*pClause++]==0) {
+      if (aNumTrueLit[*pClause]==0) {
         iScore--;
       }
+      pClause++;
     }
 
     iNumOcc = aNumLitOcc[GetNegatedLit(*pLit)];
     pClause = pLitClause[GetNegatedLit(*pLit)];
     
     for (i=0;i<iNumOcc;i++) {
-      if (aNumTrueLit[*pClause++]==1) {
+      if (aNumTrueLit[*pClause]==1) {
         iScore++;
       }
+      pClause++;
     }
 
     /* keep track of which literal was the 'youngest' */
@@ -255,7 +293,7 @@ void PickNoveltyW() {
   iYoungestVar = GetVarFromLit(*pLit);
 
   for (j=0;j<iClauseLen;j++) {
-    fScore = 0.0f;
+    fScore = FLOATZERO;
 
     iVar = GetVarFromLit(*pLit);
 
@@ -263,18 +301,20 @@ void PickNoveltyW() {
     pClause = pLitClause[*pLit];
     
     for (i=0;i<iNumOcc;i++) {
-      if (aNumTrueLit[*pClause++]==0) {
+      if (aNumTrueLit[*pClause]==0) {
         fScore -= aClauseWeight[*pClause];
       }
+      pClause++;
     }
 
     iNumOcc = aNumLitOcc[GetNegatedLit(*pLit)];
     pClause = pLitClause[GetNegatedLit(*pLit)];
     
     for (i=0;i<iNumOcc;i++) {
-      if (aNumTrueLit[*pClause++]==1) {
+      if (aNumTrueLit[*pClause]==1) {
         fScore += aClauseWeight[*pClause];
       }
+      pClause++;
     }
 
     if (aVarLastChange[iVar] > aVarLastChange[iYoungestVar])
@@ -302,8 +342,7 @@ void PickNoveltyW() {
     iFlipCandidate = iSecondBestVar;
 }
 
-void PickNoveltyPlusW()
-{
+void PickNoveltyPlusW() {
 
    /* for comments, review the unweighted version */
  
@@ -325,4 +364,89 @@ void PickNoveltyPlusW()
     PickNoveltyW();
   }
 }
+
+void PickNoveltyPlusPlus() {
+ 
+  UINT32 j;
+  UINT32 iClause;
+  UINT32 iClauseLen;
+  UINT32 iVar;
+  LITTYPE *pLit;
+
+  /* with probability (iDp) uniformly choose an unsatisfied clause,
+     and then select the "oldest" literal from that clause */
+
+  if (RandomProb(iDp)) {
+    if (iNumFalse) {
+      iClause = aFalseList[RandomInt(iNumFalse)];
+      iClauseLen = aClauseLen[iClause];
+
+      pLit = pClauseLits[iClause];
+
+      iFlipCandidate = GetVarFromLit(*pLit);
+
+      pLit++;
+
+      for (j=1;j<iClauseLen;j++) {
+        iVar = GetVarFromLit(*pLit);
+
+        if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
+          iFlipCandidate = iVar;
+        }
+
+        pLit++;
+      }
+    } else {
+      iFlipCandidate = 0;
+    }
+  } else {
+
+    /* otherwise, use regular novelty */
+
+    PickNovelty();
+  }
+}
+
+void PickNoveltyPlusPlusW() {
+ 
+  UINT32 j;
+  UINT32 iClause;
+  UINT32 iClauseLen;
+  UINT32 iVar;
+  LITTYPE *pLit;
+
+  /* with probability (iDp) uniformly choose an unsatisfied clause,
+     and then select the "oldest" literal from that clause */
+
+  if (RandomProb(iDp)) {
+    if (iNumFalse) {
+      iClause = aFalseList[RandomInt(iNumFalse)];
+      iClauseLen = aClauseLen[iClause];
+
+      pLit = pClauseLits[iClause];
+
+      iFlipCandidate = GetVarFromLit(*pLit);
+
+      pLit++;
+
+      for (j=1;j<iClauseLen;j++) {
+        iVar = GetVarFromLit(*pLit);
+
+        if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
+          iFlipCandidate = iVar;
+        }
+
+        pLit++;
+      }
+    } else {
+      iFlipCandidate = 0;
+    }
+  } else {
+
+    /* otherwise, use regular novelty */
+
+    PickNoveltyW();
+  }
+}
+
 

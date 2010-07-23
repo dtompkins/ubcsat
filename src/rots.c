@@ -41,8 +41,8 @@ void AddRoTS() {
     "DefaultProcedures,Flip+VarScore",
     "default","default");
   
-  AddParmUInt(&pCurAlg->parmList,"-tabu","target tabu tenure","median tabu tenure length","",&iTabuTenure,10);
-  AddParmUInt(&pCurAlg->parmList,"-tabuinterval","tabu interval","tabu +/- interval size as a percent of tabu tenure","",&iTabuTenureInterval,25);
+  AddParmUInt(&pCurAlg->parmList,"-tabu","target (median) tabu tenure [default %s]","","",&iTabuTenure,10);
+  AddParmUInt(&pCurAlg->parmList,"-tabuinterval","interval size: percent of tabu tenure [default %s]","range of tabu tenure is: tt +/- tt * (INT/100)","",&iTabuTenureInterval,25);
 
   CreateTrigger("InitRoTS",PostParameters,InitRoTS,"","");
   CreateTrigger("PickRoTS",ChooseCandidate,PickRoTS,"InitRoTS,VarLastChange,BestFalse","");
@@ -52,7 +52,7 @@ void AddRoTS() {
     "Taillard [Parallel Computing 1991], based on implementation by Stuetzle",
     "PickRoTSW",
     "DefaultProceduresW,Flip+VarScoreW",
-    "wdefault","default");
+    "default_w","default");
   
   CopyParameters(pCurAlg,"rots","",FALSE);
   CreateTrigger("PickRoTSW",ChooseCandidate,PickRoTSW,"InitRoTS,VarLastChange,BestFalse","");
@@ -109,7 +109,7 @@ void PickRoTS() {
 
       if ((iNumFalse + iScore) < iBestNumFalse) {
         iFlipCandidate = j;
-	      return;
+        return;
       }
 
     } else if ((iStep - aVarLastChange[j]) > (iNumVars * 10)) {
@@ -117,7 +117,7 @@ void PickRoTS() {
       /* check for variable stagnation  (early exit) */
 
       iFlipCandidate = j;
-	    return;
+      return;
 
     } else { 
 
@@ -184,14 +184,14 @@ void PickRoTSW() {
 
       if ((fSumFalseW + fScore) < fBestSumFalseW) {
         iFlipCandidate = j;
-	      return;
+        return;
       }
     } else if ((iStep - aVarLastChange[j]) > (iNumVars * 10)) {
       
       /* check for variable stagnation  (early exit) */
 
       iFlipCandidate = j;
-	    return;
+      return;
 
     } else { 
 

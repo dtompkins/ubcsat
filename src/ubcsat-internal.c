@@ -25,15 +25,18 @@
 
 /*  
     This file is the kitchen sink of ubcsat... 
-    ideally, you shouldn't have to ever look at any of this code.
+    Ideally, you shouldn't have to ever look at any of this code.
+    
+    In fact... stop looking at it now... go away.
 */
 
-char *sValidStatCodes[NUMVALIDSTATCODES] = {"all","mean","stddev","cv","median","min","max","q05","q10","q25","q75","q90","q95","q98","qr75/25","qr90/10","qr95/05"};
+const char *sValidStatCodes[NUMVALIDSTATCODES] = {"all","mean","stddev","cv","var","stderr","vmr","sum","median","min","max","q05","q10","q25","q75","q90","q95","q98","qr75/25","qr90/10","qr95/05"};
 
 UINT32 aActiveCalcColumns[MAXITEMLIST];
 FXNPTR aActiveProcedures[NUMEVENTPOINTS][MAXFXNLIST];
 ALGORITHM aAlgorithms[MAXNUMALG];
 REPORTCOL aColumns[MAXITEMLIST];
+DYNAMICPARM aDynamicParms[MAXDYNAMICPARMS];
 UINT32 aNumActiveProcedures[NUMEVENTPOINTS];
 UINT32 aOutputColumns[MAXITEMLIST];
 REPORT aReports[MAXREPORTS];
@@ -41,31 +44,34 @@ UINT32 aRTDColumns[MAXITEMLIST];
 REPORTSTAT aStats[MAXITEMLIST];
 char **aTotalParms;
 TRIGGER aTriggers[MAXITEMLIST];
+BOOL aParmValid[MAXTOTALPARMS];
 BOOL bReportClean;
+BOOL bReportFlush;
 BOOL bReportEcho;
 BOOL bRestart;
-BOOL bSolutionFound = FALSE;
-BOOL bSolveMode = FALSE;
-BOOL bTerminateAllRuns = FALSE;
-BOOL bTerminateRun = FALSE;
-BOOL bValidArgument[MAXTOTALPARMS];
-BOOL bWeighted = 0;
-FLOAT fDummy = 0.0;
+BOOL bSolutionFound;
+BOOL bSolveMode;
+BOOL bTerminateAllRuns;
+BOOL bTerminateRun;
+BOOL bWeighted;
+FLOAT fDummy;
 FLOAT fFlipsPerSecond;
 FLOAT fBestScore;
 FLOAT fTargetW;
 SINT32 iBestScore;
 UINT32 iCutoff;
 UINT32 iFind;
+UINT32 iFindUnique;
 UINT32 iFlipCandidate;
-UINT32 iNumActiveCalcColumns = 0;
-UINT32 iNumAlg = 0;
-UINT32 iNumOutputColumns = 0;
-UINT32 iNumReports = 0;
-UINT32 iNumRTDColumns = 0;
+UINT32 iNumActiveCalcColumns;
+UINT32 iNumAlg;
+UINT32 iNumDynamicParms;
+UINT32 iNumOutputColumns;
+UINT32 iNumReports;
+UINT32 iNumRTDColumns;
 UINT32 iNumRuns;
 UINT32 iNumSolutionsFound;
-UINT32 iNumStatsActive = 0;
+UINT32 iNumStatsActive;
 UINT32 iNumTotalParms;
 UINT32 iPeriodicRestart;
 PROBABILITY iProbRestart;
@@ -76,91 +82,83 @@ UINT32 iSeed;
 UINT32 iStagnateRestart;
 UINT32 iStep;
 UINT32 iTarget;
-UINT32 iTimeOut;
-ITEMLIST listColumns = { 0 };
-ITEMLIST listStats = { 0 };
-ITEMLIST listTriggers = { 0 };
-ALGORITHM *pActiveAlgorithm = NULL;
+FLOAT fTimeOut;
+FLOAT fGlobalTimeOut;
+ITEMLIST listColumns;
+ITEMLIST listStats;
+ITEMLIST listTriggers;
+ALGORITHM *pActiveAlgorithm;
 ALGPARMLIST parmAlg;
 ALGPARMLIST parmHelp;
 ALGPARMLIST parmIO;
 ALGPARMLIST parmUBCSAT;
-char *sAlgName = &sNull;
-char sDefaultComment[] = "#";
-char *sCommentString = sDefaultComment;
-char *sFilenameIn = &sNull;
+char *pVersion;
+char *sAlgName;
+char *sCommentString;
+char *sFilenameIn;
 char *sFilenameParms;
-char *sFilenameVarInit = &sNull;
+char *sFilenameVarInit;
+char *sFilenameSoln;
 char sMasterString[MAXITEMLISTSTRINGLENGTH];
-char sNull = 0;
+const char sNull = 0;
 char sParmLine[MAXPARMLINELEN];
 char sStringParm[MAXPARMLINELEN];
-char *sVarName = &sNull;
+char *sVarName;
 
-BOOL bReportStateLMOnly = 0;
-FLOAT fReportStateQuality = -1.0f;
+BOOL bReportStateLMOnly;
+FLOAT fReportStateQuality;
+BOOL bReportBestStepVars;
+BOOL bReportOptClausesSol;
 BOOL bReportStateQuality;
 UINT32 iReportStateQuality;
 
 void AddContainerItem(ITEMLIST *pList,const char *sID, const char *sList);
 void AddItem(ITEMLIST *pList,const char *sID);
-ALGPARM *AddParmCommon(ALGPARMLIST *pParmList,const char *sSwitch,const char *sName,const char *sDescription,const char *sTriggers);
+ALGPARM *AddParmCommon(ALGPARMLIST *pParmList,const char *sSwitch,const char *sTerseDescription,const char *sVerboseDescription,const char *sTriggers);
 void AddReportParmCommon(REPORT *pRep, const char *sParmName);
-void DeactivateTrigger(UINT32 iFxnID, const char *sItem);
+void DeActivateTriggerID(UINT32 iFxnID, const char *sItem);
 ALGORITHM *FindAlgorithm(const char *sFindName, const char *sFindVar, BOOL bFindWeighted);
 UINT32 MatchParameter(char *sSwitch,char *sParm);
 void ParseParameters(ALGPARMLIST *pParmList);
 void SetAlgorithmDefaultReports();
 void SetDefaultParms(ALGPARMLIST *pParmList);
-void VerifyStatsParms (char *sStatsParms);
+UINT32 SetColStatFlags (char *sStatsParms);
 
-void ActivateAlgorithmTriggers() {
-  ParseItemList(&listTriggers,pActiveAlgorithm->sDataTriggers,ActivateTrigger);
-  ParseItemList(&listTriggers,pActiveAlgorithm->sHeuristicTriggers,ActivateTrigger);
+
+void ActivateTriggers(char *sTriggers) {
+  ParseItemList(&listTriggers,sTriggers,ActivateTriggerID);
 }
 
-void ActivateColumn(UINT32 iColID, const char *sItem) {
+void DeActivateTriggers(char *sTriggers) {
+  ParseItemList(&listTriggers,sTriggers,DeActivateTriggerID);
+}
+
+
+void ActivateColumns(char *sColumns) {
+  ParseItemList(&listColumns,sColumns,ActivateColumnID);
+}
+
+void ActivateStats(char *sStats) {
+  ParseItemList(&listStats,sStats,ActivateStatID);
+}
+
+void ActivateAlgorithmTriggers() {
+  ActivateTriggers(pActiveAlgorithm->sDataTriggers);
+  ActivateTriggers(pActiveAlgorithm->sHeuristicTriggers);
+}
+
+void ActivateColumnID(UINT32 iColID, const char *sItem) {
   
   REPORTCOL *pCol;
   NOREF(sItem);
  
   pCol = &aColumns[iColID];
 
-  if (pCol->bActive == 0) {
+  if (pCol->bActive == FALSE) {
   
-    pCol->bActive = 1;
+    pCol->bActive = TRUE;
 
-    ParseItemList(&listTriggers,pCol->sTriggers,ActivateTrigger);
-
-    switch (pCol->eColType) {
-      case ColTypeMean:
-      case ColTypeStddev:
-      case ColTypeCV:
-      case ColTypeFinalDivStep:
-      case ColTypeFinalDivStep100:
-        pCol->pfColumnData = AllocateRAM(iNumRuns * sizeof(FLOAT));
-        memset(pCol->pfColumnData,0,(iNumRuns)*sizeof(FLOAT));
-      break;
-
-      case ColTypeFinal:
-      case ColTypeMin:
-      case ColTypeMax:
-        switch (pCol->eDataType) {
-          case DTypeUInt:
-            pCol->puiColumnData = AllocateRAM(iNumRuns * sizeof(UINT32));
-            memset(pCol->puiColumnData,0,(iNumRuns)*sizeof(UINT32));
-            break;
-          case DTypeSInt:
-            pCol->psiColumnData = AllocateRAM(iNumRuns * sizeof(SINT32));
-            memset(pCol->psiColumnData,0,(iNumRuns)*sizeof(SINT32));
-            break;
-          case DTypeFloat:
-            pCol->pfColumnData = AllocateRAM(iNumRuns * sizeof(FLOAT));
-            memset(pCol->pfColumnData,0,(iNumRuns)*sizeof(FLOAT));
-            break;
-        }
-        break;
-    }
+    ActivateTriggers(pCol->sTriggers);
 
     switch (pCol->eColType) {
       case ColTypeMean:
@@ -168,18 +166,18 @@ void ActivateColumn(UINT32 iColID, const char *sItem) {
       case ColTypeCV:
       case ColTypeMin:
       case ColTypeMax:
-        ParseItemList(&listTriggers,"ColumnStepCalculation",ActivateTrigger);
+        ActivateTriggers("ColumnStepCalculation");
         aActiveCalcColumns[iNumActiveCalcColumns++] = iColID;
       case ColTypeFinal:
       case ColTypeFinalDivStep:
       case ColTypeFinalDivStep100:
-        ParseItemList(&listTriggers,"ColumnRunCalculation",ActivateTrigger);
+        ActivateTriggers("ColumnRunCalculation");
         break;
     }
   }
 }  
 
-void ActivateStat(UINT32 iStatID, const char *sItem) {
+void ActivateStatID(UINT32 iStatID, const char *sItem) {
 
   REPORTSTAT *pStat;
   char *pPos;
@@ -187,8 +185,8 @@ void ActivateStat(UINT32 iStatID, const char *sItem) {
 
   pStat = &aStats[iStatID];
 
-  if (pStat->bActive == 0) {
-    pStat->bActive = 1;
+  if (pStat->bActive == FALSE) {
+    pStat->bActive = TRUE;
     pStat->iActiveID = iNumStatsActive++;
 
     pPos = strchr(sItem,'[');
@@ -201,16 +199,25 @@ void ActivateStat(UINT32 iStatID, const char *sItem) {
       }
     }
 
-    if ((pStat->bCustomField==0)&&(pStat->bCustomField==0)) {
-      VerifyStatsParms(pStat->sStatParms);    
+    if (pStat->bCustomField==FALSE) {
+
+      pStat->iStatFlags = SetColStatFlags(pStat->sStatParms);
+      ActivateColumns(pStat->sDataColumn);
+
+      if (pStat->iStatFlags & STATCODE_RAMMASK) {
+        ParseItemList(&listColumns,pStat->sDataColumn,AddAllocateRAMColumnID);
+      }
+
+    } else {
+      ActivateColumns(pStat->sDataColumn);
+      ParseItemList(&listColumns,pStat->sDataColumn,AddAllocateRAMColumnID);
+      ActivateTriggers(pStat->sTriggers);
     }
   
-    ParseItemList(&listColumns,pStat->sRequiredCols,ActivateColumn);
-    ParseItemList(&listTriggers,pStat->sTriggers,ActivateTrigger);
   }
 }
 
-void ActivateTrigger(UINT32 iFxnID, const char *sItem) {
+void ActivateTriggerID(UINT32 iFxnID, const char *sItem) {
   
   UINT32 j;
   BOOL bAlready;
@@ -228,24 +235,23 @@ void ActivateTrigger(UINT32 iFxnID, const char *sItem) {
   pTrigger->bActive = TRUE;
 
   if (pTrigger->bDisabled == TRUE) {
-    ReportPrint(pRepErr,"Warning! Disabled trigger has been reactivated.  Please check trigger ordering\n");
     return;
   }
 
-  ParseItemList(&listTriggers,pTrigger->sDependencyList,ActivateTrigger);
-  ParseItemList(&listTriggers,pTrigger->sDeactivateList,DeactivateTrigger);
+  ParseItemList(&listTriggers,pTrigger->sDependencyList,ActivateTriggerID);
+  ParseItemList(&listTriggers,pTrigger->sDeactivateList,DeActivateTriggerID);
 
   eEventPoint = pTrigger->eEventPoint;
 
-  bAlready = 0;
+  bAlready = FALSE;
   for (j=0;j<aNumActiveProcedures[eEventPoint];j++) {
     if (aActiveProcedures[eEventPoint][j]==pTrigger->pProcedure) {
-      bAlready = 1;
+      bAlready = TRUE;
       break;
     }
   }
 
-  if (bAlready==0) {
+  if (bAlready==FALSE) {
     aActiveProcedures[eEventPoint][aNumActiveProcedures[eEventPoint]] = pTrigger->pProcedure;
     aNumActiveProcedures[eEventPoint]++;
     if (aNumActiveProcedures[eEventPoint] == MAXFXNLIST) {
@@ -253,8 +259,74 @@ void ActivateTrigger(UINT32 iFxnID, const char *sItem) {
       AbnormalExit();
     }
   }
-
 }
+
+
+void ActivateDynamicParms() {
+
+  UINT32 j;
+  DYNAMICPARM *pCurParm;
+
+  UINT32 *iTarget;
+  SINT32 *siTarget;
+  FLOAT *fTarget;
+  
+  for (j=0;j<iNumDynamicParms;j++) {
+    pCurParm = &(aDynamicParms[j]);
+    
+    switch (pCurParm->eDataType) {
+      case DTypeUInt:
+        iTarget = (UINT32 *) pCurParm->pTarget;
+        if (*iTarget==0) {
+          *iTarget = (UINT32) (*(pCurParm->pBase) * pCurParm->fFactor);
+        }
+        break;
+
+      case DTypeSInt:
+        siTarget = (SINT32 *) pCurParm->pTarget;
+        if (*siTarget==0) {
+          *siTarget = (SINT32) (*(pCurParm->pBase) * pCurParm->fFactor);
+        }        
+        break;
+
+      case DTypeFloat:
+        fTarget = (FLOAT *) pCurParm->pTarget;
+        if (*fTarget==FLOATZERO) {
+          *fTarget = (*(pCurParm->pBase) * pCurParm->fFactor);
+        }
+        break;
+    }
+  }
+}
+
+void AddAllocateRAMColumnID(UINT32 j, const char *sItem) {
+  REPORTCOL *pCol;
+  NOREF(sItem);
+
+  pCol = &aColumns[j];
+  pCol->bAllocateColumnRAM = TRUE;
+  ActivateTriggers("AllocateColumnRAM");
+}
+
+void AddDynamicParm(void *pTarget, enum CDATATYPE eDataType, UINT32 *pBase, FLOAT fFactor) {
+
+  if (iNumDynamicParms == 0) {
+    ActivateTriggers("DynamicParms");
+  }
+
+  aDynamicParms[iNumDynamicParms].pTarget = pTarget;
+  aDynamicParms[iNumDynamicParms].eDataType = eDataType;
+  aDynamicParms[iNumDynamicParms].pBase = pBase;
+  aDynamicParms[iNumDynamicParms].fFactor = fFactor;
+
+  iNumDynamicParms++;
+
+  if (iNumDynamicParms==MAXDYNAMICPARMS) {
+    ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXDYNAMICPARMS [%u] \n",MAXDYNAMICPARMS);
+    AbnormalExit();
+  }
+}
+
 
 void AddColumnComposite(const char *sID, 
                         const char *sList)
@@ -278,7 +350,8 @@ void AddColumnFloat(const char *sID,
   
   pCol = &aColumns[listColumns.iNumItems];
 
-  pCol->bActive = 0;
+  pCol->bActive = FALSE;
+  pCol->bAllocateColumnRAM = FALSE;
 
   SetString(&pCol->sDescription,sDescription);
   SetString(&pCol->sHeader1,sHeader1);
@@ -288,7 +361,8 @@ void AddColumnFloat(const char *sID,
   
   pCol->pfCurValue = pCurValue;
 
-  pCol->eDataType = DTypeFloat;
+  pCol->eSourceDataType = DTypeFloat;
+  pCol->eFinalDataType = DTypeFloat;
 
   SetString(&pCol->sTriggers,sTriggers);
 
@@ -316,7 +390,8 @@ void AddColumnUInt(const char *sID,
   
   pCol = &aColumns[listColumns.iNumItems];
 
-  pCol->bActive = 0;
+  pCol->bActive = FALSE;
+  pCol->bAllocateColumnRAM = FALSE;
 
   SetString(&pCol->sDescription,sDescription);
   SetString(&pCol->sHeader1,sHeader1);
@@ -325,21 +400,34 @@ void AddColumnUInt(const char *sID,
   SetString(&pCol->sPrintFormat,sPrintFormat);
   pCol->puiCurValue = pCurValue;
 
-  pCol->eDataType = DTypeUInt;
+  pCol->eSourceDataType = DTypeUInt;
 
   SetString(&pCol->sTriggers,sTriggers);
   
-  pCol->puiColumnData = 0;
-  pCol->pfColumnData = 0;
+  pCol->puiColumnData = NULL;
+  pCol->pfColumnData = NULL;
 
   pCol->eColType = eColType;
+
+  if ((eColType == ColTypeMean)||
+      (eColType == ColTypeStddev)||
+      (eColType == ColTypeCV)||
+      (eColType == ColTypeFinalDivStep)||
+      (eColType == ColTypeFinalDivStep100)) {
+    pCol->eFinalDataType = DTypeFloat;
+  } else {
+    pCol->eFinalDataType = DTypeUInt;
+  }
+
+  pCol->fColSum = FLOATZERO;
+  pCol->fColSum2 = FLOATZERO;
 
   AddItem(&listColumns,sID);
 }
 
 void AddContainerItem(ITEMLIST *pList,const char *sID, const char *sList) {
   SetString(&pList->aItems[pList->iNumItems].sID,sID);
-  pList->aItems[pList->iNumItems].bContainer = 1;
+  pList->aItems[pList->iNumItems].bContainer = TRUE;
   SetString(&pList->aItems[pList->iNumItems].sContainerList,sList);
   pList->iNumItems++;
   if (pList->iNumItems==MAXITEMLIST) {
@@ -350,7 +438,7 @@ void AddContainerItem(ITEMLIST *pList,const char *sID, const char *sList) {
 
 void AddItem(ITEMLIST *pList,const char *sID) {
   SetString(&pList->aItems[pList->iNumItems].sID,sID);
-  pList->aItems[pList->iNumItems].bContainer = 0;
+  pList->aItems[pList->iNumItems].bContainer = FALSE;
   pList->iNumItems++;
   if (pList->iNumItems==MAXITEMLIST) {
     ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXITEMLIST [%u] \n",MAXITEMLIST);
@@ -358,21 +446,25 @@ void AddItem(ITEMLIST *pList,const char *sID) {
   }
 }
 
-void AddOutputColumn(UINT32 j, const char *sItem) {
-  NOREF(sItem);
+void AddOutputColumnID(UINT32 j, const char *sItem) {
+  
   aOutputColumns[iNumOutputColumns++] = j;
+
+  if (bReportOutputSuppress) {
+    AddAllocateRAMColumnID(j,sItem);
+  }
 }
 
 void AddParmBool(ALGPARMLIST *pParmList, 
                   const char *sSwitch, 
-                  const char *sName, 
-                  const char *sDescription,
+                  const char *sTerseDescription, 
+                  const char *sVerboseDescription,
                   const char *sTriggers,
                   UINT32 *pBool,
                   BOOL bDefBool)
 {
   ALGPARM *p;
-  p = AddParmCommon(pParmList,sSwitch,sName,sDescription,sTriggers);
+  p = AddParmCommon(pParmList,sSwitch,sTerseDescription,sVerboseDescription,sTriggers);
   p->pParmValue = (void *) pBool;
   p->defDefault.bBool = bDefBool;
   p->eType = PTypeBool;
@@ -380,14 +472,14 @@ void AddParmBool(ALGPARMLIST *pParmList,
 
 void AddParmFloat(ALGPARMLIST *pParmList, 
                   const char *sSwitch, 
-                  const char *sName, 
-                  const char *sDescription,
+                  const char *sTerseDescription, 
+                  const char *sVerboseDescription,
                   const char *sTriggers,
                   FLOAT *pFloat,
                   FLOAT fDefFloat)
 {
   ALGPARM *p;
-  p = AddParmCommon(pParmList,sSwitch,sName,sDescription,sTriggers);
+  p = AddParmCommon(pParmList,sSwitch,sTerseDescription,sVerboseDescription,sTriggers);
   p->pParmValue = (void *) pFloat;
   p->defDefault.fFloat = fDefFloat;
   p->eType = PTypeFloat;
@@ -395,8 +487,8 @@ void AddParmFloat(ALGPARMLIST *pParmList,
 
 ALGPARM *AddParmCommon(ALGPARMLIST *pParmList,
                   const char *sSwitch, 
-                  const char *sName, 
-                  const char *sDescription,
+                  const char *sTerseDescription, 
+                  const char *sVerboseDescription,
                   const char *sTriggers)
 {
   ALGPARM *p;
@@ -409,23 +501,23 @@ ALGPARM *AddParmCommon(ALGPARMLIST *pParmList,
   p = &pParmList->aParms[pParmList->iNumParms++];
 
   SetString(&p->sSwitch,sSwitch);
-  SetString(&p->sName,sName);
-  SetString(&p->sDescription,sDescription);
+  SetString(&p->sTerseDescription,sTerseDescription);
+  SetString(&p->sVerboseDescription,sVerboseDescription);
   SetString(&p->sTriggers,sTriggers);
-  p->bSpecified = 0;
+  p->bSpecified = FALSE;
   return(p);
 }
 
 void AddParmUInt(ALGPARMLIST *pParmList, 
                   const char *sSwitch, 
-                  const char *sName, 
-                  const char *sDescription,
+                  const char *sTerseDescription, 
+                  const char *sVerboseDescription,
                   const char *sTriggers,
                   UINT32 *pInt,
                   UINT32 iDefInt)
 {
   ALGPARM *p;
-  p = AddParmCommon(pParmList,sSwitch,sName,sDescription,sTriggers);
+  p = AddParmCommon(pParmList,sSwitch,sTerseDescription,sVerboseDescription,sTriggers);
   p->pParmValue = (void *) pInt;
   p->defDefault.iUInt = iDefInt;
   p->eType = PTypeUInt;
@@ -433,14 +525,14 @@ void AddParmUInt(ALGPARMLIST *pParmList,
 
 void AddParmProbability(ALGPARMLIST *pParmList,
                   const char *sSwitch, 
-                  const char *sName, 
-                  const char *sDescription,
+                  const char *sTerseDescription, 
+                  const char *sVerboseDescription,
                   const char *sTriggers,
                   PROBABILITY *pProb,
                   FLOAT fProb)
 {
   ALGPARM *p;
-  p = AddParmCommon(pParmList,sSwitch,sName,sDescription,sTriggers);
+  p = AddParmCommon(pParmList,sSwitch,sTerseDescription,sVerboseDescription,sTriggers);
   p->pParmValue = (void *) pProb;
   p->defDefault.iProb = FloatToProb(fProb);
   p->eType = PTypeProbability;
@@ -448,26 +540,26 @@ void AddParmProbability(ALGPARMLIST *pParmList,
 
 void AddParmReport(ALGPARMLIST *pParmList,
                   const char *sSwitch, 
-                  const char *sName, 
-                  const char *sDescription,
+                  const char *sTerseDescription, 
+                  const char *sVerboseDescription,
                   const char *sTriggers
                   )
 {
   ALGPARM *p;
-  p = AddParmCommon(pParmList,sSwitch,sName,sDescription,sTriggers);
+  p = AddParmCommon(pParmList,sSwitch,sTerseDescription,sVerboseDescription,sTriggers);
   p->eType = PTypeReport;
 }
 
 void AddParmSInt(ALGPARMLIST *pParmList, 
                   const char *sSwitch, 
-                  const char *sName, 
-                  const char *sDescription,
+                  const char *sTerseDescription, 
+                  const char *sVerboseDescription,
                   const char *sTriggers,
                   SINT32 *pSInt,
                   SINT32 iDefSInt)
 {
   ALGPARM *p;
-  p = AddParmCommon(pParmList,sSwitch,sName,sDescription,sTriggers);
+  p = AddParmCommon(pParmList,sSwitch,sTerseDescription,sVerboseDescription,sTriggers);
   p->pParmValue = (void *) pSInt;
   p->defDefault.iSInt = iDefSInt;
   p->eType = PTypeSInt;
@@ -475,14 +567,14 @@ void AddParmSInt(ALGPARMLIST *pParmList,
 
 void AddParmString(ALGPARMLIST *pParmList, 
                   const char *sSwitch, 
-                  const char *sName, 
-                  const char *sDescription,
+                  const char *sTerseDescription, 
+                  const char *sVerboseDescription,
                   const char *sTriggers,
                   char **pString,
                   char *sDefString)
 {
   ALGPARM *p;
-  p = AddParmCommon(pParmList,sSwitch,sName,sDescription,sTriggers);
+  p = AddParmCommon(pParmList,sSwitch,sTerseDescription,sVerboseDescription,sTriggers);
   p->pParmValue = (void *) pString;
   SetString(&p->defDefault.sString,sDefString);
   p->eType = PTypeString;
@@ -497,9 +589,10 @@ void AddReportParmCommon(REPORT *pRep, const char *sParmName) {
   }
 }
 
-void AddReportParmFloat(REPORT *pRep, const char *sParmName, FLOAT *pDefault) {
+void AddReportParmFloat(REPORT *pRep, const char *sParmName, FLOAT *pParmValFloat, FLOAT fDefault) {
   pRep->aParmTypes[pRep->iNumParms] = PTypeFloat;
-  pRep->aParameters[pRep->iNumParms] = (void *) pDefault;
+  pRep->aParameters[pRep->iNumParms] = (void *) pParmValFloat;
+  *pParmValFloat = fDefault;
   AddReportParmCommon(pRep,sParmName);
 }
 
@@ -509,44 +602,38 @@ void AddReportParmString(REPORT *pRep, const char *sParmName, const char *pDefau
   AddReportParmCommon(pRep,sParmName);
 }
 
-void AddReportParmUInt(REPORT *pRep, const char *sParmName, UINT32 *pDefault) {
+void AddReportParmUInt(REPORT *pRep, const char *sParmName, UINT32 *pParmValUInt, UINT32 iDefault) {
   pRep->aParmTypes[pRep->iNumParms] = PTypeUInt;
-  pRep->aParameters[pRep->iNumParms] = (void *) pDefault;
+  pRep->aParameters[pRep->iNumParms] = (void *) pParmValUInt;
+  *pParmValUInt = iDefault;
   AddReportParmCommon(pRep,sParmName);
 }
 
-void AddRTDColumn(UINT32 j, const char *sItem) {
-  NOREF(sItem);
+void AddRTDColumnID(UINT32 j, const char *sItem) {
+
   aRTDColumns[iNumRTDColumns++] = j;
+
+  AddAllocateRAMColumnID(j,sItem);
 }
 
-void AddStat(const char *sID, 
-                  const char *sDescription, 
-                  const char *sBaseDescription, 
-                  const char *sDefParm,
-                  const char *sRequiredCols,
-                  const char *sDataColumn,
-                  const char *sTriggers,
-                  BOOL bSortByStep)
+void AddStatCol(const char *sID, 
+             const char *sBaseDescription, 
+             const char *sDefParm,
+             BOOL bSortByStep)
 {
 
   REPORTSTAT *pStat;
 
   pStat = &aStats[listStats.iNumItems];
 
-  pStat->bActive = 0;
+  pStat->bActive = FALSE;
 
-  SetString(&pStat->sDescription,sDescription);
-  
-  pStat->bCustomField = 0;
+  pStat->bCustomField = FALSE;
 
   SetString(&pStat->sBaseDescription,sBaseDescription);
   
-  SetString(&pStat->sRequiredCols,sRequiredCols);
-  SetString(&pStat->sDataColumn,sDataColumn);
+  SetString(&pStat->sDataColumn,sID);
   SetString(&pStat->sStatParms,sDefParm);
-
-  SetString(&pStat->sTriggers,sTriggers);
 
   pStat->bSortByStep = bSortByStep;
 
@@ -560,11 +647,12 @@ void AddContainerStat(const char *sID,
 }
 
 void AddStatCustom(const char *sID, 
-                  const char *sDescription, 
+                  const char *sCustomDescription,
+                  const char *sBaseDescription, 
                   const char *sPrintCustomFormat,
                   void *pCurValue,
                   enum CDATATYPE eCustomType,
-                  const char *sRequiredCols,
+                  const char *sDataColumn,
                   const char *sTriggers
                 )
 {
@@ -573,18 +661,20 @@ void AddStatCustom(const char *sID,
 
   pStat = &aStats[listStats.iNumItems];
 
-  pStat->bActive = 0;
+  pStat->bActive = FALSE;
 
-  SetString(&pStat->sDescription,sDescription);
+  pStat->bCustomField = TRUE;
+
+  SetString(&pStat->sCustomDescription,sCustomDescription);
+
+  SetString(&pStat->sBaseDescription,sBaseDescription);
   
-  pStat->bCustomField = 1;
-
   SetString(&pStat->sPrintCustomFormat,sPrintCustomFormat);
   
   pStat->pCustomValue = pCurValue;
   pStat->eCustomType = eCustomType;
 
-  SetString(&pStat->sRequiredCols,sRequiredCols);
+  SetString(&pStat->sDataColumn,sDataColumn);
 
   SetString(&pStat->sTriggers,sTriggers);
   
@@ -592,12 +682,85 @@ void AddStatCustom(const char *sID,
 
 }
 
+#define FLOATSTATSMIN (1E-8)
+//revisit
+
+void CalculateStats(FLOAT *fMean, FLOAT *fStddev, FLOAT *fCV, FLOAT fSum, FLOAT fSum2, UINT32 iCount) {
+  
+  FLOAT fCountMul;
+  FLOAT fCountMulMinusOne;
+  FLOAT fStddev2;
+
+  *fStddev = FLOATZERO;
+  *fCV = FLOATZERO;
+
+  if (iCount == 0) {
+    *fMean = FLOATZERO;
+  } else if (iCount == 1) {
+    *fMean = fSum;
+  } else {
+
+    fCountMul = 1.0f / ((FLOAT) iCount);
+    fCountMulMinusOne = 1.0f / ((FLOAT) (iCount - 1));
+
+    *fMean = fSum * fCountMul;
+    fStddev2 = (fSum2 - fCountMul * (fSum * fSum)) * fCountMulMinusOne;
+
+    if (fStddev2 > FLOATSTATSMIN) {
+      
+      *fStddev = sqrt(fStddev2);
+
+      if (*fMean > FLOATSTATSMIN) {
+        *fCV = (*fStddev) / (*fMean);
+      }
+    } else {
+
+    }
+  }
+}
+
+FLOAT CorrelationCoeff(FLOAT fSumA, FLOAT fSumA2,FLOAT fSumB, FLOAT fSumB2, FLOAT fSumAB, UINT32 iCount) {
+
+  FLOAT fMeanA;
+  FLOAT fStddevA;
+  FLOAT fCVA;
+  FLOAT fMeanB;
+  FLOAT fStddevB;
+  FLOAT fCVB;
+
+  FLOAT fCountMul;
+  FLOAT fCountMulMinusOne;
+
+  FLOAT fCC;
+
+  CalculateStats(&fMeanA, &fStddevA, &fCVA, fSumA, fSumA2, iCount);
+  CalculateStats(&fMeanB, &fStddevB, &fCVB, fSumB, fSumB2, iCount);
+
+  if (iCount == 0) {
+    fCC = FLOATZERO;
+  } else if (iCount == 1) {
+    fCC = FLOATZERO;
+  } else {
+    fCountMul = 1.0f / ((FLOAT) iCount);
+    fCountMulMinusOne = 1.0f / ((FLOAT) (iCount - 1));
+
+    if ((fStddevA != FLOATZERO)&&(fStddevB != FLOATZERO)) {
+      fCC = fCountMulMinusOne * (fSumAB - fCountMul * fSumA * fSumB);
+      fCC /= (fStddevA * fStddevB);
+    } else {
+      fCC = FLOATZERO;
+    }
+  }
+  return(fCC);
+}
+
+
 void CheckInvalidParamters() {
 
   UINT32 j;
 
   for (j=0;j<iNumTotalParms;j++) {
-    if (!bValidArgument[j]) {
+    if (!aParmValid[j]) {
       HelpBadParm(aTotalParms[j]);
     }
   }
@@ -605,6 +768,7 @@ void CheckInvalidParamters() {
 
 void CheckParamterFile(int iCommandLineCount,char **aCommandLineArgs) {
   int j;
+  UINT32 k;
   char *sParameterFilename = 0;
   FILE *filParm;
   char *pStart;
@@ -613,82 +777,88 @@ void CheckParamterFile(int iCommandLineCount,char **aCommandLineArgs) {
   UINT32 iNumParmFiles = 0;
 
   for (j=0;j<(iCommandLineCount - 1);j++) {
-    if (MatchParameter("-param|-fp",aCommandLineArgs[j])) {
+    if (MatchParameter("-param,-fp",aCommandLineArgs[j])) {
       iNumParmFiles++;
     }
   }
 
   if (iNumParmFiles==0) {
     iNumTotalParms = iCommandLineCount - 1;
-    if (iNumTotalParms==MAXTOTALPARMS) {
+    if (iNumTotalParms>=MAXTOTALPARMS) {
       ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXTOTALPARMS [%u]\n",MAXTOTALPARMS);
       AbnormalExit();
     }
     aTotalParms = &aCommandLineArgs[1];
-    return;
-  }
+  } else {
 
-  aTotalParms = AllocateRAM(MAXTOTALPARMS * sizeof(char *));
+    aTotalParms = AllocateRAM(MAXTOTALPARMS * sizeof(char *));
 
-  for (j=0;j<(iCommandLineCount - 1);j++) {
-    if (MatchParameter("-param|-fp",aCommandLineArgs[j])) {
+    for (j=0;j<(iCommandLineCount - 1);j++) {
+      if (MatchParameter("-param,-fp",aCommandLineArgs[j])) {
       
-      sParameterFilename = aCommandLineArgs[j+1];
+        sParameterFilename = aCommandLineArgs[j+1];
 
-      SetupFile(&filParm,"r",sParameterFilename,stdin,0);
+        SetupFile(&filParm,"r",sParameterFilename,stdin,0);
 
-      while (!feof(filParm)) {
-        if (fgets(sParmLine,MAXPARMLINELEN,filParm)) {
-          if (strlen(sParmLine)==MAXPARMLINELEN-1) {
-            ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXPARMLINELEN [%u]\n",MAXPARMLINELEN);
-            AbnormalExit();
-          }
-          if ((*sParmLine)&&(*sParmLine != '#')) {
-            pStart = sParmLine;
-            pPos = strchr(pStart,' ');
-            while (pPos) {
-              if (pPos==pStart) {
-                pStart++;
-              } else {
-                *pPos++=0;
+        while (!feof(filParm)) {
+          if (fgets(sParmLine,MAXPARMLINELEN,filParm)) {
+            if (strlen(sParmLine)==MAXPARMLINELEN-1) {
+              ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXPARMLINELEN [%u]\n",MAXPARMLINELEN);
+              AbnormalExit();
+            }
+            if ((*sParmLine)&&(*sParmLine != '#')) {
+              pStart = sParmLine;
+              pPos = strchr(pStart,' ');
+              while (pPos) {
+                if (pPos==pStart) {
+                  pStart++;
+                } else {
+                  *pPos++=0;
+                  SetString(&aTotalParms[iNumTotalParms++],pStart);
+                  if (iNumTotalParms==MAXTOTALPARMS) {
+                    ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXTOTALPARMS [%u]\n",MAXTOTALPARMS);
+                    AbnormalExit();
+                  }
+                  pStart = pPos;
+                }
+                pPos = strchr(pStart,' ');
+              }
+              pPos = strchr(pStart,10);
+              if (pPos) 
+                *pPos = 0;
+              pPos = strchr(pStart,13);
+              if (pPos) 
+                *pPos = 0;
+              if (strlen(pStart)) {
                 SetString(&aTotalParms[iNumTotalParms++],pStart);
                 if (iNumTotalParms==MAXTOTALPARMS) {
                   ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXTOTALPARMS [%u]\n",MAXTOTALPARMS);
                   AbnormalExit();
                 }
-                pStart = pPos;
-              }
-              pPos = strchr(pStart,' ');
-            }
-            pPos = strchr(pStart,10);
-            if (pPos) 
-              *pPos = 0;
-            pPos = strchr(pStart,13);
-            if (pPos) 
-              *pPos = 0;
-            if (strlen(pStart)) {
-              SetString(&aTotalParms[iNumTotalParms++],pStart);
-              if (iNumTotalParms==MAXTOTALPARMS) {
-                ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXTOTALPARMS [%u]\n",MAXTOTALPARMS);
-                AbnormalExit();
               }
             }
           }
         }
+
+        CloseSingleFile(filParm);
+
       }
+    }
 
-      CloseSingleFile(filParm);
-
+    for (j=1;j<(iCommandLineCount);j++) {
+      SetString(&aTotalParms[iNumTotalParms++],aCommandLineArgs[j]);;
+      if (iNumTotalParms==MAXTOTALPARMS) {
+        ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXTOTALPARMS [%u]\n",MAXTOTALPARMS);
+        AbnormalExit();
+      }
     }
   }
 
-  for (j=1;j<(iCommandLineCount);j++) {
-    SetString(&aTotalParms[iNumTotalParms++],aCommandLineArgs[j]);;
-    if (iNumTotalParms==MAXTOTALPARMS) {
-      ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXTOTALPARMS [%u]\n",MAXTOTALPARMS);
-      AbnormalExit();
-    }
+  for (k=0;k<iNumTotalParms;k++) {
+    aParmValid[k] = FALSE;
   }
+  return;
+
 
 }
 
@@ -753,7 +923,7 @@ void CreateContainerTrigger(const char *sID, const char *sList) {
   AddContainerItem(&listTriggers,sID,sList);
 }
 
-REPORT *CreateReport(const char *sID, const char *sDescription, const char *sOutputFile, const char *sTriggers) {
+REPORT *CreateReport(const char *sID, const char *sDescription, const char *sVerboseDescription, const char *sOutputFile, const char *sTriggers) {
   REPORT *pRep;
 
   pRep = &aReports[iNumReports++];
@@ -765,12 +935,14 @@ REPORT *CreateReport(const char *sID, const char *sDescription, const char *sOut
 
 
   SetString(&pRep->sID,sID);
-  pRep->bActive = 0;
+  pRep->bActive = FALSE;
+  pRep->bSpecialFileIO = FALSE;
   pRep->fileOut = stdout;
   SetString(&pRep->sOutputFile,sOutputFile);
   pRep->iNumParms = 0;
   SetString(&pRep->sTriggers,sTriggers);
   SetString(&pRep->sDescription,sDescription);
+  SetString(&pRep->sVerboseDescription,sVerboseDescription);
 
   return (pRep);
 }
@@ -788,7 +960,7 @@ void CreateTrigger(const char *sID, enum EVENTPOINT eEventPoint, FXNPTR pProcedu
   AddItem(&listTriggers,sID);
 }
 
-void DeactivateTrigger(UINT32 iFxnID, const char *sItem) {
+void DeActivateTriggerID(UINT32 iFxnID, const char *sItem) {
   
   UINT32 j;
   UINT32 k;
@@ -910,39 +1082,77 @@ void InheritDataTriggers(ALGORITHM *pDest, const char *sName, const char *sVar, 
   }
 }
 
-BOOL IsLocalMinimum() {
+BOOL IsLocalMinimum(BOOL bUseWeighted) {
   UINT32 j,k;
   UINT32 iNumOcc;
   UINT32 *pClause;
   LITTYPE litCur;
   SINT32 iScore;
+  FLOAT fScore;
 
-  for (j=1;j<=iNumVars;j++) {
+  if (bUseWeighted) {
 
-    iScore = 0;
+    for (j=1;j<=iNumVars;j++) {
+
+      fScore = FLOATZERO;
     
-    litCur = GetFalseLit(j);
+      litCur = GetFalseLit(j);
 
-    iNumOcc = aNumLitOcc[litCur];
-    pClause = pLitClause[litCur];
+      iNumOcc = aNumLitOcc[litCur];
+      pClause = pLitClause[litCur];
   
-    for (k=0;k<iNumOcc;k++) {
-      if (aNumTrueLit[*pClause++]==0) {
-        iScore--;
+      for (k=0;k<iNumOcc;k++) {
+        if (aNumTrueLit[*pClause]==0) {
+          fScore -= aClauseWeight[*pClause];
+        }
+        pClause++;
       }
-    }
 
-    iNumOcc = aNumLitOcc[GetNegatedLit(litCur)];
-    pClause = pLitClause[GetNegatedLit(litCur)];
+      iNumOcc = aNumLitOcc[GetNegatedLit(litCur)];
+      pClause = pLitClause[GetNegatedLit(litCur)];
   
-    for (k=0;k<iNumOcc;k++) {
-      if (aNumTrueLit[*pClause++]==1) {
-        iScore++;
+      for (k=0;k<iNumOcc;k++) {
+        if (aNumTrueLit[*pClause]==1) {
+          fScore += aClauseWeight[*pClause];
+        }
+        pClause++;
       }
-    }
 
-    if (iScore < 0)
-      return(FALSE);
+      if (fScore < FLOATZERO)
+        return(FALSE);
+    }
+  
+  } else {
+
+    for (j=1;j<=iNumVars;j++) {
+
+      iScore = 0;
+    
+      litCur = GetFalseLit(j);
+
+      iNumOcc = aNumLitOcc[litCur];
+      pClause = pLitClause[litCur];
+  
+      for (k=0;k<iNumOcc;k++) {
+        if (aNumTrueLit[*pClause]==0) {
+          iScore--;
+        }
+        pClause++;
+      }
+
+      iNumOcc = aNumLitOcc[GetNegatedLit(litCur)];
+      pClause = pLitClause[GetNegatedLit(litCur)];
+  
+      for (k=0;k<iNumOcc;k++) {
+        if (aNumTrueLit[*pClause]==1) {
+          iScore++;
+        }
+        pClause++;
+      }
+
+      if (iScore < 0)
+        return(FALSE);
+    }
   }
   return(TRUE);
 }
@@ -956,12 +1166,13 @@ UINT32 MatchParameter(char *sSwitch,char *sParm) {
   while (pPos) {
     pEndParm = pPos + strlen(sParm);
 
-    if ((*pEndParm==0)||(*pEndParm=='|')) {
+    if ((*pEndParm==0)||(*pEndParm=='|')||(*pEndParm==',')) {
       if (pPos==sSwitch) {
         return(1);
       } else {
-        if (*(pPos-1)=='|')
+        if ((*(pPos-1)=='|')||(*(pPos-1)==',')) {
           return(1);
+        }
       }
     }
     
@@ -972,6 +1183,11 @@ UINT32 MatchParameter(char *sSwitch,char *sParm) {
 
 void ParseAllParameters(int argc, char *argv[]) {
 
+  if (argc==1) {
+    bShowHelp = TRUE;
+    CheckPrintHelp();
+  }
+  
   CheckParamterFile(argc,argv);
 
   ParseParameters(&parmHelp);
@@ -1042,7 +1258,7 @@ void ParseParameters(ALGPARMLIST *pParmList) {
       
       if (MatchParameter(pParmList->aParms[j].sSwitch,aTotalParms[iCurParm])) {
         pParm = &pParmList->aParms[j];
-        bValidArgument[iCurParm++] = 1;
+        aParmValid[iCurParm++] = TRUE;
         break;
       }
     }
@@ -1054,25 +1270,53 @@ void ParseParameters(ALGPARMLIST *pParmList) {
           if (iCurParm == iNumTotalParms) {
             HelpBadParm(aTotalParms[iCurParm-1]);
           }
-          if (sscanf(aTotalParms[iCurParm],"%u",pParm->pParmValue)==0) {
-            HelpBadParm(aTotalParms[iCurParm-1]);
+          if (strcmp(aTotalParms[iCurParm],"max")==0) {
+            *((UINT32 *) pParm->pParmValue) = UINT32MAX;
+          } else {
+            if (aTotalParms[iCurParm][strlen(aTotalParms[iCurParm])-1] == 'n') {
+              if (strlen(aTotalParms[iCurParm]) > 1 ) {
+                if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
+                  HelpBadParm(aTotalParms[iCurParm-1]);
+                }
+              } else {
+                fTemp = 1.0f;
+              }
+              AddDynamicParm(pParm->pParmValue,DTypeUInt,&iNumVars,fTemp);
+              *((UINT32 *) pParm->pParmValue) = 0;
+            } else {
+              if (sscanf(aTotalParms[iCurParm],"%u",pParm->pParmValue)==0) {
+                HelpBadParm(aTotalParms[iCurParm-1]);
+              }
+            }
           }
-          bValidArgument[iCurParm++] = 1;
+          aParmValid[iCurParm++] = TRUE;
           break;
         case PTypeSInt:
           if (iCurParm == iNumTotalParms) {
             HelpBadParm(aTotalParms[iCurParm-1]);
           }
-          if (sscanf(aTotalParms[iCurParm],"%d",pParm->pParmValue)==0) {
-            HelpBadParm(aTotalParms[iCurParm-1]);
+          if (aTotalParms[iCurParm][strlen(aTotalParms[iCurParm])-1] == 'n') {
+            if (strlen(aTotalParms[iCurParm]) > 1 ) {
+              if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
+                HelpBadParm(aTotalParms[iCurParm-1]);
+              }
+            } else {
+              fTemp = 1.0f;
+            }
+            AddDynamicParm(pParm->pParmValue,DTypeSInt,&iNumVars,fTemp);
+            *((SINT32 *) pParm->pParmValue) = 0;
+          } else {
+            if (sscanf(aTotalParms[iCurParm],"%d",pParm->pParmValue)==0) {
+              HelpBadParm(aTotalParms[iCurParm-1]);
+            }
           }
-          bValidArgument[iCurParm++] = 1;
+          aParmValid[iCurParm++] = TRUE;
           break;
         case PTypeBool:
           *((UINT32 *)pParm->pParmValue) = 1;
           if (iCurParm < iNumTotalParms) {
             if (sscanf(aTotalParms[iCurParm],"%i",pParm->pParmValue)) {
-              bValidArgument[iCurParm++] = 1;
+              aParmValid[iCurParm++] = TRUE;
             }
           }
           break;
@@ -1086,12 +1330,12 @@ void ParseParameters(ALGPARMLIST *pParmList) {
             HelpBadParm(aTotalParms[iCurParm-1]);
           }
 
-          bRatioParm = 0;
-          bValidArgument[iCurParm++] = 1;
+          bRatioParm = FALSE;
+          aParmValid[iCurParm++] = TRUE;
           if (iCurParm < iNumTotalParms) {
             if (sscanf(aTotalParms[iCurParm],"%f",&fTemp2)) {
-              bRatioParm = 1;
-              bValidArgument[iCurParm++] = 1;
+              bRatioParm = TRUE;
+              aParmValid[iCurParm++] = TRUE;
               if (fTemp2 == 0.000000) {
                 ReportPrint(pRepErr,"\n\nProbability invalid: The 2nd parameter to a Probability can not be 0\n\n");
                 HelpBadParm(aTotalParms[iCurParm-3]);
@@ -1100,7 +1344,7 @@ void ParseParameters(ALGPARMLIST *pParmList) {
             }
           }
           
-          if (bRatioParm == 0) {
+          if (bRatioParm == FALSE) {
             if (strcmp("1",aTotalParms[iCurParm-1])==0) {
               ReportPrint(pRepErr,"\n\nProbability ambiguous: 1/100 or 1.0? specify 0.01 or 1 100 or 1.0\n\n");
               HelpBadParm(aTotalParms[iCurParm-2]);
@@ -1132,18 +1376,30 @@ void ParseParameters(ALGPARMLIST *pParmList) {
             HelpBadParm(aTotalParms[iCurParm-1]);
           }
           SetString((char **) pParm->pParmValue,aTotalParms[iCurParm]);
-          bValidArgument[iCurParm++] = 1;
+          aParmValid[iCurParm++] = TRUE;
           break;
 
         case PTypeFloat:
           if (iCurParm == iNumTotalParms) {
             HelpBadParm(aTotalParms[iCurParm-1]);
           }
-          if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
-            HelpBadParm(aTotalParms[iCurParm-1]);
+          if (aTotalParms[iCurParm][strlen(aTotalParms[iCurParm])-1] == 'n') {
+            if (strlen(aTotalParms[iCurParm]) > 1 ) {
+              if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
+                HelpBadParm(aTotalParms[iCurParm-1]);
+              }
+            } else {
+              fTemp = 1.0f;
+            }
+            AddDynamicParm(pParm->pParmValue,DTypeFloat,&iNumVars,fTemp);
+            *((FLOAT *)pParm->pParmValue) = FLOATZERO;
+          } else {
+            if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
+              HelpBadParm(aTotalParms[iCurParm-1]);
+            }
+            *((FLOAT *)pParm->pParmValue) = (FLOAT) fTemp;
           }
-          *((FLOAT *)pParm->pParmValue) = (FLOAT) fTemp;
-          bValidArgument[iCurParm++] = 1;
+          aParmValid[iCurParm++] = TRUE;
           break;
 
         case PTypeReport:
@@ -1162,13 +1418,13 @@ void ParseParameters(ALGPARMLIST *pParmList) {
           }
           pRep = &aReports[iCurReport];
           
-          pRep->bActive = 1;
-          bValidArgument[iCurParm++] = 1;
+          pRep->bActive = TRUE;
+          aParmValid[iCurParm++] = TRUE;
 
           if (iCurParm < iNumTotalParms) {
             if (*aTotalParms[iCurParm] != '-') {
               SetString(&pRep->sOutputFile,aTotalParms[iCurParm]);
-              bValidArgument[iCurParm++] = 1;
+              aParmValid[iCurParm++] = TRUE;
             }
             iNumRepParms = 0;
             while (iNumRepParms < pRep->iNumParms) {
@@ -1177,21 +1433,45 @@ void ParseParameters(ALGPARMLIST *pParmList) {
                   switch (pRep->aParmTypes[iNumRepParms])
                   {
                     case PTypeUInt:
-                      if (sscanf(aTotalParms[iCurParm],"%i",pRep->aParameters[iNumRepParms])==0) {
-                        HelpBadParm(aTotalParms[iCurParm]);
+                      if (aTotalParms[iCurParm][strlen(aTotalParms[iCurParm])-1] == 'n') {
+                        if (strlen(aTotalParms[iCurParm]) > 1 ) {
+                          if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
+                            HelpBadParm(aTotalParms[iCurParm]);
+                          }
+                        } else {
+                          fTemp = 1.0f;
+                        }
+                        AddDynamicParm(pRep->aParameters[iNumRepParms],DTypeUInt,&iNumVars,fTemp);
+                        *((UINT32 *) pRep->aParameters[iNumRepParms]) = 0;
+                      } else {
+                        if (sscanf(aTotalParms[iCurParm],"%i",pRep->aParameters[iNumRepParms])==0) {
+                          HelpBadParm(aTotalParms[iCurParm]);
+                        }
                       }
-                      bValidArgument[iCurParm++] = 1;
+                      aParmValid[iCurParm++] = TRUE;
                       break;
                     case PTypeFloat:
-                      if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
-                        HelpBadParm(aTotalParms[iCurParm]);
+                      if (aTotalParms[iCurParm][strlen(aTotalParms[iCurParm])-1] == 'n') {
+                        if (strlen(aTotalParms[iCurParm]) > 1 ) {
+                          if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
+                            HelpBadParm(aTotalParms[iCurParm]);
+                          }
+                        } else {
+                          fTemp = 1.0f;
+                        }
+                        AddDynamicParm(pRep->aParameters[iNumRepParms],DTypeFloat,&iNumVars,fTemp);
+                        *((FLOAT *) pRep->aParameters[iNumRepParms]) = FLOATZERO;
+                      } else {
+                        if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
+                          HelpBadParm(aTotalParms[iCurParm]);
+                        }
+                        *((FLOAT *)pRep->aParameters[iNumRepParms]) = (FLOAT) fTemp;
                       }
-                      *((FLOAT *)pRep->aParameters[iNumRepParms]) = (FLOAT) fTemp;
-                      bValidArgument[iCurParm++] = 1;
+                      aParmValid[iCurParm++] = TRUE;
                       break;
                     case PTypeString:
                       SetString((char **) &pRep->aParameters[iNumRepParms],aTotalParms[iCurParm]);
-                      bValidArgument[iCurParm++] = 1;
+                      aParmValid[iCurParm++] = TRUE;
                       break;
                   }
                 }
@@ -1202,9 +1482,9 @@ void ParseParameters(ALGPARMLIST *pParmList) {
           break;      
       }
       
-      pParm->bSpecified = 1;
+      pParm->bSpecified = TRUE;
 
-      ParseItemList(&listTriggers,pParm->sTriggers,ActivateTrigger);
+      ParseItemList(&listTriggers,pParm->sTriggers,ActivateTriggerID);
       
     } else {
       iCurParm++;
@@ -1251,13 +1531,13 @@ void PrintAlgParmSettings(REPORT *pRep, ALGPARMLIST *pParmList) {
     ReportHdrPrint(pRep,"\n");
   }
 }
-
+/*
 void PrintFullStat(REPORTSTAT *pStat, const char *sStatID, char *sPrintID, FLOAT fValue) {
   if ((strstr(pStat->sStatParms,sStatID))||(strstr(pStat->sStatParms,"all"))) { 
     ReportPrint3(pRepStats,"%s_%s = %f\n",pStat->sBaseDescription,sPrintID,fValue);
   }
 }
-
+*/
 void SetAlgorithmDefaultReports() {
   SetString((char **) &pRepOut->aParameters[0],pActiveAlgorithm->sDefaultOutput);
   SetString((char **) &pRepStats->aParameters[0],pActiveAlgorithm->sDefaultStats);
@@ -1277,7 +1557,7 @@ void SetDefaultParms(ALGPARMLIST *pParmList) {
         break;
       case PTypeSInt:
         *((SINT32 *)pParm->pParmValue) = pParm->defDefault.iSInt;
-	      break;
+        break;
       case PTypeBool:
         *((UINT32 *)pParm->pParmValue) = pParm->defDefault.bBool;
         break;
@@ -1299,25 +1579,85 @@ void SetDefaultParms(ALGPARMLIST *pParmList) {
 
 void SetupUBCSAT() {
 
-  pRepErr = CreateReport("err","Error Report -- All errors that are encountered (Defaults to stderr)","stderr","");
-  pRepErr->bActive = 1;
+  /* Initialize all global variables here */
+
+  bClausePenaltyCreated = FALSE;
+  bHelpHeaderShown = FALSE;
+  bKnownSolutions = FALSE;
+  bMobilityColNActive = FALSE;
+  bMobilityColXActive = FALSE;
+
+  bSortedByStepsValid = FALSE;
+  bWeighted = FALSE;
+
+  fDummy = FLOATZERO;
+
+  iLastUnique = 0;
+  iVarFlipHistoryLen = 0;
+
+  iNumActiveCalcColumns = 0;
+  iNumAlg = 0;
+  iNumDynamicParms = 0;
+  iNumOutputColumns = 0;
+  iNumReports = 0;
+  iNumRTDColumns = 0;
+  iNumStatsActive = 0;
+  iNumUniqueSolutions = 0;
+
+  iNumVars = 0;
+  iNumClauses = 0;
+  iNumLits = 0;
+  iVARSTATELen = 0;
+
+  iNumHeap = 0;
+
+  listColumns.iNumItems = 0;
+  listStats.iNumItems = 0;
+  listTriggers.iNumItems = 0;
+
+  pActiveAlgorithm = NULL;
+  pVersion = (char *) &sVersion[0];
+
+  parmAlg.iNumParms = 0;
+  parmHelp.iNumParms = 0;
+  parmIO.iNumParms = 0;
+  parmUBCSAT.iNumParms = 0;
+
+  vslKnownSoln.pNext = NULL;
+  vslKnownSoln.vsState = NULL;
+  vslUnique.pNext = NULL;
+  vslUnique.vsState = NULL;
+
+  /* initialize reports */
+
+  SetString(&sCommentString,"#");
+
+  pRepHelp = CreateReport("help","Help Report"," All help messages that are displayed (Defaults to stdout)","stdout","");
+  pRepHelp->bActive = TRUE;
+  pRepHelp->fileOut = stdout;
+
+  pRepErr = CreateReport("err","Error Report","All errors that are encountered (Defaults to stderr)","stderr","");
+  pRepErr->bActive = TRUE;
   pRepErr->fileOut = stderr;
 
   ClearActiveProcedures();
-
 }
-void VerifyStatsParms (char *sStatsParms) {
+
+
+UINT32 SetColStatFlags (char *sStatsParms) {
 
   UINT32 j;
   char *pPos;
   char *pPos2;
   UINT32 iLen;
   UINT32 bValid;
+
+  UINT32 iFlags = 0x00000000;
   
   pPos = sStatsParms;
 
   while (*pPos != 0) {
-    bValid = 0;
+    bValid = FALSE;
     pPos2 = strstr(pPos,"+");
 
     if (pPos2) {
@@ -1330,11 +1670,17 @@ void VerifyStatsParms (char *sStatsParms) {
       for (j=0;j<NUMVALIDSTATCODES;j++) {
         if (strlen(sValidStatCodes[j])==iLen) {
           if (strncmp(pPos,sValidStatCodes[j],iLen)==0) {
-            bValid = 1;  
+            bValid = TRUE;
+            
+            if (j==0) {
+              iFlags = STATCODE_all;
+            } else {
+              iFlags |= (0x00000001 << j);              
+            }
           }
         }
       }
-      if (bValid==0) {
+      if (bValid==FALSE) {
         ReportPrint1(pRepErr,"Error: reference to (%s) is unknown\n",pPos);        
         AbnormalExit();
       }
@@ -1343,6 +1689,214 @@ void VerifyStatsParms (char *sStatsParms) {
     pPos += iLen;
     if (pPos2)
       pPos++;
+  }
+
+  return(iFlags);
+}
+
+
+/*** VARSTATE support functions ***/
+
+const UINT32 aNumOnes[256] = {
+  0,1,1,2,1,2,2,3,1,2,2,3,2,3,3,4,
+  1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
+  1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
+  2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+  1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
+  2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+  2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+  3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
+  1,2,2,3,2,3,3,4,2,3,3,4,3,4,4,5,
+  2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+  2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+  3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
+  2,3,3,4,3,4,4,5,3,4,4,5,4,5,5,6,
+  3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
+  3,4,4,5,4,5,5,6,4,5,5,6,5,6,6,7,
+  4,5,5,6,5,6,6,7,5,6,6,7,6,7,7,8
+};
+
+VARSTATE NewVarState() {
+  VARSTATE vsNew;
+  UINT32 j;
+  if (iVARSTATELen == 0) {
+    ReportPrint(pRepErr,"Unexpected Error: iVARSTATELen = 0\n");
+    AbnormalExit();
+    return(NULL);
+  } else {
+    vsNew = AllocateRAM(iVARSTATELen * sizeof(BYTE));
+    for (j=0;j<iVARSTATELen;j++) {
+      vsNew[j] = 0x00;
+    }
+  }
+  return(vsNew);
+}
+
+VARSTATE NewCopyVarState(VARSTATE vsCopy) {
+  VARSTATE vsNew;
+  UINT32 j;
+  vsNew = AllocateRAM(iVARSTATELen * sizeof(BYTE));
+  for (j=0;j<iVARSTATELen;j++) {
+    vsNew[j] = vsCopy[j];
+  }
+  return(vsNew);
+}
+
+void SetCurVarState(VARSTATE vsIn) {
+  UINT32 j;
+  
+  BYTE *pCur = vsIn;
+  BYTE byteMask = 0x80;
+
+  for (j=0;j<iVARSTATELen;j++) {
+    vsIn[j] = 0x00;
+  }
+
+  for (j=1;j<=iNumVars;j++) {
+
+    if (aVarValue[j]) {
+      *pCur |= byteMask;
+    }
+    
+    byteMask >>= 1;
+
+    if (((j-1)&(0x07))==0x07) {
+      pCur++;
+      byteMask = 0x80;
+    }
+  }
+}
+
+BOOL SetCurVarStateString(VARSTATE vsIn, char *sVarState) {
+  UINT32 j;
+  
+  BYTE *pCur = vsIn;
+  BYTE byteMask = 0x80;
+
+  for (j=0;j<iVARSTATELen;j++) {
+    vsIn[j] = 0x00;
+  }
+
+  if (strlen(sVarState) < iNumVars) {
+    ReportPrint1(pRepErr,"Warning! Ignoring variable state string: (too short) %s \n",sVarState);
+    return(FALSE);
+  }
+
+  for (j=1;j<=iNumVars;j++) {
+
+    if (sVarState[j-1] == '1') {
+      *pCur |= byteMask;
+    } else if (sVarState[j-1] != '0') {
+      ReportPrint1(pRepErr,"Warning! Ignoring variable state string: (invalid input) %s \n",sVarState);
+      return(FALSE);
+    }
+    
+    byteMask >>= 1;
+
+    if (((j-1)&(0x07))==0x07) {
+      pCur++;
+      byteMask = 0x80;
+    }
+  }
+  return(TRUE);
+}
+
+
+void SetArrayFromVarState(UINT32 *aOut, VARSTATE vsIn) {
+  UINT32 j;
+  for (j=0;j<iNumVars;j++) {
+    aOut[j+1] = GetVarStateBit(vsIn,j);
+  }  
+}
+
+UINT32 HammingDistVarState(VARSTATE vsA, VARSTATE vsB) {
+  UINT32 j;
+  UINT32 iDist = 0;
+  BYTE *pA = vsA;
+  BYTE *pB = vsB;
+  if ((vsA == NULL)||(vsB == NULL)) {
+    return(iNumVars);
+  }
+
+  for (j=0;j<iVARSTATELen;j++) {
+    iDist += aNumOnes[*pA++ ^ *pB++];
+  }
+  return(iDist);
+}
+
+
+BOOL IsVarStateEqual(VARSTATE vsA, VARSTATE vsB) {
+  UINT32 j;
+  BYTE *pA = vsA;
+  BYTE *pB = vsB;
+  if ((vsA == NULL)||(vsB == NULL)) {
+    return(FALSE);
+  }
+  for (j=0;j<iVARSTATELen;j++) {
+    if (*pA++ != *pB++) {
+      return(FALSE);
+    }
+  }
+  return(TRUE);
+}
+
+BOOL IsVarStateInList(VARSTATELIST *vsList, VARSTATE vsIn) {
+  VARSTATELIST *vsNext = vsList;
+
+  while (vsNext) {
+    if (vsNext->vsState) {
+      if (IsVarStateEqual(vsNext->vsState,vsIn)) {
+        return(TRUE);
+      }
+    }
+    vsNext = vsNext->pNext;
+  }
+  return(FALSE);
+}
+
+
+UINT32 MinHammingVarStateList(VARSTATELIST *vsList, VARSTATE vsIn) {
+  VARSTATELIST *vsNext = vsList;
+  UINT32 iBest = iNumVars;
+  UINT32 iDist;
+
+
+  while (vsNext) {
+    if (vsNext->vsState) {
+      iDist = HammingDistVarState(vsNext->vsState,vsIn);
+      if (iDist < iBest) {
+        iBest = iDist;
+      }
+    }
+    vsNext = vsNext->pNext;
+  }
+  return(iBest);
+}
+
+
+void AddToVarStateList(VARSTATELIST *vsList, VARSTATE vsAdd) {
+  VARSTATELIST *pNext;
+
+  if (vsList==NULL) {
+    ReportPrint(pRepErr,"Unexpected Error: invalid VARSTATELIST\n");
+    AbnormalExit();
+  }
+  if (vsList->vsState) {
+    pNext = vsList->pNext;
+    vsList->pNext = AllocateRAM(sizeof(VARSTATELIST));
+    vsList->pNext->pNext = pNext;
+    vsList->pNext->vsState = NewCopyVarState(vsAdd);
+  } else {
+    vsList->vsState = NewCopyVarState(vsAdd);
+  }
+}
+
+BOOL AddUniqueToVarStateList(VARSTATELIST *vsList, VARSTATE vsAdd) {
+  if (!IsVarStateInList(vsList,vsAdd)) {
+    AddToVarStateList(vsList,vsAdd);
+    return(TRUE);
+  } else {
+    return(FALSE);
   }
 }
 

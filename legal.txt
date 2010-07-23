@@ -22,13 +22,21 @@ We respectfully request that you notify us if you:
 
 If you use UBCSAT in your research, we would appreciate a citation in your publication(s).
 
-@InProceedings{ubcsat,
-	Author = 		"Dave~A.~D.~Tompkins and Holger~H.~Hoos",
-	Title = 		"{UBCSAT}: An Implementation and Experimentation Environment for {SLS} Algorithms for {SAT} and {MAX-SAT}",
-	BookTitle = "Proceedings of the Seventh International Conference on Theory and Applications of Satisfiability Testing ({SAT} 2004)",
-	Pages = 		"37-46",
-	Year = 			"2004"
+(this is a very verbose bibtex entry -- feel free to abbreviate)
+
+@inproceedings{ubcsat,
+  author =    "Dave A. D. Tompkins and Holger H. Hoos",
+  title =     "{UBCSAT}: An Implementation and Experimentation Environment for {SLS} Algorithms for {SAT} and {MAX-SAT}",
+  booktitle = "Theory and Applications of Satisfiability Testing: Revised Selected Papers of the Seventh International Conference (SAT 2004, Vancouver, BC, Canada, May 10--13, 2004)",
+  year =      "2005", 
+  pages =     "306--320", 
+  editor =    "Holger H. Hoos and David G. Mitchell",
+  series =    "Lecture Notes in Computer Science",
+  volume =    "3542",
+  publisher = "Springer Verlag",
+  address =   "Berlin, Germany"
 }
+
 
 If you wish to use this software for commercial applications, obtain the prior
 permission of Dr. Holger hoos (hoos@cs.ubc.ca).

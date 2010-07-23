@@ -37,7 +37,7 @@ void AddWalkSatTabu() {
     "DefaultProcedures,Flip+FalseClauseList,VarLastChange",
     "default","default");
   
-  AddParmUInt(&pCurAlg->parmList,"-tabu","tabu tenure","variables flipped within the last N steps are tabu","",&iTabuTenure,10);
+  AddParmUInt(&pCurAlg->parmList,"-tabu","tabu tenure [default %s]","variables flipped within the last INT steps are tabu","",&iTabuTenure,10);
 
   CreateTrigger("PickWalkSatTabu",ChooseCandidate,PickWalkSatTabu,"","");
 
@@ -47,7 +47,7 @@ void AddWalkSatTabu() {
     "McAllester, Selman, Kautz [AAAI 97]",
     "PickWalkSatTabuW",
     "DefaultProceduresW,Flip+FalseClauseListW,VarLastChange",
-    "wdefault","default");
+    "default_w","default");
   
   CopyParameters(pCurAlg,"walksat-tabu","",FALSE);
 
@@ -107,9 +107,10 @@ void PickWalkSatTabu()
     pClause = pLitClause[GetNegatedLit(*pLit)];
     
     for (i=0;i<iNumOcc;i++) {
-      if (aNumTrueLit[*pClause++]==1) {
+      if (aNumTrueLit[*pClause]==1) {
         iScore++;
       }
+      pClause++;
     }
 
     /* variables with breakcount (score) = 0 are never tabu */
@@ -187,7 +188,7 @@ void PickWalkSatTabuW()
     
        note that in this case, score is the breakcount[] */
 
-    fScore = 0.0f;
+    fScore = FLOATZERO;
       
     pClause = pLitClause[GetNegatedLit(*pLit)];
 
@@ -196,14 +197,15 @@ void PickWalkSatTabuW()
     iNumOcc = aNumLitOcc[GetNegatedLit(*pLit)];
     
     for (i=0;i<iNumOcc;i++) {
-      if (aNumTrueLit[*pClause++]==1) {
+      if (aNumTrueLit[*pClause]==1) {
         fScore += aClauseWeight[*pClause];
       }
+      pClause++;
     }
     
     /* variables with breakcount (score) = 0 are never tabu */
 
-    if ((fScore==0.0f)||(aVarLastChange[iVar] < iTabuCutoff)) { 
+    if ((fScore==FLOATZERO)||(aVarLastChange[iVar] < iTabuCutoff)) { 
 
       /* build candidate list of best vars */
 
