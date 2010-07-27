@@ -27,6 +27,14 @@ FLOAT fVW2WeightFactor;
 void PickVW1();
 void PickVW2();
 
+void PickVW2Auto();
+void InitVW2Auto();
+void UpdateVW2Auto();
+SINT32 iMaxExpProbability;
+FLOAT fVW2AutoAdjustInterval;
+UINT32 iNextVW2AutoAdjustStep;
+FLOAT VW2AutoSmooth[7] = {0.2f, 0.02f, 0.002f, 0.0002f, 0.00002f, 0.000002f, 0.0f};
+
 /***** Trigger VW2Weights *****/
 
 void CreateVW2Weights();
@@ -70,6 +78,17 @@ void AddVW() {
   CreateTrigger("InitVW2Weights",InitStateInfo,InitVW2Weights,"","");
   CreateTrigger("UpdateVW2Weights",UpdateStateInfo,UpdateVW2Weights,"","");
   CreateContainerTrigger("VW2Weights","InitVW2Weights,CreateVW2Weights,UpdateVW2Weights");
+
+  pCurAlg = CreateAlgorithm("vw2","2005",FALSE,
+    "VW2/2005: VW2 with randomized parameter settings",
+    "Prestwich [SAT 05], modified for 2005 competition",
+    "PickVW2Auto,InitVW2Auto,UpdateVW2Auto",
+    "DefaultProcedures,Flip+FalseClauseList,VW2Weights",
+    "default","default");
+  
+  CreateTrigger("PickVW2Auto",ChooseCandidate,PickVW2Auto,"","");
+  CreateTrigger("InitVW2Auto",InitStateInfo,InitVW2Auto,"","");
+  CreateTrigger("UpdateVW2Auto",UpdateStateInfo,UpdateVW2Auto,"","");
 
 }
 
@@ -131,6 +150,7 @@ void PickVW1() {
       if (iScore < iBestScore) {
         iNumCandidates=0;
         iBestScore = iScore;
+        iBestVarFlipCount = aFlipCounts[iVar];
         aCandidateList[iNumCandidates++] = iVar;
       } else {
 	      if (iBestScore == 0) {
@@ -272,6 +292,111 @@ void PickVW2() {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
   } else {
     iFlipCandidate = aCandidateList[0];
+  }
+}
+
+
+void InitVW2Auto() {
+  iMaxExpProbability=1;
+  fVW2Smooth = 0.1f;
+  fVW2AutoAdjustInterval=1000.0f;
+  iNextVW2AutoAdjustStep=1000;
+}
+
+void UpdateVW2Auto() {
+  if ( iStep > iNextVW2AutoAdjustStep ) {
+    iMaxExpProbability = 1 + RandomInt(6);
+    fVW2Smooth = VW2AutoSmooth[RandomInt(7)];
+    fVW2AutoAdjustInterval *= 1.1f;
+    iNextVW2AutoAdjustStep = iStep + (UINT32) fVW2AutoAdjustInterval;
+  }
+}
+
+BOOL BoundedExpProbability (SINT32 iExpProbability)
+{
+  if (iExpProbability < 0) {
+    return TRUE;
+  }
+  if (iExpProbability > iMaxExpProbability) {
+    iExpProbability = iMaxExpProbability;
+  }
+  if (RandomInt(1 << iExpProbability)==0) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+void PickVW2Auto() {
+ 
+  UINT32 i;
+  UINT32 j;
+  SINT32 iScore;
+  UINT32 iClause;
+  UINT32 iClauseLen;
+  UINT32 iVar;
+  UINT32 iStartLit;
+  LITTYPE curLit;
+  UINT32 *pClause;
+  UINT32 iNumOcc;
+  SINT32 iPrevScore;
+  FLOAT fPrevVW2Weight;
+
+  iNumCandidates = 0;
+
+  iPrevScore = iNumClauses;
+  iBestScore = iNumClauses;
+  fPrevVW2Weight = FLOATMAX;
+
+  /* select an unsatisfied clause uniformly at random */
+
+  if (iNumFalse) {
+    iClause = aFalseList[RandomInt(iNumFalse)];
+    iClauseLen = aClauseLen[iClause];
+  } else {
+    iFlipCandidate = 0;
+    return;
+  }
+
+  iStartLit = RandomInt(iClauseLen);
+
+  for (j=0;j<iClauseLen;j++) {
+
+    curLit = pClauseLits[iClause][(iStartLit + j) % iClauseLen];
+    iVar = GetVarFromLit(curLit);
+
+    /* for WalkSAT variants, it's faster to calculate the
+       score for each literal than to cache the values 
+    
+       note that in this case, score is the breakcount[] */
+
+    iScore = 0;
+    
+    iNumOcc = aNumLitOcc[GetNegatedLit(curLit)];
+    pClause = pLitClause[GetNegatedLit(curLit)];
+    
+    for (i=0;i<iNumOcc;i++) {
+      if (aNumTrueLit[*pClause]==1) {
+        iScore++;
+      }
+      pClause++;
+    }
+
+    if (iScore == 0) {
+      iBestScore = 0;
+      iFlipCandidate = iVar;
+      return;
+    } else {
+      /* note: we distinguish between Best & "Prev" for other global Best statistics */
+      if (iScore < iBestScore) {
+        iBestScore = iScore;
+      }
+
+      if ((iScore < iPrevScore) || ((aVW2Weights[iVar] < fPrevVW2Weight) && BoundedExpProbability(iScore - iPrevScore))) {
+        iFlipCandidate = iVar;
+        iPrevScore = iScore;
+        fPrevVW2Weight = aVW2Weights[iVar];
+      }
+    }
   }
 }
 

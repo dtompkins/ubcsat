@@ -240,7 +240,8 @@ For most algorithms the UBCSAT implementation is faster (or just as fast) as the
 * {wp}
 * Variable Weights are implemented in UBCSAT with (double) floating point precision.
 * In author's original source code, it exits on the first freebie variable it discovers, whereas in UBCSAT it uniformly randomly selects amongst all freebies randomly (as described in the paper) -- This is a very minor discrepency.
-
+- -alg vw2 -v 2005
+* VW2 with randomized parameter settings from the 2005 SAT Competition
 
 = WalkSAT
 > [SelKauCoh94]

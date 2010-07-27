@@ -29,6 +29,8 @@ INTRO | FIXED | DESCRIPTION
 1.0.0   1.2.0   HSAT could pick the wrong variable
 1.1.0   1.2.0   Novelty++ Weighted [alg novelty++ -w] called the wrong trigger / wouldn't execute
 
+* new algorithm: VW2/2005 (-alg vw2 -v 2005) -- vw2 variant from the SAT 2005 Competition
+
 * new report: vw2weights
 * new report: ParamILS (-r paramils) see http://www.cs.ubc.ca/labs/beta/Projects/ParamILS/
 
