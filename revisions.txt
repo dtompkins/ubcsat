@@ -17,8 +17,22 @@
 Future Planned Changes
 ======================
 
-* Expect several new algorithm implementations with version 1.2
-  - if there is an algorithm you'd like to see, let us know :)
+- if there is an algorithm or feature you'd like to see, let us know :)
+
+------------------------
+Changes in version 1.2.0
+------------------------
+
+ BUG     BUG    BUG
+INTRO | FIXED | DESCRIPTION
+
+1.0.0   1.2.0   HSAT could pick the wrong variable
+1.1.0   1.2.0   Novelty++ Weighted [alg novelty++ -w] called the wrong trigger / wouldn't execute
+
+* new report: vw2weights
+* new report: ParamILS (-r paramils) see http://www.cs.ubc.ca/labs/beta/Projects/ParamILS/
+
+* code cleanup: Made it clearer output for -filesol uses the output from -r uniquesol (not from -r solution, which has an extra column)
 
 ------------------------
 Changes in version 1.1.0

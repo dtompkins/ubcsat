@@ -39,7 +39,7 @@ If you use UBCSAT in your research, we would appreciate a citation in your publi
 
 
 If you wish to use this software for commercial applications, obtain the prior
-permission of Dr. Holger hoos (hoos@cs.ubc.ca).
+permission of Dr. Holger Hoos (hoos@cs.ubc.ca).
 
 Thanks, and enjoy.
 

@@ -57,8 +57,7 @@ void AddWalkSatTabu() {
 
 UINT32 iWalkSATTabuClause;
 
-void PickWalkSatTabu()
-{
+void PickWalkSatTabu() {
  
   UINT32 i;
   UINT32 j;
@@ -147,8 +146,7 @@ void PickWalkSatTabu()
 
 }
 
-void PickWalkSatTabuW()
-{
+void PickWalkSatTabuW() {
  
   UINT32 i;
   UINT32 j;

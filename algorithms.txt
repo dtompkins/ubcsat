@@ -24,11 +24,13 @@ For most algorithms the UBCSAT implementation is faster (or just as fast) as the
 
 = Adaptive G2WSAT
 > [LiWeiZha07]
+- -alg adaptg2wsat
 * Uses Novelty+ as the WalkSAT algorithm and selects the oldest (not best) decreasing promising variable.
 * {g2wsat}
 
 = Adaptive G2WSAT+p
 > [LiWeiZha07]
+- -alg adaptg2wsat+p
 * Uses Novelty+p as the WalkSAT algorithm.
 * {g2wsat}
 
@@ -90,6 +92,7 @@ For most algorithms the UBCSAT implementation is faster (or just as fast) as the
 
 = G2WSAT+p: Gradient-based Greedy WalkSAT with look-ahead
 > [LiWeiZha07]
+- -alg g2wsat+p
 * Uses Novelty+p as the WalkSAT algorithm.
 
 = GSAT: Greedy Search for SAT
@@ -161,6 +164,7 @@ For most algorithms the UBCSAT implementation is faster (or just as fast) as the
 
 = Novelty+p: Novelty+ with look-ahead
 > [LiWeiZha07]
+- -alg novelty+p
 * {novnoise}
 
 = PAWS: Pure Additive Weighting Scheme
@@ -227,10 +231,12 @@ For most algorithms the UBCSAT implementation is faster (or just as fast) as the
 
 = VW1: Variable Weighting Scheme One
 > [Prestwich05]
+- -alg vw1
 * {wp}
 
 = VW2: Variable Weighting Scheme Two
 > [Prestwich05]
+- -alg vw2
 * {wp}
 * Variable Weights are implemented in UBCSAT with (double) floating point precision.
 * In author's original source code, it exits on the first freebie variable it discovers, whereas in UBCSAT it uniformly randomly selects amongst all freebies randomly (as described in the paper) -- This is a very minor discrepency.
