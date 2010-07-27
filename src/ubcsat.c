@@ -22,7 +22,7 @@
 
 #include "ubcsat.h"
 
-const char sVersion[] = "1.1.0 (Sea to Sky Release)";
+#include "version.h"
 
 int ubcsatmain(int argc, char *argv[]) {
   
