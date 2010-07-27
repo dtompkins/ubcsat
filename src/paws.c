@@ -111,6 +111,7 @@ void PickPAWS() {
       if (iLoopEnd >= iMaxCandidates) {
         ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%u]\n",iMaxCandidates);
         AbnormalExit();
+        exit(1);
       }
 
       while (iNumCandidates < iLoopEnd) {

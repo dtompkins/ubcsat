@@ -462,6 +462,7 @@ FLOAT GetRowElement(REPORTCOL *pCol,UINT32 iRowRequested, BOOL bSorted, BOOL bSo
   if (pCol->bAllocateColumnRAM == FALSE) {
     ReportPrint1(pRepErr,"Unexpected Error: Column Data for [%s] was not allocated properly\n",pCol->sDescription);
     AbnormalExit();
+    exit(1);
   }
 
   if (bSorted) {

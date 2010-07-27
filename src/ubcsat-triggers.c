@@ -1002,6 +1002,7 @@ void ReadCNF() {
     if (strlen(sLine)==MAXCNFLINELEN-1) {
       ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXCNFLINELEN [%u]\n",MAXCNFLINELEN);
       AbnormalExit();
+      exit(1);
     }
 
     if (strncmp(sLine,"p wcnf",6)==0) {
@@ -1036,6 +1037,7 @@ void ReadCNF() {
   if ((iNumVars==0)||(iNumClauses==0)) {
     ReportPrint(pRepErr,"Error: invalid instance file\n");
     AbnormalExit();
+    exit(1);
   }
 
   iVARSTATELen = (iNumVars >> 3) + 1;
@@ -1086,10 +1088,12 @@ void ReadCNF() {
             ReportPrint1(pRepErr,"Error reading instance at clause [%u]\n",j);
             ReportPrint1(pRepErr,"  at or near: %s\n",sLine);
             AbnormalExit();
+            exit(1);
           }
         } else {
           ReportPrint1(pRepErr,"Error reading instance. at clause [%u]\n",j);
           AbnormalExit();
+          exit(1);
         }
       }
 
@@ -1111,6 +1115,7 @@ void ReadCNF() {
         if (GetVarFromLit(*pNextLit) > iNumVars) {
           ReportPrint2(pRepErr,"Error: Invalid Literal [%d] in clause [%u]\n",l,j);
           AbnormalExit();
+          exit(1);
         }
 
         pNextLit++;
@@ -1122,6 +1127,7 @@ void ReadCNF() {
     if (aClauseLen[j] == 0) {
       ReportPrint1(pRepErr,"Error: Reading .cnf, clause [%u] is empty\n",j);
       AbnormalExit();
+      exit(1);
     }
   }
 
@@ -1198,6 +1204,7 @@ void InitVarsFromFile() {
         if (strlen(sInitLine)==MAXPARMLINELEN-1) {
           ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXPARMLINELEN [%u]\n",MAXPARMLINELEN);
           AbnormalExit();
+          exit(1);
         }
         if ((*sInitLine)&&(*sInitLine != '#')) {
           pStart = sInitLine;
@@ -4957,6 +4964,7 @@ void CheckWeighted() {
   if (bWeighted==FALSE) {
     ReportPrint(pRepErr,"Unexpected Error: some weighted features unavailable for current (unweighted) algorithm\n");
     AbnormalExit();
+    exit(1);
   }
 }
 

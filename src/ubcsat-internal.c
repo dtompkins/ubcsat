@@ -267,6 +267,7 @@ void ActivateTriggerID(UINT32 iFxnID, const char *sItem) {
     if (aNumActiveProcedures[eEventPoint] == MAXFXNLIST) {
       ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXFXNLIST [%u]\n",MAXFXNLIST);
       AbnormalExit();
+      exit(1);
     }
   }
 }
@@ -337,6 +338,7 @@ void AddDynamicParm(void *pTarget, enum CDATATYPE eDataType, UINT32 *pBase, FLOA
   if (iNumDynamicParms==MAXDYNAMICPARMS) {
     ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXDYNAMICPARMS [%u] \n",MAXDYNAMICPARMS);
     AbnormalExit();
+    exit(1);
   }
 }
 
@@ -446,6 +448,7 @@ void AddContainerItem(ITEMLIST *pList,const char *sID, const char *sList) {
   if (pList->iNumItems==MAXITEMLIST) {
     ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXITEMLIST [%u] \n",MAXITEMLIST);
     AbnormalExit();
+    exit(1);
   }
 }
 
@@ -456,6 +459,7 @@ void AddItem(ITEMLIST *pList,const char *sID) {
   if (pList->iNumItems==MAXITEMLIST) {
     ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXITEMLIST [%u] \n",MAXITEMLIST);
     AbnormalExit();
+    exit(1);
   }
 }
 
@@ -509,6 +513,7 @@ ALGPARM *AddParmCommon(ALGPARMLIST *pParmList,
   if (pParmList->iNumParms >= MAXALGPARMS) {
     ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXALGPARMS [%u]\n",MAXALGPARMS);
     AbnormalExit();
+    exit(1);
   }
 
   p = &pParmList->aParms[pParmList->iNumParms++];
@@ -599,6 +604,7 @@ void AddReportParmCommon(REPORT *pRep, const char *sParmName) {
   if (pRep->iNumParms==MAXREPORTPARMS) {
     ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXREPORTPARMS [%u]\n",MAXREPORTPARMS);
     AbnormalExit();
+    exit(1);
   }
 }
 
@@ -798,6 +804,7 @@ void CheckParamterFile(int iCommandLineCount,char **aCommandLineArgs) {
     if (iNumTotalParms>=MAXTOTALPARMS) {
       ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXTOTALPARMS [%u]\n",MAXTOTALPARMS);
       AbnormalExit();
+      exit(1);
     }
     aTotalParms = &aCommandLineArgs[1];
   } else {
@@ -816,6 +823,7 @@ void CheckParamterFile(int iCommandLineCount,char **aCommandLineArgs) {
             if (strlen(sParmLine)==MAXPARMLINELEN-1) {
               ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXPARMLINELEN [%u]\n",MAXPARMLINELEN);
               AbnormalExit();
+              exit(1);
             }
             if ((*sParmLine)&&(*sParmLine != '#')) {
               pStart = sParmLine;
@@ -829,6 +837,7 @@ void CheckParamterFile(int iCommandLineCount,char **aCommandLineArgs) {
                   if (iNumTotalParms==MAXTOTALPARMS) {
                     ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXTOTALPARMS [%u]\n",MAXTOTALPARMS);
                     AbnormalExit();
+                    exit(1);
                   }
                   pStart = pPos;
                 }
@@ -847,6 +856,7 @@ void CheckParamterFile(int iCommandLineCount,char **aCommandLineArgs) {
                 if (iNumTotalParms==MAXTOTALPARMS) {
                   ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXTOTALPARMS [%u]\n",MAXTOTALPARMS);
                   AbnormalExit();
+                  exit(1);
                 }
               }
             }
@@ -863,6 +873,7 @@ void CheckParamterFile(int iCommandLineCount,char **aCommandLineArgs) {
       if (iNumTotalParms==MAXTOTALPARMS) {
         ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXTOTALPARMS [%u]\n",MAXTOTALPARMS);
         AbnormalExit();
+        exit(1);
       }
     }
   }
@@ -886,6 +897,7 @@ void CopyParameters(ALGORITHM *pDest, const char *sName, const char *sVar, BOOL 
   if (pSrc==0) {
     ReportPrint1(pRepErr,"Unexpected Error: Can't find algorithm %s\n",(char *) sName);
     AbnormalExit();
+    exit(1);
   }
   pParmList = &pSrc->parmList;
   pDest->parmList.iNumParms;
@@ -927,6 +939,7 @@ ALGORITHM *CreateAlgorithm (const char *sName, const char *sVariant, BOOL bWeigh
   if (iNumAlg==MAXNUMALG) {
     ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXNUMALG [%u]\n",MAXNUMALG);
     AbnormalExit();
+    exit(1);
   }
 
   return(pCurAlg);
@@ -945,6 +958,7 @@ REPORT *CreateReport(const char *sID, const char *sDescription, const char *sVer
   if (iNumReports==MAXREPORTS) {
     ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXREPORTS [%u] \n",MAXREPORTS);
     AbnormalExit();
+    exit(1);
   }
 
 
@@ -1049,6 +1063,7 @@ UINT32 FindItem(ITEMLIST *pList,char *sID) {
   }
   ReportPrint1(pRepErr,"Error: reference to (%s) is unknown\n",sID);
   AbnormalExit();
+  exit(1);
 }
 
 ALGPARM *FindParm(ALGPARMLIST *pParmList, char *sSwitch) {
@@ -1084,6 +1099,7 @@ void InheritDataTriggers(ALGORITHM *pDest, const char *sName, const char *sVar, 
   if (pSrc==0) {
     ReportPrint1(pRepErr,"Unexpected Error: Can't find algorithm %s\n",(char *) sName);
     AbnormalExit();
+    exit(1);
   }
   if (pDest->sDataTriggers) {
     *sMasterString = 0;
@@ -1236,6 +1252,7 @@ void ParseItemList(ITEMLIST *pList, char *sItems, CALLBACKPTR ItemFunction) {
     if (strlen(sItems) > MAXITEMLISTSTRINGLENGTH-1) {
       ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXITEMLISTSTRINGLENGTH [%u] \n",MAXITEMLISTSTRINGLENGTH);
       AbnormalExit();
+      exit(1);
     }
     strcpy(sMasterString,sItems);
     sMasterString[pPos-sItems] = 0;
@@ -1696,6 +1713,7 @@ UINT32 SetColStatFlags (char *sStatsParms) {
       if (bValid==FALSE) {
         ReportPrint1(pRepErr,"Error: reference to (%s) is unknown\n",pPos);        
         AbnormalExit();
+        exit(1);
       }
     }
 
@@ -1736,6 +1754,7 @@ VARSTATE NewVarState() {
   if (iVARSTATELen == 0) {
     ReportPrint(pRepErr,"Unexpected Error: iVARSTATELen = 0\n");
     AbnormalExit();
+    exit(1);
   } else {
     vsNew = AllocateRAM(iVARSTATELen * sizeof(BYTE));
     for (j=0;j<iVARSTATELen;j++) {
@@ -1893,6 +1912,7 @@ void AddToVarStateList(VARSTATELIST *vsList, VARSTATE vsAdd) {
   if (vsList==NULL) {
     ReportPrint(pRepErr,"Unexpected Error: invalid VARSTATELIST\n");
     AbnormalExit();
+    exit(1);
   }
   if (vsList->vsState) {
     pNext = vsList->pNext;

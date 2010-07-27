@@ -117,12 +117,14 @@ void SetupFile(FILE **fFil,const char *sOpenType, const char *sFilename, FILE *f
       } else {
         fprintf(stderr,"Fatal Error: Invalid use of null i/o\n");
         AbnormalExit();
+        exit(1);
       }
     } else {
       (*fFil) = fopen(sFilename,sOpenType);
       if ((*fFil) == NULL) {
         printf("Fatal Error: Invalid filename [%s] specified \n",sFilename);
         AbnormalExit();
+        exit(1);
       }
     }
   } else {
@@ -150,6 +152,7 @@ void ActivateReportTriggers() {
           if (aReports[j].fileOut == 0) {
             printf("Fatal Error: Invalid filename [%s] specified \n",aReports[j].sOutputFile);
             AbnormalExit();
+            exit(1);
           }
         }
       }
@@ -179,7 +182,6 @@ void CloseReports() {
 void AbnormalExit() {
   CloseReports();  
   FreeRAM();
-  exit(1);
 }
 
 void CleanExit() {
@@ -241,6 +243,7 @@ void CreateFileRandom() {
   if (filRandomData==NULL) {
     ReportPrint(pRepErr,"Error! Unable to read from random data file\n");
     AbnormalExit();
+    exit(1);
   }
 
   iRandomBufferRemaining = fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);

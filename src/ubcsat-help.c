@@ -65,6 +65,7 @@ void CheckPrintHelp() {
 
   if ((bShowHelp)||(bShowHelpP)||(bShowHelpA)||(bShowHelpW)||(bShowHelpV)||(bShowHelpT)||(bShowHelpR)||(bShowHelpC)||(bShowHelpS)) {
     AbnormalExit();
+    exit(1);
   }
 
   if (!pActiveAlgorithm) HelpNoAlgorithm();
@@ -499,6 +500,7 @@ void HelpNoAlgorithm() {
   }
   ReportPrint(pRepErr,"   ubcsat -ha for a list of valid algorithms\n");
   AbnormalExit();
+  exit(1);
 }
 
 
@@ -754,6 +756,7 @@ void HelpBadParm(char *sParm) {
   ReportPrint1(pRepErr,"   Parameter [%s] is unrecognized or invalid\n",sParm);
   ReportPrint(pRepErr,"\n");
   AbnormalExit();
+  exit(1);
 }
 
 
@@ -765,6 +768,7 @@ void HelpBadReport(char *sParm) {
   ReportPrint(pRepErr,"   ubcsat -hr for help on report parameters  \n");
   ReportPrint(pRepErr,"\n");
   AbnormalExit();
+  exit(1);
 }
 
 
