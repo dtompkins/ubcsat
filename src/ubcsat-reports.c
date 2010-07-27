@@ -119,6 +119,9 @@ void ReportPenStddevPrint();
 /***** Trigger ReportPenCVPrint *****/
 void ReportPenCVPrint();
 
+/***** Trigger ReportVW2WeightsPrint *****/
+void ReportVW2WeightsPrint();
+
 /***** Trigger ReportMobilityPrint *****/
 void ReportMobilityPrint();
 UINT32 iReportMobilityDisplay;
@@ -137,6 +140,9 @@ void ReportAutoCorrPrint();
 
 /***** Trigger ReportTriggersPrint *****/
 void ReportTriggersPrint();
+
+/***** Trigger ReportParamILSPrint *****/
+void ReportParamILSPrint();
 
 /***** Trigger ReportSatCompetitionPrint *****/
 void ReportSatCompetitionPrint();
@@ -266,9 +272,13 @@ void AddReportTriggers() {
   CreateTrigger("ReportMobFixedPrint",PostStep,ReportMobFixedPrint,"MobilityWindow","");
   CreateTrigger("ReportMobFixedFreqPrint",PostRun,ReportMobFixedFreqPrint,"MobilityFixedFrequencies","");
 
+  CreateTrigger("ReportVW2WeightsPrint",PostRun,ReportVW2WeightsPrint,"VW2Weights","");
+
   CreateTrigger("ReportAutoCorrPrint",PostRun,ReportAutoCorrPrint,"AutoCorr","");
 
   CreateTrigger("ReportTriggersPrint",PreStart,ReportTriggersPrint,"","");
+
+  CreateTrigger("ReportParamILSPrint",PostRun,ReportParamILSPrint,"BestFalse","");
 
   CreateTrigger("ReportSatCompetitionPrint",FinalReports,ReportSatCompetitionPrint,"","");
 
@@ -1748,6 +1758,20 @@ void ReportPenCVPrint() {
 
 
 
+/***** Report -r vw2weights *****/
+
+void ReportVW2WeightsPrint() {
+  UINT32 j;
+  if (iRun==1) {
+    ReportHdrPrint(pRepVW2Weights,"Run ID | Step # | Mean | VW2Weight[1] VW2Weight[2] ...\n");
+  }
+  ReportPrint3(pRepVW2Weights,"%u %u %g",iRun,iStep,fVW2WeightMean);
+  for (j=1;j<=iNumVars;j++) {
+    ReportPrint1(pRepVW2Weights," %g",aVW2Weights[j]);
+  }
+  ReportPrint(pRepVW2Weights,"\n");
+}
+
 /***** report -r mobility *****/
 
 void ReportMobilityPrint() {
@@ -1943,6 +1967,27 @@ void ReportTriggersPrint() {
       }
     }
   }
+}
+
+/***** Report -r paramils *****/
+
+void ReportParamILSPrint() {
+  ReportPrint(pRepParamILS,"Result for ParamILS: ");
+  if (bSolutionFound) {
+    ReportPrint(pRepParamILS,"SAT");
+  } else {
+    ReportPrint(pRepParamILS,"TIMEOUT");
+  }
+  ReportPrint1(pRepParamILS,", %g",fRunTime);
+  ReportPrint1(pRepParamILS,", %u",iStep);
+  if (bWeighted) {
+    ReportPrint1(pRepParamILS,", %g",fBestSumFalseW );
+  } else {
+    ReportPrint1(pRepParamILS,", %u",iBestNumFalse);
+  }
+  ReportPrint1(pRepParamILS,", %u\n",iSeed);
+  
+
 }
 
 /***** Report -r satcomp *****/

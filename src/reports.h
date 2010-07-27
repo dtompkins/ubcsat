@@ -50,10 +50,12 @@ extern REPORT *pRepPenalty;
 extern REPORT *pRepPenMean;
 extern REPORT *pRepPenStddev;
 extern REPORT *pRepPenCV;
+extern REPORT *pRepVW2Weights;
 extern REPORT *pRepMobility;
 extern REPORT *pRepMobFixed;
 extern REPORT *pRepMobFixedFreq;
 extern REPORT *pRepAutoCorr;
 extern REPORT *pRepTriggers;
+extern REPORT *pRepParamILS;
 extern REPORT *pRepSATComp;
 

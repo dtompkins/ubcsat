@@ -50,11 +50,13 @@ REPORT *pRepPenalty;
 REPORT *pRepPenMean;
 REPORT *pRepPenStddev;
 REPORT *pRepPenCV;
+REPORT *pRepVW2Weights;
 REPORT *pRepMobility;
 REPORT *pRepMobFixed;
 REPORT *pRepMobFixedFreq;
 REPORT *pRepAutoCorr;
 REPORT *pRepTriggers;
+REPORT *pRepParamILS;
 REPORT *pRepSATComp;
 
 void AddReports() {
@@ -81,7 +83,7 @@ void AddReports() {
 
   pRepSolution = CreateReport("solution","Solutions","Prints solutions for every successful run in the format:~1001001101...~where variable 1 is true, 2 is false, 3 is false, etc...","stdout","ReportSolutionPrint");
 
-  pRepUniqueSol = CreateReport("uniquesol","Unique Solutions","Prints the same as (-r solution), except only unique solutions (no repeats)","stdout","ReportUniqueSolPrint");
+  pRepUniqueSol = CreateReport("uniquesol","Unique Solutions","Prints similar to (-r solution), except only unique solutions (no repeats)","stdout","ReportUniqueSolPrint");
 
   pRepBestSol = CreateReport("bestsol","Best Candidate Solutions","Similar to (-r solution), but includes variable assignments for the~best solution quality encountered when no solution is found","stdout","ReportBestSolPrint");
 
@@ -130,6 +132,8 @@ void AddReports() {
   AddReportParmUInt(pRepPenCV,"Re-normalise to base so an untouched clause is equal to 1",&bReportPenaltyReNormBase,1);
   AddReportParmUInt(pRepPenCV,"Re-normalise to total so sum of all penalties equals 1",&bReportPenaltyReNormFraction,0);
 
+  pRepVW2Weights = CreateReport("vw2weights","VW2 Weights","Prints the VW2 weights at the end of the run","stdout","ReportVW2WeightsPrint");
+
   pRepMobility = CreateReport("mobility","Mobility Report","Mean Hamming distances for windows of sizes 1..length~Parameter 2 will normalize output so 1 is maximum value","stdout","ReportMobilityPrint");
   AddReportParmUInt(pRepMobility,"Largest mobility window length to display [default = n]",&iReportMobilityDisplay,0);
   AddReportParmUInt(pRepMobility,"Normalize Mobility values: Mobility/min(n,windowsize)",&bReportMobilityNormalized,0);
@@ -148,6 +152,8 @@ void AddReports() {
   
   pRepTriggers = CreateReport("triggers","Trigger Report","Prints Out All Active Triggers","stdout","ReportTriggersPrint");
   AddReportParmUInt(pRepTriggers,"Show All Triggers (not just active) [default = 0]",&bReportTriggersAll,0);
+
+  pRepParamILS = CreateReport("paramils","Output for ParamILS","Prints required output ParamILS~(use -r out null and -r stats null)~see http://www.cs.ubc.ca/labs/beta/Projects/ParamILS/","stdout","ReportParamILSPrint");
 
   pRepSATComp = CreateReport("satcomp","SAT Competition","Prints required output for 2005 SAT Competition (use -solve)","stdout","ReportSatCompetitionPrint");
 

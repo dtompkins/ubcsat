@@ -117,6 +117,11 @@ void AddG2WSat();
 
 void AddVW();
 
+extern FLOAT fVW2Smooth;
+extern FLOAT fVW2WeightFactor;
+extern FLOAT *aVW2Weights;
+extern FLOAT fVW2WeightMean;
+
 /* rots.c */
 
 void AddRoTS();
