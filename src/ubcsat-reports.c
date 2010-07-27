@@ -1327,6 +1327,12 @@ void ReportUnsatCountsPrint() {
   if (iRun==1) {
     ReportHdrPrefix(pRepUnsatCounts);
     ReportHdrPrint(pRepUnsatCounts," Run ID | UnsatCount[1] | UnsatCount[2] ...\n");
+    ReportHdrPrefix(pRepUnsatCounts);
+    ReportHdrPrint(pRepUnsatCounts," ClauseLengths");
+    for (j=0;j<iNumClauses;j++) {
+      ReportHdrPrint1(pRepUnsatCounts," %u",aClauseLen[j]);
+    }
+    ReportHdrPrint(pRepUnsatCounts,"\n");
   }
   ReportPrint1(pRepUnsatCounts,"%u",iRun);
   for (j=0;j<iNumClauses;j++) {
