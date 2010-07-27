@@ -71,7 +71,7 @@ void *AllocateRAM( size_t size ) {
     iHeapID = iNumHeap;
     iNumHeap++;
     if (iNumHeap == MAXHEAPS) {
-      ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXHEAPS [%u]\n",MAXHEAPS);
+      ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXHEAPS [%d]\n",MAXHEAPS);
       AbnormalExit();
       exit(1);
     }
