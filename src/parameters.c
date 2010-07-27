@@ -73,7 +73,7 @@ void AddParameters() {
 
   AddParmString(&parmIO, "-rcomment","specify comment character for report headers (# is default)","","",&sCommentString,"#");
 
-  AddParmString(&parmIO,"-filesol,-fs","specify a file with known solutions","(for FDC calc, distance report, etc...)~file format is same as output from (-r solution)","LoadKnownSolutions",&sFilenameSoln,"");
+  AddParmString(&parmIO,"-filesol,-fs","specify a file with known solutions","(for FDC calc, distance report, etc...)~file format is same as output from (-r uniquesol)","LoadKnownSolutions",&sFilenameSoln,"");
 
   AddParmString(&parmIO,"-filerand,-fr","specify a file to read random bits from","can be used instead of a pseudo-random number generator~reads 32 bits of random data at a time, and will loop~back to the start of the file if it runs out of bits~file format is binary","FileRandom",&sFilenameRandomData,"");
 

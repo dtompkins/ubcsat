@@ -523,6 +523,8 @@ void ReportStatsPrint() {
               pString = (char **) pStat->pCustomValue;
               ReportPrint1(pRepStats,pStat->sPrintCustomFormat,*pString);
               break;
+            default:
+              break;
           }
 
           ReportPrint(pRepStats,"\n");
@@ -2021,6 +2023,8 @@ void AllocateColumnRAM() {
           pCol->pfColumnData = AllocateRAM(iNumRuns * sizeof(FLOAT));
           memset(pCol->pfColumnData,0,(iNumRuns)*sizeof(FLOAT));
           break;
+        default:
+          break;
       }
     }
   }
@@ -2071,11 +2075,9 @@ void ColumnRunCalculation() {
   for (j=0;j<listColumns.iNumItems;j++) {
     pCol = &aColumns[j];
     if (pCol->bActive) {
-      switch(pCol->eColType)
-      {
+      switch (pCol->eColType) {
         case ColTypeFinal:
-          switch(pCol->eSourceDataType)
-          {
+          switch (pCol->eSourceDataType) {
           case DTypeUInt:
             pCol->uiCurRowValue = *pCol->puiCurValue;
             break;
@@ -2085,12 +2087,13 @@ void ColumnRunCalculation() {
           case DTypeFloat:
             pCol->fCurRowValue = *pCol->pfCurValue;
             break;
+            default:
+              break;
           }
           break;
         case ColTypeMin:
         case ColTypeMax:
-          switch(pCol->eSourceDataType)
-          {
+          switch (pCol->eSourceDataType) {
           case DTypeUInt:
             pCol->uiCurRowValue = pCol->uiMinMaxVal;
             break;
@@ -2100,12 +2103,13 @@ void ColumnRunCalculation() {
           case DTypeFloat:
             pCol->fCurRowValue = pCol->fMinMaxVal;
             break;
+            default:
+              break;
           }
           break;
         case ColTypeFinalDivStep:
         case ColTypeFinalDivStep100:
-          switch(pCol->eSourceDataType)
-          {
+          switch (pCol->eSourceDataType) {
           case DTypeUInt:
             pCol->fCurRowValue = (FLOAT) *pCol->puiCurValue;
             break;
@@ -2115,6 +2119,8 @@ void ColumnRunCalculation() {
           case DTypeFloat:
             pCol->fCurRowValue = *pCol->pfCurValue;
             break;
+            default:
+              break;
           }
           pCol->fCurRowValue *= fStepMul;
           if (pCol->eColType == ColTypeFinalDivStep100) {
@@ -2137,6 +2143,9 @@ void ColumnRunCalculation() {
               pCol->fCurRowValue = fCV;
             }
           }
+          break;
+
+        default:
           break;
       }
       if (pCol->bAllocateColumnRAM) {
@@ -2173,12 +2182,10 @@ void ColumnStepCalculation() {
   
   for (j=0;j<iNumActiveCalcColumns;j++) {
     pCol = &aColumns[aActiveCalcColumns[j]];
-    switch(pCol->eColType)
-    {
+    switch (pCol->eColType) {
       case ColTypeStddev:
       case ColTypeCV:
-        switch(pCol->eSourceDataType)
-        {
+        switch (pCol->eSourceDataType) {
         case DTypeUInt:
           pCol->fRowSum2 += ((FLOAT) *pCol->puiCurValue) * ((FLOAT) *pCol->puiCurValue);
           break;
@@ -2188,10 +2195,11 @@ void ColumnStepCalculation() {
         case DTypeFloat:
           pCol->fRowSum2 += ((*pCol->pfCurValue) * (*pCol->pfCurValue));
           break;
+          default:
+            break;
         }
       case ColTypeMean:
-        switch(pCol->eSourceDataType)
-        {
+        switch (pCol->eSourceDataType) {
         case DTypeUInt:
           pCol->fRowSum += (FLOAT) *pCol->puiCurValue;
           break;
@@ -2201,12 +2209,13 @@ void ColumnStepCalculation() {
         case DTypeFloat:
           pCol->fRowSum += *pCol->pfCurValue;
           break;
+          default:
+            break;
         }
         break;
 
       case ColTypeMin:
-        switch(pCol->eSourceDataType)
-        {
+        switch (pCol->eSourceDataType) {
           case DTypeUInt:
             if (*pCol->puiCurValue < pCol->uiMinMaxVal) pCol->uiMinMaxVal = *pCol->puiCurValue;
             break;
@@ -2216,12 +2225,13 @@ void ColumnStepCalculation() {
           case DTypeFloat:
             if (*pCol->pfCurValue < pCol->fMinMaxVal) pCol->fMinMaxVal = *pCol->pfCurValue;
             break;
+          default:
+            break;
         }
         break;
 
       case ColTypeMax:
-        switch(pCol->eSourceDataType)
-        {
+        switch (pCol->eSourceDataType) {
           case DTypeUInt:
             if (*pCol->puiCurValue > pCol->uiMinMaxVal) pCol->uiMinMaxVal = *pCol->puiCurValue;
             break;
@@ -2231,7 +2241,12 @@ void ColumnStepCalculation() {
           case DTypeFloat:
             if (*pCol->pfCurValue > pCol->fMinMaxVal) pCol->fMinMaxVal = *pCol->pfCurValue;
             break;
+          default:
+            break;
         }
+        break;
+
+      default:
         break;
     }
   }
@@ -2275,8 +2290,7 @@ void StringAlgParms() {
   for (j=0;j<pActiveAlgorithm->parmList.iNumParms;j++) {
     pCurParm = &pActiveAlgorithm->parmList.aParms[j];
     pNext += sprintf(pNext," %s ",pCurParm->sSwitch);
-    switch(pCurParm->eType)
-    {
+    switch (pCurParm->eType) {
       case PTypeUInt:
         pNext += sprintf(pNext,"%u ", *(UINT32 *)pCurParm->pParmValue);
         break;
@@ -2300,6 +2314,8 @@ void StringAlgParms() {
         pNext += sprintf(pNext,"%u ", *(UINT32 *)pCurParm->pParmValue);
         break;
       case PTypeReport:
+        break;
+      default:
         break;
     }  
   }

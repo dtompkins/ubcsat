@@ -249,7 +249,9 @@ void PostStepIRoTS() {
         }
       }
     }
+    break;
 
+  default:
     break;
   }
 

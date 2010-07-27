@@ -431,7 +431,6 @@ void HelpPrintReport(REPORT *pRep) {
     for (k=0;k<pRep->iNumParms;k++) {
       ReportPrint2(pRepHelp,"    Param %2d: %s",k+1,pRep->aParmName[k]);
       switch (pRep->aParmTypes[k]) {
-        {
         case PTypeUInt:
           ReportPrint1(pRepHelp," [%u] \n",*(int *)pRep->aParameters[k]);
           break;
@@ -441,7 +440,8 @@ void HelpPrintReport(REPORT *pRep) {
         case PTypeString:
           ReportPrint1(pRepHelp," [%s] \n",(char *)pRep->aParameters[k]);          
           break;
-        }
+        default:
+          break;
       }
     }
   }
@@ -510,8 +510,7 @@ void HelpPrintParameter(ALGPARM *pCurParm, BOOL bAlgOffset) {
   UINT32 iNumSpaces;
   UINT32 j;
 
-  switch(pCurParm->eType)
-  {
+  switch (pCurParm->eType) {
     case PTypeBool:
       sprintf(sHelpString,"%u",pCurParm->defDefault.bBool);
       break;
@@ -533,6 +532,8 @@ void HelpPrintParameter(ALGPARM *pCurParm, BOOL bAlgOffset) {
     case PTypeReport:
       sprintf(sHelpString,"");
       break;
+    default:
+      break;
   }  
 
   if (bAlgOffset) {
@@ -549,8 +550,7 @@ void HelpPrintParameter(ALGPARM *pCurParm, BOOL bAlgOffset) {
     }
   }
 
-  switch(pCurParm->eType)
-  {
+  switch (pCurParm->eType) {
     case PTypeBool:
       break;
     case PTypeUInt:
@@ -570,6 +570,8 @@ void HelpPrintParameter(ALGPARM *pCurParm, BOOL bAlgOffset) {
       break;
     case PTypeReport:
       ReportPrint(pRepHelp,"... ");
+      break;
+    default:
       break;
   }  
   if (pCurParm->eType != PTypeBool) {
@@ -625,8 +627,7 @@ void HelpPrintParametersTerse(ALGPARMLIST *pParmList) {
 
   for (j=0;j<pParmList->iNumParms;j++) {
     pCurParm = &pParmList->aParms[j];
-    switch(pCurParm->eType)
-    {
+    switch (pCurParm->eType) {
       case PTypeBool:
         sprintf(sHelpString,"%u",pCurParm->defDefault.bBool);
         break;
@@ -647,6 +648,8 @@ void HelpPrintParametersTerse(ALGPARMLIST *pParmList) {
         break;
       case PTypeReport:
         sprintf(sHelpString,"");
+        break;
+      default:
         break;
     }  
 

@@ -170,8 +170,7 @@ void PickRNoveltyCore() {
   }
 }
 
-void PickRNovelty()
-{
+void PickRNovelty() {
  
   UINT32 iClause;
   UINT32 iClauseLen;
@@ -198,8 +197,7 @@ void PickRNovelty()
 }
 
 
-void PickRNoveltyPlus()
-{
+void PickRNoveltyPlus() {
  
   UINT32 iClause;
   UINT32 iClauseLen;

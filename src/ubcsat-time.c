@@ -84,8 +84,7 @@ double fCurrentTimeStamp;
 
 #endif
 
-double TimeElapsed(double fStart)
-{
+double TimeElapsed(double fStart) {
   CurrentTime();
   if ((fCurrentTimeStamp - fStart) <= FLOATZERO) {
     return(FLOATZERO);

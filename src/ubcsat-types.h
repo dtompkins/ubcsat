@@ -95,8 +95,7 @@
 #define NULL 0
 #endif
 
-enum EVENTPOINT
-{
+enum EVENTPOINT {
   PostParameters,
   ReadInInstance,
   PostRead,
