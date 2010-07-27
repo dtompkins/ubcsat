@@ -46,6 +46,10 @@ void PickHSatW();
 
 void AddHWSat();
 
+/* hybrid.c */
+
+void AddHybrid();
+
 /* walksat.c */
 
 void AddWalkSat();

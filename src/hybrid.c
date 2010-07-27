@@ -22,51 +22,24 @@
 
 #include "ubcsat.h"
 
-void AddAlgorithms() {
+void PickHybrid1();
 
-  AddGSat();  
-  AddGWSat();
-  AddGSatTabu();
+void AddHybrid() {
 
-  AddHSat();
-  AddHWSat();
+  ALGORITHM *pCurAlg;
 
-  AddWalkSat();
-  AddWalkSatTabu();
-
-  AddNovelty();
-  AddNoveltyPlus();
-  AddNoveltyPlusPlus();
-
-  AddNoveltyPlusP();
-
-  AddAdaptNoveltyPlus();
-
-  AddRNovelty();
-  AddRNoveltyPlus();
-
-  AddSAPS();
-
-  AddPAWS();
-
-  AddDDFW();
-
-  AddG2WSat();
-
-  AddVW();
-
-  AddHybrid();
-
-  AddRoTS();
-  AddIRoTS();
-
-  AddSAMD();
-
-  AddRandom();
-
-  AddDerandomized();
-
-  AddRGSat();
+  pCurAlg = CreateAlgorithm("hybrid1","",FALSE,
+   "Hybrid1: Switch between VW and adaptG2WSATp",
+    "Wei, Li, Zhang  [JSAT 08]",
+    "PickHybrid1",
+    "DefaultProcedures",
+    "default","default");
+  
+  CreateTrigger("PickHybrid1",ChooseCandidate,PickHybrid1,"","");
 
 }
 
+
+void PickHybrid1() {
+  printf("TODO!\n"); 
+}
