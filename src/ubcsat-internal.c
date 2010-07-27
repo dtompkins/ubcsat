@@ -1867,23 +1867,23 @@ BOOL IsVarStateInList(VARSTATELIST *vsList, VARSTATE vsIn) {
   return(FALSE);
 }
 
-
-UINT32 MinHammingVarStateList(VARSTATELIST *vsList, VARSTATE vsIn) {
+VARSTATE FindClosestVarState(VARSTATELIST *vsList, VARSTATE vsIn) {
   VARSTATELIST *vsNext = vsList;
   UINT32 iBest = iNumVars;
   UINT32 iDist;
-
+  VARSTATE vsBest = vsIn;
 
   while (vsNext) {
     if (vsNext->vsState) {
       iDist = HammingDistVarState(vsNext->vsState,vsIn);
       if (iDist < iBest) {
         iBest = iDist;
+        vsBest = vsNext->vsState;
       }
     }
     vsNext = vsNext->pNext;
   }
-  return(iBest);
+  return(vsBest);
 }
 
 

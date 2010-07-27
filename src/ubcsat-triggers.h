@@ -632,9 +632,11 @@ extern BOOL bKnownSolutions;
 
 /***** Trigger SolutionDistance *****/
 /*
-    iSolutionDistance       Current Distance from Known Solution(s)
+    iSolutionDistance           Current Distance from Known Solution(s)
+    vsSolutionDistanceClosest   The closest known solution
 */
 
+extern VARSTATE vsSolutionDistanceClosest;
 extern UINT32 iSolutionDistance;
 
 

@@ -156,7 +156,7 @@ void SetArrayFromVarState(UINT32 *aOut, VARSTATE vsIn);
 UINT32 HammingDistVarState(VARSTATE vsA, VARSTATE vsB);
 BOOL IsVarStateEqual(VARSTATE vsA, VARSTATE vsB);
 BOOL IsVarStateInList(VARSTATELIST *vsList, VARSTATE vsIn);
-UINT32 MinHammingVarStateList(VARSTATELIST *vsList, VARSTATE vsIn);
+VARSTATE FindClosestVarState(VARSTATELIST *vsList, VARSTATE vsIn);
 void AddToVarStateList(VARSTATELIST *vsList, VARSTATE vsAdd);
 BOOL AddUniqueToVarStateList(VARSTATELIST *vsList, VARSTATE vsAdd);
 

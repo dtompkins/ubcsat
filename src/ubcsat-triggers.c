@@ -628,7 +628,8 @@ BOOL bKnownSolutions;
 void CreateSolutionDistance();
 void UpdateSolutionDistance();
 
-VARSTATE vsSolutionDistance;
+VARSTATE vsSolutionDistanceCurrent;
+VARSTATE vsSolutionDistanceClosest;
 UINT32 iSolutionDistance;
 
 
@@ -4893,12 +4894,13 @@ void LoadKnownSolutions() {
 }
 
 void CreateSolutionDistance() {
-  vsSolutionDistance = NewVarState();
+  vsSolutionDistanceCurrent = NewVarState();
 }
 
 void UpdateSolutionDistance() {
-  SetCurVarState(vsSolutionDistance);
-  iSolutionDistance = MinHammingVarStateList(&vslKnownSoln,vsSolutionDistance);
+  SetCurVarState(vsSolutionDistanceCurrent);
+  vsSolutionDistanceClosest = FindClosestVarState(&vslKnownSoln, vsSolutionDistanceCurrent);
+  iSolutionDistance = HammingDistVarState(vsSolutionDistanceClosest,vsSolutionDistanceCurrent);
 }
 
 void InitFDCRun() {
