@@ -116,10 +116,12 @@ void AddDDFW();
 /* g2wsat.c */
 
 void AddG2WSat();
+void PickG2WSatP();
 
 /* vw.c */
 
 void AddVW();
+void PickVW2Auto();
 
 extern FLOAT fVW2Smooth;
 extern FLOAT fVW2WeightFactor;
