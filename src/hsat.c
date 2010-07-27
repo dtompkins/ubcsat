@@ -67,17 +67,19 @@ void PickHSat() {
 
     /* build candidate list of best vars */
 
-    if (iScore <= iBestScore) {
-
-      /* if 2 variables are tied, and one is 'older' then choose older var */
-
-      if ((iScore < iBestScore)||(aVarLastChange[j]<aVarLastChange[*aCandidateList])) {
+    if (iScore < iBestScore) {
         iNumCandidates=0;
+        aCandidateList[iNumCandidates++] = j;
         iBestScore = iScore;
+    } else {
+      if ((iScore == iBestScore) && (aVarLastChange[j] <= aVarLastChange[*aCandidateList])) {
+        /* if 2 variables are tied, and one is 'older' then choose older var */
+        if (aVarLastChange[j] < aVarLastChange[*aCandidateList]) {
+          iNumCandidates=0;
+        }
+        aCandidateList[iNumCandidates++] = j;
       }
-      aCandidateList[iNumCandidates++] = j;
     }
-
   }
   
   /* select flip candidate uniformly from candidate list */
