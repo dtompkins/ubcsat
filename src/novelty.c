@@ -124,7 +124,7 @@ void AddNoveltyPlusPlus() {
   
   CopyParameters(pCurAlg,"novelty++","",FALSE);
 
-  CreateTrigger("PickNoveltyPlusW",ChooseCandidate,PickNoveltyPlusW,"","");
+  CreateTrigger("PickNoveltyPlusPlusW",ChooseCandidate,PickNoveltyPlusPlusW,"","");
 
 }
 
@@ -222,7 +222,7 @@ void PickNovelty() {
   
   iFlipCandidate = iBestVar;
 
-  /* if the best is the youngest, select it */
+  /* if the best is NOT the youngest, select it */
 
   if (iFlipCandidate != iYoungestVar) {
     return;
@@ -235,8 +235,7 @@ void PickNovelty() {
   }
 }
 
-void PickNoveltyPlus()
-{
+void PickNoveltyPlus() {
  
   UINT32 iClause;
   UINT32 iClauseLen;
