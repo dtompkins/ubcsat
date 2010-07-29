@@ -314,7 +314,7 @@ void UpdateVW2Auto() {
 
 BOOL BoundedExpProbability (SINT32 iExpProbability)
 {
-  if (iExpProbability < 0) {
+  if (iExpProbability <= 0) {
     return TRUE;
   }
   if (iExpProbability > iMaxExpProbability) {
@@ -391,7 +391,7 @@ void PickVW2Auto() {
         iBestScore = iScore;
       }
 
-      if ((iScore < iPrevScore) || ((aVW2Weights[iVar] < fPrevVW2Weight) && BoundedExpProbability(iScore - iPrevScore))) {
+      if ((iScore < iPrevScore) || ((aVW2Weights[iVar] < fPrevVW2Weight) && ((iScore == iPrevScore) || BoundedExpProbability(iScore - iPrevScore)))) {
         iFlipCandidate = iVar;
         iPrevScore = iScore;
         fPrevVW2Weight = aVW2Weights[iVar];

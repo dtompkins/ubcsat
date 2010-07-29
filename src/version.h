@@ -20,5 +20,5 @@
 
 */
 
-const char sVersion[] = "1.2-hybrid1";
+const char sVersion[] = "1.2-h3 BETA -- do not use for published results";
 

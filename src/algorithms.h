@@ -122,11 +122,13 @@ void PickG2WSatP();
 
 void AddVW();
 void PickVW2Auto();
+BOOL BoundedExpProbability (SINT32 iExpProbability);
 
 extern FLOAT fVW2Smooth;
 extern FLOAT fVW2WeightFactor;
 extern FLOAT *aVW2Weights;
 extern FLOAT fVW2WeightMean;
+extern SINT32 iMaxExpProbability;
 
 /* rots.c */
 
