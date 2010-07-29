@@ -23,8 +23,8 @@
 #include "ubcsat.h"
 
 void PickHybrid1();
-void InitHybrdInfo();
-void UpdateHybridInfo();
+void InitHybrd1Info();
+void UpdateHybrid1Info();
 
 FLOAT fHybridGamma;
 FLOAT fVW2WeightMax;
