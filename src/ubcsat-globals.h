@@ -154,8 +154,8 @@ void InheritDataTriggers(ALGORITHM *pDest, const char *sName, const char *sVar, 
 void CreateTrigger(const char *sID,
                    enum EVENTPOINT eEventPoint,
                    FXNPTR pProcedure,
-                   char *sDependencyList,
-                   char *sDeactivateList);
+                   const char *sDependencyList,
+                   const char *sDeactivateList);
 
 /*
     CreateContainerTrigger()    add a new container trigger to the UBCSAT system
@@ -168,13 +168,13 @@ void CreateContainerTrigger(const char *sID, const char *sList);
     ActivateTriggers()     Explicitly Activate specific trigger(s) [not normally necessary]
 */
 
-void ActivateTriggers(char *sTriggers);
+void ActivateTriggers(const char *sTriggers);
 
 /*  
     DeActivateTriggers()   Explicitly DeActivate specific trigger(s) [not normally necessary]
 */
 
-void DeActivateTriggers(char *sTriggers);
+void DeActivateTriggers(const char *sTriggers);
 
 
 /*
@@ -228,7 +228,7 @@ void AddParmString(ALGPARMLIST *pParmList,
                   const char *sDescription,
                   const char *sTriggers,
                   char **pString,
-                  char *sDefString);
+                  const char *sDefString);
 
                   
 /*
@@ -255,22 +255,22 @@ void AddReportParmString(REPORT *pRep, const char *sParmName, const char *pDefau
 
 void AddColumnUInt(const char *sID, 
                    const char *sDescription, 
-                   char *sHeader1,  
-                   char *sHeader2,  
-                   char *sHeader3, 
-                   char *sPrintFormat, 
+                   const char *sHeader1,  
+                   const char *sHeader2,  
+                   const char *sHeader3, 
+                   const char *sPrintFormat, 
                    UINT32 *pCurValue,
-                   char *sTriggers,
+                   const char *sTriggers,
                    enum COLTYPE eColType);
 
 void AddColumnFloat(const char *sID, 
                     const char *sDescription, 
-                    char *sHeader1,  
-                    char *sHeader2,  
-                    char *sHeader3, 
-                    char *sPrintFormat,
+                    const char *sHeader1,  
+                    const char *sHeader2,  
+                    const char *sHeader3, 
+                    const char *sPrintFormat,
                     FLOAT *pCurValue,
-                    char *sTriggers,
+                    const char *sTriggers,
                     enum COLTYPE eColType);
 
 void AddColumnComposite(const char *sID, 
