@@ -127,8 +127,8 @@ void ActivateColumnID(UINT32 iColID, const char *sItem);
 void ActivateStatID(UINT32 iStatID, const char *sItem);
 void ActivateTriggerID(UINT32 iFxnID, const char *sItem);
 
-void ActivateColumns(char *sColumns);
-void ActivateStats(char *sStats);
+void ActivateColumns(const char *sColumns);
+void ActivateStats(const char *sStats);
 
 void AddAllocateRAMColumnID(UINT32 j, const char *sItem);
 void AddOutputColumnID(UINT32 j, const char *sItem);
@@ -139,11 +139,11 @@ void AddRTDColumnID(UINT32 j, const char *sItem);
 void CalculateStats(FLOAT *fMean, FLOAT *fStddev, FLOAT *fCV, FLOAT fSum, FLOAT fSum2, UINT32 iCount);
 FLOAT CorrelationCoeff(FLOAT fSumA, FLOAT fSumA2,FLOAT fSumB, FLOAT fSumB2, FLOAT fSumAB, UINT32 iCount);
 void CheckPrintHelp();
-UINT32 FindItem(ITEMLIST *pList,char *sID);
+UINT32 FindItem(ITEMLIST *pList,const char *sID);
 void HelpBadParm(char *sParm);
 void ParseAllParameters(int argc, char *argv[]);
 void PrintAlgParmSettings(REPORT *pRep, ALGPARMLIST *pParmList);
-void ParseItemList(ITEMLIST *pList, char *sItems, CALLBACKPTR ItemFunction);
+void ParseItemList(ITEMLIST *pList, const char *sItems, CALLBACKPTR ItemFunction);
 void PrintUBCSATHeader(REPORT *pRep);
 void SetupUBCSAT();
 

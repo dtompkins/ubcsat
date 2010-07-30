@@ -122,27 +122,27 @@ ALGPARM *AddParmCommon(ALGPARMLIST *pParmList,const char *sSwitch,const char *sT
 void AddReportParmCommon(REPORT *pRep, const char *sParmName);
 void DeActivateTriggerID(UINT32 iFxnID, const char *sItem);
 ALGORITHM *FindAlgorithm(const char *sFindName, const char *sFindVar, BOOL bFindWeighted);
-UINT32 MatchParameter(char *sSwitch,char *sParm);
+UINT32 MatchParameter(const char *sSwitch, const char *sParm);
 void ParseParameters(ALGPARMLIST *pParmList);
 void SetAlgorithmDefaultReports();
 void SetDefaultParms(ALGPARMLIST *pParmList);
 UINT32 SetColStatFlags (char *sStatsParms);
 
 
-void ActivateTriggers(char *sTriggers) {
+void ActivateTriggers(const char *sTriggers) {
   ParseItemList(&listTriggers,sTriggers,ActivateTriggerID);
 }
 
-void DeActivateTriggers(char *sTriggers) {
+void DeActivateTriggers(const char *sTriggers) {
   ParseItemList(&listTriggers,sTriggers,DeActivateTriggerID);
 }
 
 
-void ActivateColumns(char *sColumns) {
+void ActivateColumns(const char *sColumns) {
   ParseItemList(&listColumns,sColumns,ActivateColumnID);
 }
 
-void ActivateStats(char *sStats) {
+void ActivateStats(const char *sStats) {
   ParseItemList(&listStats,sStats,ActivateStatID);
 }
 
@@ -351,12 +351,12 @@ void AddColumnComposite(const char *sID,
 
 void AddColumnFloat(const char *sID, 
                   const char *sDescription, 
-                  char *sHeader1,  
-                  char *sHeader2,  
-                  char *sHeader3, 
-                  char *sPrintFormat,
+                  const char *sHeader1,  
+                  const char *sHeader2,  
+                  const char *sHeader3, 
+                  const char *sPrintFormat,
                   FLOAT *pCurValue,
-                  char *sTriggers,
+                  const char *sTriggers,
                   enum COLTYPE eColType
                   )
 {
@@ -391,12 +391,12 @@ void AddColumnFloat(const char *sID,
 
 void AddColumnUInt(const char *sID, 
                   const char *sDescription, 
-                  char *sHeader1,  
-                  char *sHeader2,  
-                  char *sHeader3, 
-                  char *sPrintFormat, 
+                  const char *sHeader1,  
+                  const char *sHeader2,  
+                  const char *sHeader3, 
+                  const char *sPrintFormat, 
                   UINT32 *pCurValue,
-                  char *sTriggers,
+                  const char *sTriggers,
                   enum COLTYPE eColType
                   )
 {
@@ -589,7 +589,7 @@ void AddParmString(ALGPARMLIST *pParmList,
                   const char *sVerboseDescription,
                   const char *sTriggers,
                   char **pString,
-                  char *sDefString)
+                  const char *sDefString)
 {
   ALGPARM *p;
   p = AddParmCommon(pParmList,sSwitch,sTerseDescription,sVerboseDescription,sTriggers);
@@ -974,7 +974,7 @@ REPORT *CreateReport(const char *sID, const char *sDescription, const char *sVer
   return (pRep);
 }
 
-void CreateTrigger(const char *sID, enum EVENTPOINT eEventPoint, FXNPTR pProcedure, char *sDependencyList, char *sDeactivateList) {
+void CreateTrigger(const char *sID, enum EVENTPOINT eEventPoint, FXNPTR pProcedure, const char *sDependencyList, const char *sDeactivateList) {
   TRIGGER *pNewTrig;
 
   pNewTrig = &aTriggers[listTriggers.iNumItems];
@@ -1032,7 +1032,7 @@ ALGORITHM *FindAlgorithm(const char *sFindName, const char *sFindVar, BOOL bFind
   return(0);
 }
 
-UINT32 FindItem(ITEMLIST *pList,char *sID) {
+UINT32 FindItem(ITEMLIST *pList, const char *sID) {
   SINT32 j;
   char *pPos;
   char *pPos2;
@@ -1188,10 +1188,10 @@ BOOL IsLocalMinimum(BOOL bUseWeighted) {
   return(TRUE);
 }
 
-UINT32 MatchParameter(char *sSwitch,char *sParm) {
+UINT32 MatchParameter(const char *sSwitch,const char *sParm) {
   
-  char *pPos;
-  char *pEndParm;
+  const char *pPos;
+  const char *pEndParm;
   
   pPos = strstr(sSwitch,sParm);
   while (pPos) {
@@ -1237,9 +1237,9 @@ void ParseAllParameters(int argc, char *argv[]) {
   CheckInvalidParamters();
 }
 
-void ParseItemList(ITEMLIST *pList, char *sItems, CALLBACKPTR ItemFunction) {
+void ParseItemList(ITEMLIST *pList, const char *sItems, CALLBACKPTR ItemFunction) {
 
-  char *pPos;
+  const char *pPos;
   SINT32 j;
 
   if (*sItems==0) {
