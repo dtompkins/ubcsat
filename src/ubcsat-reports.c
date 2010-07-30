@@ -896,7 +896,7 @@ void ReportCNFStatsPrint() {
 
   if (iNumClauses > 0) {
 
-    aClauseBins = AllocateRAM((iMaxClauseLen + 3) * sizeof(UINT32));
+    aClauseBins = (UINT32 *) AllocateRAM((iMaxClauseLen + 3) * sizeof(UINT32));
     
     for (j=0;j<iMaxClauseLen + 3;j++) {
       aClauseBins[j] = 0;
@@ -1416,9 +1416,9 @@ void ReportSQGridPrint() {
 
 void ReportPenaltyCreate() {
 
-  aPenaltyStatsFinal = AllocateRAM(iNumClauses*sizeof(FLOAT));
-  aPenaltyStatsFinalSum = AllocateRAM(iNumClauses*sizeof(FLOAT));
-  aPenaltyStatsFinalSum2 = AllocateRAM(iNumClauses*sizeof(FLOAT));
+  aPenaltyStatsFinal = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
+  aPenaltyStatsFinalSum = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
+  aPenaltyStatsFinalSum2 = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
   memset(aPenaltyStatsFinalSum,0,iNumClauses*sizeof(FLOAT));
   memset(aPenaltyStatsFinalSum2,0,iNumClauses*sizeof(FLOAT));
 
@@ -2064,15 +2064,15 @@ void AllocateColumnRAM() {
     if (pCol->bAllocateColumnRAM) {
       switch (pCol->eFinalDataType) {
         case DTypeUInt:
-          pCol->puiColumnData = AllocateRAM(iNumRuns * sizeof(UINT32));
+          pCol->puiColumnData = (UINT32 *) AllocateRAM(iNumRuns * sizeof(UINT32));
           memset(pCol->puiColumnData,0,(iNumRuns)*sizeof(UINT32));
           break;
         case DTypeSInt:
-          pCol->psiColumnData = AllocateRAM(iNumRuns * sizeof(SINT32));
+          pCol->psiColumnData = (SINT32 *) AllocateRAM(iNumRuns * sizeof(SINT32));
           memset(pCol->psiColumnData,0,(iNumRuns)*sizeof(SINT32));
           break;
         case DTypeFloat:
-          pCol->pfColumnData = AllocateRAM(iNumRuns * sizeof(FLOAT));
+          pCol->pfColumnData = (FLOAT *) AllocateRAM(iNumRuns * sizeof(FLOAT));
           memset(pCol->pfColumnData,0,(iNumRuns)*sizeof(FLOAT));
           break;
         default:
@@ -2328,7 +2328,7 @@ void StringAlgParms() {
   char * pNext;
   ALGPARM *pCurParm;
   
-  sStringAlgParms = AllocateRAM(MAXPARMLINELEN);
+  sStringAlgParms = (char *) AllocateRAM(MAXPARMLINELEN);
   
   pNext = sStringAlgParms;
   pNext += sprintf(pNext,"-alg %s",pActiveAlgorithm->sName);
@@ -2521,7 +2521,7 @@ void SortByCurrentColData(REPORTCOL *pCol) {
   UINT32 j;
   
   if (aSortedByCurrent == NULL) {
-    aSortedByCurrent = AllocateRAM(sizeof(UINT32) * (iRun));
+    aSortedByCurrent = (UINT32 *) AllocateRAM(sizeof(UINT32) * (iRun));
   }
 
   for (j=0;j<iRun;j++) {
@@ -2602,7 +2602,7 @@ void SortByCurrentColDataAndFound(REPORTCOL *pCol) {
   aFoundData = pColFound->puiColumnData;
   
   if (aSortedByCurrent == NULL) {
-    aSortedByCurrent = AllocateRAM(sizeof(UINT32) * (iRun));
+    aSortedByCurrent = (UINT32 *) AllocateRAM(sizeof(UINT32) * (iRun));
   }
 
   for (j=0;j<iRun;j++) {
@@ -2636,13 +2636,13 @@ void SortByStepPerformance() {
   pCol = &aColumns[FindItem(&listColumns,"steps")];
 
   SortByCurrentColData(pCol);
-  aSortedBySteps = AllocateRAM(sizeof(UINT32) * (iRun));
+  aSortedBySteps = (UINT32 *) AllocateRAM(sizeof(UINT32) * (iRun));
   for (j=0;j<iRun;j++) {
     aSortedBySteps[j] = aSortedByCurrent[j];
   }
 
   SortByCurrentColDataAndFound(pCol);
-  aSortedByStepsAndFound = AllocateRAM(sizeof(UINT32) * (iRun));
+  aSortedByStepsAndFound = (UINT32 *) AllocateRAM(sizeof(UINT32) * (iRun));
   for (j=0;j<iRun;j++) {
     aSortedByStepsAndFound[j] = aSortedByCurrent[j];
   }
