@@ -236,7 +236,7 @@ UINT32 FileRandomUInt32() {
 
 void CreateFileRandom() {
 
-  pRandomDataBuffer = AllocateRAM(RANDOMFILEBUFFERSIZE);
+  pRandomDataBuffer = (BYTE *) AllocateRAM(RANDOMFILEBUFFERSIZE);
   
   SetupFile(&filRandomData,"rb",sFilenameRandomData,NULL,FALSE);
 

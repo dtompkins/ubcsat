@@ -195,7 +195,7 @@ void ActivateStatID(UINT32 iStatID, const char *sItem) {
     pStat->bActive = TRUE;
     pStat->iActiveID = iNumStatsActive++;
 
-    pPos = strchr(sItem,'[');
+    pPos = (char *) strchr(sItem,'[');
     if (pPos) {
       pPos++;
       pPos2 = strchr(pPos,']');
@@ -809,7 +809,7 @@ void CheckParamterFile(int iCommandLineCount,char **aCommandLineArgs) {
     aTotalParms = &aCommandLineArgs[1];
   } else {
 
-    aTotalParms = AllocateRAM(MAXTOTALPARMS * sizeof(char *));
+    aTotalParms = (char **) AllocateRAM(MAXTOTALPARMS * sizeof(char *));
 
     for (j=0;j<(iCommandLineCount - 1);j++) {
       if (MatchParameter("-param,-fp",aCommandLineArgs[j])) {
@@ -1755,7 +1755,7 @@ VARSTATE NewVarState() {
     AbnormalExit();
     exit(1);
   } else {
-    vsNew = AllocateRAM(iVARSTATELen * sizeof(BYTE));
+    vsNew = (BYTE *) AllocateRAM(iVARSTATELen * sizeof(BYTE));
     for (j=0;j<iVARSTATELen;j++) {
       vsNew[j] = 0x00;
     }
@@ -1766,7 +1766,7 @@ VARSTATE NewVarState() {
 VARSTATE NewCopyVarState(VARSTATE vsCopy) {
   VARSTATE vsNew;
   UINT32 j;
-  vsNew = AllocateRAM(iVARSTATELen * sizeof(BYTE));
+  vsNew = (BYTE *) AllocateRAM(iVARSTATELen * sizeof(BYTE));
   for (j=0;j<iVARSTATELen;j++) {
     vsNew[j] = vsCopy[j];
   }
@@ -1915,7 +1915,7 @@ void AddToVarStateList(VARSTATELIST *vsList, VARSTATE vsAdd) {
   }
   if (vsList->vsState) {
     pNext = vsList->pNext;
-    vsList->pNext = AllocateRAM(sizeof(VARSTATELIST));
+    vsList->pNext = (VARSTATELIST *) AllocateRAM(sizeof(VARSTATELIST));
     vsList->pNext->pNext = pNext;
     vsList->pNext->vsState = NewCopyVarState(vsAdd);
   } else {

@@ -402,7 +402,7 @@ void PickVW2Auto() {
 
 
 void CreateVW2Weights() {
-  aVW2Weights = AllocateRAM((iNumVars+1)*sizeof(FLOAT));
+  aVW2Weights = (FLOAT *) AllocateRAM((iNumVars+1)*sizeof(FLOAT));
 }
 
 void InitVW2Weights() {

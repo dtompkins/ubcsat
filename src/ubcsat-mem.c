@@ -60,11 +60,11 @@ void *AllocateRAM( size_t size ) {
   }
   if (!bFound) {
     if (size > DEFAULTHEAPSIZE) {
-      aHeap[iNumHeap].pHeap = malloc(size);
+      aHeap[iNumHeap].pHeap = (char *) malloc(size);
       aHeap[iNumHeap].pFree = aHeap[iNumHeap].pHeap;
       aHeap[iNumHeap].iBytesFree = size;
     } else {
-      aHeap[iNumHeap].pHeap = malloc(DEFAULTHEAPSIZE);
+      aHeap[iNumHeap].pHeap = (char *) malloc(DEFAULTHEAPSIZE);
       aHeap[iNumHeap].pFree = aHeap[iNumHeap].pHeap;
       aHeap[iNumHeap].iBytesFree = DEFAULTHEAPSIZE;
     }
@@ -91,7 +91,7 @@ void AdjustLastRAM( size_t size ) {
 }
 
 void SetString(char **sNew, const char *sSrc) {
-  (*sNew) = AllocateRAM(strlen(sSrc)+1);
+  (*sNew) = (char *) AllocateRAM(strlen(sSrc)+1);
   strcpy(*sNew,sSrc);
 }
 
