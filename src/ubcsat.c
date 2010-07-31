@@ -22,8 +22,6 @@
 
 #include "ubcsat.h"
 
-#include "version.h"
-
 int ubcsatmain(int argc, char *argv[]) {
   
   InitSeed();
