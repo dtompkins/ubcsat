@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void AddParameters() {
 
   AddParmString(&parmAlg,"-alg","algorithm name","","",&sAlgName,"");
@@ -80,3 +84,8 @@ void AddParameters() {
   AddParmString(&parmIO,"-fileabort,-fa","specify a signal file to terminate all remaining runs","during a long execution with numerous runs, you can create~an abort file (the contents of the file are not important)~to prevent any remaining runs from starting...~the current run will finish and all reports will finish","FileAbort",&sFilenameAbort,"");
 
 }
+
+#ifdef __cplusplus
+
+}
+#endif

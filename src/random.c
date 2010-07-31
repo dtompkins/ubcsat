@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickURWalk();
 void PickCRWalk();
 void SchoeningRestart();
@@ -110,3 +114,7 @@ void SchoeningRestart() {
 
 }
 
+#ifdef __cplusplus
+
+}
+#endif

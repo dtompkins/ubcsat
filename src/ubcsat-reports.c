@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 /*  
     This file contains the code to make the various reports work
 */
@@ -2850,3 +2854,9 @@ void SortByStepPerformance() {
   bSortedByStepsValid = TRUE;
 
 }
+
+#ifdef __cplusplus
+
+}
+#endif
+

@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickWalkSatTabu();
 void PickWalkSatTabuW();
 void PickWalkSatTabuNoNull();
@@ -235,3 +239,7 @@ void PickWalkSatTabuW() {
   }
 }
 
+#ifdef __cplusplus
+
+}
+#endif

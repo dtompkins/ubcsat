@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 FLOAT fVW2Smooth;
 FLOAT fVW2WeightFactor;
 void PickVW1();
@@ -416,3 +420,7 @@ void UpdateVW2Weights() {
   fVW2WeightMean += (aVW2Weights[iFlipCandidate] - fPrevWeight) / iNumVars;
 }
 
+#ifdef __cplusplus
+
+}
+#endif

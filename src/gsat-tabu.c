@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 UINT32 iTabuTenure;
 
 void PickGSatTabu();
@@ -157,3 +161,7 @@ void PickGSatTabuW() {
   }
 }
 
+#ifdef __cplusplus
+
+}
+#endif

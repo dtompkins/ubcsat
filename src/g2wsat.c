@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickG2WSat();
 void PickG2WSatW();
 
@@ -271,3 +275,9 @@ void AdaptG2WSatNoise() {
   AdaptNoveltyNoiseAdjust();
   iWp = iNovNoise/10;
 }
+
+#ifdef __cplusplus
+
+}
+#endif
+

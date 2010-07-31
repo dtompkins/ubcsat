@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 /*  
     This file contains the code to make the various data triggers work
 */
@@ -5036,3 +5040,8 @@ void CreateVarsShareClauses() {
     }
   } 
 }
+
+#ifdef __cplusplus
+
+}
+#endif

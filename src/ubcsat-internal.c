@@ -22,6 +22,9 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
 
 /*  
     This file is the kitchen sink of ubcsat... 
@@ -2093,3 +2096,7 @@ BOOL AddUniqueToVarStateList(VARSTATELIST *vsList, VARSTATE vsAdd) {
   }
 }
 
+#ifdef __cplusplus
+
+}
+#endif

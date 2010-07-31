@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickNoveltyPlusP();
 void InitLookAhead();
 void CreateLookAhead();
@@ -301,3 +305,8 @@ SINT32 BestLookAheadScore(UINT32 iLookVar) {
     return(0);
   }
 }
+
+#ifdef __cplusplus
+
+}
+#endif

@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickHWSat();
 void PickHWSatW();
 
@@ -99,6 +103,7 @@ void PickHWSatW() {
   }
 }
 
+#ifdef __cplusplus
 
-
-
+}
+#endif

@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 /*  
 
   AddLocal() is here for you to add your own algorithms, reports, etc... 
@@ -120,3 +124,7 @@ void UpdateCurVarAge() {
   iCurVarAge = iStep - aVarLastChange[iFlipCandidate];
 }
 
+#ifdef __cplusplus
+
+}
+#endif

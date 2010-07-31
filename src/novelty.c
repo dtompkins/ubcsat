@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 PROBABILITY iNovNoise;
 PROBABILITY iDp;
 
@@ -537,3 +541,8 @@ void PickNoveltyPlusPlusVarScore() {
     PickNoveltyVarScore();
   }
 }
+
+#ifdef __cplusplus
+
+}
+#endif

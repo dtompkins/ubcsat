@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickGSatSimple();
 void PickGSatWithBSL();
 void PickGSatW();
@@ -144,3 +148,8 @@ void PickGSatW() {
     iFlipCandidate = aCandidateList[0];
   }
 }
+
+#ifdef __cplusplus
+
+}
+#endif

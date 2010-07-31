@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 PROBABILITY iWp;
 
 void PickGWSat();
@@ -151,4 +155,9 @@ void PickGWSatW() {
     }
   }
 }
+
+#ifdef __cplusplus
+
+}
+#endif
 

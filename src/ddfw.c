@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void SetupDDFW();
 void DistributeDDFW();
 
@@ -166,3 +170,7 @@ void DistributeDDFW() {
   }
 }
 
+#ifdef __cplusplus
+
+}
+#endif

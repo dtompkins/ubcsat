@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickRNovelty();
 void PickRNoveltyPlus();
 
@@ -224,3 +228,7 @@ void PickRNoveltyPlus() {
 
 }
 
+#ifdef __cplusplus
+
+}
+#endif

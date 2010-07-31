@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 FLOAT fAlpha;
 FLOAT fRho;
 FLOAT fPenaltyImprove;
@@ -471,4 +475,7 @@ void PickSAPSNR() {
   }
 }
 
+#ifdef __cplusplus
 
+}
+#endif

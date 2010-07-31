@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 /*  
   This file contains routines for displaying help 
 */
@@ -37,7 +41,7 @@ BOOL bShowHelpC;
 BOOL bShowHelpS;
 
 void HelpNoAlgorithm();
-void HelpBadReport();
+void HelpBadReport(char *sParm);
 void HelpPrintAlgorithms();
 void HelpPrintAlgorithmsW();
 void HelpPrintParms();
@@ -787,7 +791,10 @@ void HelpBadReport(char *sParm) {
   exit(1);
 }
 
+#ifdef __cplusplus
 
+}
+#endif
 
 
 

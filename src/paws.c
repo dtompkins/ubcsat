@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickPAWS();
 void PostFlipPAWS();
 
@@ -262,3 +266,7 @@ void PostFlipPAWS() {
 
 }
 
+#ifdef __cplusplus
+
+}
+#endif

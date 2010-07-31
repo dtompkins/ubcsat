@@ -22,19 +22,21 @@
 
 #include "ubcsat.h"
 
-/*  
-    This file contains some of the i/o routines for
-    file access and random number generators
-*/
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
 
 #define MERSENNE
 
 #ifdef MERSENNE
-  extern unsigned long genrand_int32();
-  extern void init_genrand(unsigned long s);
 
+#ifdef __cplusplus 
+  FXNRAND32 fxnRandUInt32 = mersenne::genrand_int32;
+  #define fxnRandSeed(A) mersenne::init_genrand(A)
+#else
   FXNRAND32 fxnRandUInt32 = genrand_int32;
   #define fxnRandSeed(A) init_genrand(A)
+#endif
 #else
   #ifdef WIN32
     FXNRAND32 fxnRandUInt32 = (UINT32 (*)()) rand;
@@ -276,3 +278,7 @@ void FileAbort() {
   }
 }
 
+#ifdef __cplusplus
+
+}
+#endif

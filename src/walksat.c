@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickWalkSatSKC();
 void PickWalkSatSKCW();
 
@@ -227,3 +231,7 @@ void PickWalkSatSKCW() {
   }
 }
 
+#ifdef __cplusplus
+
+}
+#endif

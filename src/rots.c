@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 UINT32 iTabuTenureInterval;
 UINT32 iTabuTenureLow;
 UINT32 iTabuTenureHigh;
@@ -193,3 +197,7 @@ void PickRoTSW() {
   }
 }
 
+#ifdef __cplusplus
+
+}
+#endif

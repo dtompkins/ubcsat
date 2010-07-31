@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 /* note that this IRoTS implementation differs slightly from
    the previously published software... in mostly unimportant
    ways.  in this implementation we have strived to match the
@@ -319,3 +323,7 @@ void IRoTSRestore() {
   }
 }
 
+#ifdef __cplusplus
+
+}
+#endif

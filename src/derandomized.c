@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickDCRWalk();
 void CreateClausePickCount();
 void InitClausePickCount();
@@ -295,4 +299,7 @@ void AdaptNoveltyNoiseDet() {
   }
 }
 
+#ifdef __cplusplus
 
+}
+#endif

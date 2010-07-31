@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 REPORT *pRepHelp;
 REPORT *pRepErr;
 
@@ -858,3 +862,7 @@ void AddReports() {
 
 }
 
+#ifdef __cplusplus
+
+}
+#endif

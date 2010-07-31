@@ -22,6 +22,11 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
+
 void AddAlgorithms() {
 
   AddGSat();  
@@ -68,3 +73,8 @@ void AddAlgorithms() {
 
 }
 
+
+#ifdef __cplusplus
+
+}
+#endif

@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 UINT32 iInvPhi=5;               /* = 1/phi   */
 UINT32 iInvTheta=6;             /* = 1/theta */
 
@@ -144,3 +148,7 @@ void AdaptNoveltyNoiseW() {
   }
 }
 
+#ifdef __cplusplus
+
+}
+#endif

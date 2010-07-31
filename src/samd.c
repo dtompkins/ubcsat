@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void SAMDUpdateVarLastChange();
 void SAMDUpdateVarLastChangeW();
 
@@ -69,5 +73,7 @@ void SAMDUpdateVarLastChangeW() {
   }
 }
 
+#ifdef __cplusplus
 
-
+}
+#endif
