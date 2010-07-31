@@ -476,7 +476,7 @@ extern FLOAT fUnsatCountsStdDev;
 */
 
 extern UBIGINT *aNumFalseCounts;
-extern UINT32 *aNumFalseCountsWindow;
+extern UBIGINT *aNumFalseCountsWindow;
 
 
 /***** Trigger DistanceCounts *****/
@@ -486,7 +486,7 @@ extern UINT32 *aNumFalseCountsWindow;
 */
 
 extern UBIGINT *aDistanceCounts;
-extern UINT32 *aDistanceCountsWindow;
+extern UBIGINT *aDistanceCountsWindow;
 
 
 /***** Trigger ClauseLast *****/

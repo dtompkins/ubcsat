@@ -471,7 +471,7 @@ void InitNumFalseCounts();
 void UpdateNumFalseCounts();
 
 UBIGINT *aNumFalseCounts;
-UINT32 *aNumFalseCountsWindow;
+UBIGINT *aNumFalseCountsWindow;
 
 
 /***** Trigger DistanceCounts *****/
@@ -481,7 +481,7 @@ void InitDistanceCounts();
 void UpdateDistanceCounts();
 
 UBIGINT *aDistanceCounts;
-UINT32 *aDistanceCountsWindow;
+UBIGINT *aDistanceCountsWindow;
 
 
 /***** Trigger ClauseLast *****/
@@ -2550,8 +2550,6 @@ void UpdateVarLastChange() {
 }
 
 
-#define UpdateChange(var) {if(aChangeLastStep[var]!=iStep) {aChangeOldScore[var] = aVarScore[var]; aChangeLastStep[var]=iStep; aChangeList[iNumChanges++]=var;}}
-
 void CreateTrackChanges() {
   aChangeList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
   aChangeLastStep = (UBIGINT *) AllocateRAM((iNumVars+1) * sizeof(UBIGINT));
@@ -2559,7 +2557,7 @@ void CreateTrackChanges() {
 }
 
 void InitTrackChanges() {
-  memset(aChangeLastStep,0,(iNumVars+1) * sizeof(UINT32));
+  memset(aChangeLastStep,0,(iNumVars+1) * sizeof(UBIGINT));
 }
 
 void UpdateTrackChanges() {
@@ -2810,7 +2808,7 @@ void CreateTrackChangesW() {
 }
 
 void InitTrackChangesW() {
-  memset(aChangeLastStepW,0,(iNumVars+1) * sizeof(UINT32));
+  memset(aChangeLastStepW,0,(iNumVars+1) * sizeof(UBIGINT));
 }
 
 void UpdateTrackChangesW() {
@@ -4177,7 +4175,7 @@ void CreateFlipCounts() {
 
 void InitFlipCounts() {
   if (iStep == 1) {
-    memset(aFlipCounts,0,(iNumVars+1)*sizeof(UINT32));
+    memset(aFlipCounts,0,(iNumVars+1)*sizeof(UBIGINT));
   }
 }
 
@@ -4206,8 +4204,8 @@ void CreateBiasCounts() {
 void PreInitBiasCounts() {
   UINT32 j;
   if (iStep == 1) {
-    memset(aBiasTrueCounts,0,(iNumVars+1)*sizeof(UINT32));
-    memset(aBiasFalseCounts,0,(iNumVars+1)*sizeof(UINT32));
+    memset(aBiasTrueCounts,0,(iNumVars+1)*sizeof(UBIGINT));
+    memset(aBiasFalseCounts,0,(iNumVars+1)*sizeof(UBIGINT));
   } else {
     for (j=1;j<=iNumVars;j++) {
       if (aVarValue[j]) {
@@ -4286,7 +4284,7 @@ void CreateUnsatCounts() {
 
 void InitUnsatCounts() {
   if (iStep == 1) {
-    memset(aUnsatCounts,0,iNumClauses*sizeof(UINT32));
+    memset(aUnsatCounts,0,iNumClauses*sizeof(UBIGINT));
   }
 }
 
@@ -4315,15 +4313,15 @@ void UnsatCountStats() {
 void CreateNumFalseCounts() {
   aNumFalseCounts = (UBIGINT *) AllocateRAM((iNumClauses+1)*sizeof(UBIGINT));
   if (iReportFalseHistCount) {
-    aNumFalseCountsWindow = (UINT32 *) AllocateRAM(iReportFalseHistCount*sizeof(UINT32));
+    aNumFalseCountsWindow = (UBIGINT *) AllocateRAM(iReportFalseHistCount*sizeof(UBIGINT));
   }
 }
 
 void InitNumFalseCounts() {
   if (iStep == 1) {
-    memset(aNumFalseCounts,0,(iNumClauses+1)*sizeof(UINT32));
+    memset(aNumFalseCounts,0,(iNumClauses+1)*sizeof(UBIGINT));
     if (iReportFalseHistCount) {
-      memset(aNumFalseCountsWindow,0,iReportFalseHistCount*sizeof(UINT32));
+      memset(aNumFalseCountsWindow,0,iReportFalseHistCount*sizeof(UBIGINT));
     }
   }
 }
@@ -4342,15 +4340,15 @@ void UpdateNumFalseCounts() {
 void CreateDistanceCounts() {
   aDistanceCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
   if (iReportDistHistCount) {
-    aDistanceCountsWindow = (UINT32 *) AllocateRAM(iReportDistHistCount*sizeof(UINT32));
+    aDistanceCountsWindow = (UBIGINT *) AllocateRAM(iReportDistHistCount*sizeof(UBIGINT));
   }
 }
 
 void InitDistanceCounts() {
   if (iStep == 1) {
-    memset(aDistanceCounts,0,(iNumVars+1)*sizeof(UINT32));
+    memset(aDistanceCounts,0,(iNumVars+1)*sizeof(UBIGINT));
     if (iReportDistHistCount) {
-      memset(aDistanceCountsWindow,0,iReportDistHistCount*sizeof(UINT32));
+      memset(aDistanceCountsWindow,0,iReportDistHistCount*sizeof(UBIGINT));
     }
   }
 }
@@ -4373,7 +4371,7 @@ void CreateClauseLast() {
 
 void InitClauseLast() {
   if (iStep == 1) {
-    memset(aClauseLast,0,iNumClauses*sizeof(UINT32));
+    memset(aClauseLast,0,iNumClauses*sizeof(UBIGINT));
   }
 }
 
