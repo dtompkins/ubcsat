@@ -55,7 +55,7 @@ void PickRGSat() {
   SINT32 iScore;
 
   iNumCandidates = 0;
-  iBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
 
   /* Algorithm is essentially GSAT */
 

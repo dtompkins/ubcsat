@@ -80,7 +80,7 @@ extern BOOL bWeighted;
 extern ALGORITHM *pActiveAlgorithm;
 
 extern UINT32 iNumRuns;
-extern UINT32 iCutoff;
+extern UBIGINT iCutoff;
 extern FLOAT fTimeOut;
 extern FLOAT fGlobalTimeOut;
 extern UINT32 iSeed;
@@ -100,7 +100,7 @@ extern UINT32 iStagnateRestart;
 extern BOOL bRestart;
 
 extern UINT32 iRun;
-extern UINT32 iStep;
+extern UBIGINT iStep;
 
 extern BOOL bTerminateAllRuns;
 extern BOOL bSolutionFound;
@@ -198,6 +198,14 @@ void AddParmUInt(ALGPARMLIST *pParmList,
                   UINT32 *pInt,
                   UINT32 iDefInt);
 
+void AddParmUBigInt(ALGPARMLIST *pParmList, 
+                  const char *sSwitch, 
+                  const char *sName, 
+                  const char *sDescription,
+                  const char *sTriggers,
+                  UBIGINT *pBigInt,
+                  UBIGINT iDefBigInt);
+
 void AddParmSInt(ALGPARMLIST *pParmList, 
                   const char *sSwitch, 
                   const char *sName, 
@@ -260,6 +268,16 @@ void AddColumnUInt(const char *sID,
                    const char *sHeader3, 
                    const char *sPrintFormat, 
                    UINT32 *pCurValue,
+                   const char *sTriggers,
+                   enum COLTYPE eColType);
+
+void AddColumnUBigInt(const char *sID, 
+                   const char *sDescription, 
+                   const char *sHeader1,  
+                   const char *sHeader2,  
+                   const char *sHeader3, 
+                   const char *sPrintFormat, 
+                   UBIGINT *pCurValue,
                    const char *sTriggers,
                    enum COLTYPE eColType);
 

@@ -349,19 +349,19 @@ void PrintColHeaders(REPORT *pRep,UINT32 iNumCols, UINT32 *aCols) {
     ReportHdrPrint(pRep,"\n");
     ReportHdrPrefix(pRep);
     for (j=0;j<iNumCols;j++) {
-      ReportHdrPrint(pRep,aColumns[aCols[j]].sHeader1);
+      ReportHdrPrint1(pRep,"%s",aColumns[aCols[j]].sHeader1);
       ReportHdrPrint(pRep," ");
     }
     ReportHdrPrint(pRep,"\n");
     ReportHdrPrefix(pRep);
     for (j=0;j<iNumCols;j++) {
-      ReportHdrPrint(pRep,aColumns[aCols[j]].sHeader2);
+      ReportHdrPrint1(pRep,"%s",aColumns[aCols[j]].sHeader2);
       ReportHdrPrint(pRep," ");
     }
     ReportHdrPrint(pRep,"\n");
     ReportHdrPrefix(pRep);
     for (j=0;j<iNumCols;j++) {      
-      ReportHdrPrint(pRep,aColumns[aCols[j]].sHeader3);
+      ReportHdrPrint1(pRep,"%s",aColumns[aCols[j]].sHeader3);
       ReportHdrPrint(pRep," ");
     }
     ReportHdrPrint(pRep,"\n");
@@ -413,6 +413,10 @@ void PrintRow(REPORT *pRep, UINT32 iRow, UINT32 iNumCols, UINT32 *aCols) {
         ReportPrint1(pRep,pCol->sPrintFormat,pCol->puiColumnData[iRow]);
       } else if (pCol->eFinalDataType == DTypeSInt) {
         ReportPrint1(pRep,pCol->sPrintFormat,pCol->psiColumnData[iRow]);
+      } else if (pCol->eFinalDataType == DTypeUBigInt) {
+        ReportPrint1(pRep,pCol->sPrintFormat,pCol->pubiColumnData[iRow]);
+      } else if (pCol->eFinalDataType == DTypeSBigInt) {
+        ReportPrint1(pRep,pCol->sPrintFormat,pCol->psbiColumnData[iRow]);
       } else {
         ReportPrint1(pRep,pCol->sPrintFormat,pCol->pfColumnData[iRow]);
       }
@@ -422,6 +426,10 @@ void PrintRow(REPORT *pRep, UINT32 iRow, UINT32 iNumCols, UINT32 *aCols) {
         ReportPrint1(pRep,pCol->sPrintFormat,pCol->uiCurRowValue);
       } else if (pCol->eFinalDataType == DTypeSInt) {
         ReportPrint1(pRep,pCol->sPrintFormat,pCol->siCurRowValue);
+      } else if (pCol->eFinalDataType == DTypeUBigInt) {
+        ReportPrint1(pRep,pCol->sPrintFormat,pCol->ubiCurRowValue);
+      } else if (pCol->eFinalDataType == DTypeSBigInt) {
+        ReportPrint1(pRep,pCol->sPrintFormat,pCol->sbiCurRowValue);
       } else {
         ReportPrint1(pRep,pCol->sPrintFormat,pCol->fCurRowValue);
       }
@@ -482,6 +490,10 @@ FLOAT GetRowElement(REPORTCOL *pCol,UINT32 iRowRequested, BOOL bSorted, BOOL bSo
     return ((FLOAT)pCol->puiColumnData[iRow]);
   } else if (pCol->eFinalDataType == DTypeSInt) {
     return ((FLOAT)pCol->psiColumnData[iRow]);
+  } else if (pCol->eFinalDataType == DTypeUBigInt) {
+    return ((FLOAT)pCol->pubiColumnData[iRow]);
+  } else if (pCol->eFinalDataType == DTypeSBigInt) {
+    return ((FLOAT)pCol->psbiColumnData[iRow]);
   } else {
     return (pCol->pfColumnData[iRow]);
   }
@@ -526,6 +538,12 @@ void ReportStatsPrint() {
               break;
             case DTypeSInt:
               ReportPrint1(pRepStats,pStat->sPrintCustomFormat,*(SINT32 *) pStat->pCustomValue);
+              break;
+            case DTypeUBigInt:
+              ReportPrint1(pRepStats,pStat->sPrintCustomFormat,*(UBIGINT *) pStat->pCustomValue);
+              break;
+            case DTypeSBigInt:
+              ReportPrint1(pRepStats,pStat->sPrintCustomFormat,*(SBIGINT *) pStat->pCustomValue);
               break;
             case DTypeFloat:
               ReportPrint1(pRepStats,pStat->sPrintCustomFormat,*(FLOAT *) pStat->pCustomValue);
@@ -991,7 +1009,7 @@ void ReportStatePrint() {
 
   if (bPrint) {
     ReportPrint1(pRepState,"%lu ",iRun);
-    ReportPrint1(pRepState,"%lu ",iStep);
+    ReportPrint1(pRepState,"%llu ",iStep);
 
     if (bWeighted) {
       ReportPrint1(pRepState,"%.12g ",fSumFalseW);
@@ -1061,7 +1079,7 @@ void ReportBestStepPrint() {
 
   if (bWeighted) {
     if (iBestStepSumFalseW == iStep) {
-      ReportPrint3(pRepBestStep,"%lu %lu %.12g ",iRun, iStep, fBestSumFalseW);
+      ReportPrint3(pRepBestStep,"%lu %llu %.12g ",iRun, iStep, fBestSumFalseW);
       if (bReportBestStepVars) {
         for (j=1;j<=iNumVars;j++) {
           if (aVarValue[j]) {
@@ -1075,7 +1093,7 @@ void ReportBestStepPrint() {
     }
   } else {
     if (iBestStepNumFalse == iStep) {
-      ReportPrint3(pRepBestStep,"%lu %lu %lu ",iRun, iStep, iBestNumFalse);
+      ReportPrint3(pRepBestStep,"%lu %llu %lu ",iRun, iStep, iBestNumFalse);
       if (bReportBestStepVars) {
         for (j=1;j<=iNumVars;j++) {
           if (aVarValue[j]) {
@@ -1103,12 +1121,12 @@ void ReportTrajBestLMPostStep() {
   if (iStep > 1) {
     if (bWeighted) {
       if (iBestStepSumFalseW==(iStep-1)) {
-        ReportPrint3(pRepTrajBestLM,"%lu %lu %.12g\n",iRun, iStep-1, fBestSumFalseW);
+        ReportPrint3(pRepTrajBestLM,"%lu %llu %.12g\n",iRun, iStep-1, fBestSumFalseW);
 
       }
     } else {
       if (iBestStepNumFalse==(iStep-1)) {
-        ReportPrint3(pRepTrajBestLM,"%lu %lu %lu\n",iRun, iStep-1, iBestNumFalse);
+        ReportPrint3(pRepTrajBestLM,"%lu %llu %lu\n",iRun, iStep-1, iBestNumFalse);
       }
     }
   }
@@ -1119,12 +1137,12 @@ void ReportTrajBestLMPostRun() {
 
   if (bWeighted) {
     if (iBestStepSumFalseW==(iStep)) {
-      ReportPrint3(pRepTrajBestLM,"%lu %lu %.12g\n",iRun, iStep, fBestSumFalseW);
+      ReportPrint3(pRepTrajBestLM,"%lu %llu %.12g\n",iRun, iStep, fBestSumFalseW);
 
     }
   } else {
     if (iBestStepNumFalse==(iStep)) {
-      ReportPrint3(pRepTrajBestLM,"%lu %lu %lu\n",iRun, iStep, iBestNumFalse);
+      ReportPrint3(pRepTrajBestLM,"%lu %llu %lu\n",iRun, iStep, iBestNumFalse);
     }
   }
 }
@@ -1215,7 +1233,7 @@ void ReportFalseHistPrint() {
   }
   ReportPrint1(pRepFalseHist,"%lu ",iRun);
   for (j=0;j<(iNumClauses+1);j++) {
-    ReportPrint1(pRepFalseHist,"%lu ",aNumFalseCounts[j]);
+    ReportPrint1(pRepFalseHist,"%llu ",aNumFalseCounts[j]);
   }
   ReportPrint(pRepFalseHist,"\n");
 }
@@ -1242,7 +1260,7 @@ void ReportDistancePrint() {
 
   if (bPrint) {
     ReportPrint1(pRepDistance,"%lu ",iRun);
-    ReportPrint1(pRepDistance,"%lu ",iStep);
+    ReportPrint1(pRepDistance,"%llu ",iStep);
 
     ReportPrint1(pRepDistance,"%lu ",iSolutionDistance);
 
@@ -1271,7 +1289,7 @@ void ReportDistHistPrint() {
   }
   ReportPrint1(pRepDistHist,"%lu ",iRun);
   for (j=0;j<(iNumVars+1);j++) {
-    ReportPrint1(pRepDistHist,"%lu ",aDistanceCounts[j]);
+    ReportPrint1(pRepDistHist,"%llu ",aDistanceCounts[j]);
   }
   ReportPrint(pRepDistHist,"\n");
 }
@@ -1288,7 +1306,7 @@ void ReportFlipCountsPrint() {
   }
   ReportPrint1(pRepFlipCounts,"%lu",iRun);
   for (j=0;j<=iNumVars;j++) {
-    ReportPrint1(pRepFlipCounts," %lu",aFlipCounts[j]);
+    ReportPrint1(pRepFlipCounts," %llu",aFlipCounts[j]);
   }
   ReportPrint(pRepFlipCounts,"\n");
 }
@@ -1305,7 +1323,7 @@ void ReportBiasCountsPrint() {
   }
   ReportPrint1(pRepBiasCounts,"%lu",iRun);
   for (j=1;j<(iNumVars+1);j++) {
-    ReportPrint2(pRepBiasCounts," %lu %lu",aBiasFalseCounts[j], aBiasTrueCounts[j]);
+    ReportPrint2(pRepBiasCounts," %llu %llu",aBiasFalseCounts[j], aBiasTrueCounts[j]);
     if (aBiasFalseCounts[j]+aBiasTrueCounts[j]>0) {
       if (aVarValue[j]) {
         ReportPrint1(pRepBiasCounts," %5.4f",((FLOAT)aBiasTrueCounts[j])/((FLOAT)(aBiasTrueCounts[j]+aBiasFalseCounts[j])));
@@ -1337,7 +1355,7 @@ void ReportUnsatCountsPrint() {
   }
   ReportPrint1(pRepUnsatCounts,"%lu",iRun);
   for (j=0;j<iNumClauses;j++) {
-    ReportPrint1(pRepUnsatCounts," %lu",aUnsatCounts[j]);
+    ReportPrint1(pRepUnsatCounts," %llu",aUnsatCounts[j]);
   }
   ReportPrint(pRepUnsatCounts,"\n");
 }
@@ -1355,7 +1373,7 @@ void ReportVarLastPrint() {
 
   ReportPrint1(pRepVarLast,"%lu",iRun);
   for (j=1;j<=iNumVars;j++) {
-    ReportPrint1(pRepVarLast," %lu",aVarLastChange[j]);
+    ReportPrint1(pRepVarLast," %llu",aVarLastChange[j]);
   }
   ReportPrint(pRepVarLast,"\n");
 }
@@ -1372,7 +1390,7 @@ void ReportClauseLastPrint() {
   }
   ReportPrint1(pRepClauseLast,"%lu",iRun);
   for (j=0;j<iNumClauses;j++) {
-    ReportPrint1(pRepClauseLast," %lu",aClauseLast[j]);
+    ReportPrint1(pRepClauseLast," %llu",aClauseLast[j]);
   }
   ReportPrint(pRepClauseLast,"\n");
 }
@@ -1390,7 +1408,7 @@ void ReportSQGridPrint() {
       ReportHdrPrefix(pRepSQGrid);
       ReportHdrPrint(pRepSQGrid," Run ID | Solution Quality at steps:");
       for (j=0;j<iNumLogDistValues;j++) {
-        ReportHdrPrint1(pRepSQGrid," %lu",aLogDistValues[j]);
+        ReportHdrPrint1(pRepSQGrid," %llu",aLogDistValues[j]);
       }
       ReportHdrPrint(pRepSQGrid,"\n");
     }
@@ -1446,7 +1464,7 @@ void ReportPenaltyPrintStep() {
     }
 
     if (bClausePenaltyCreated) {
-      ReportPrint3(pRepPenalty,"%lu %lu %lu",iRun,iStep,iNumNullFlips);
+      ReportPrint3(pRepPenalty,"%lu %llu %llu",iRun,iStep,iNumNullFlips);
       if (bClausePenaltyFLOAT) {
         if (bReportPenaltyReNormFraction) {
           for (j=0;j<iNumClauses;j++) {
@@ -1507,7 +1525,7 @@ void ReportPenaltyPrintRun() {
 
     if (bClausePenaltyCreated) {
 
-      ReportPrint3(pRepPenalty,"%lu %lu %lu ",iRun, iStep, bSolutionFound);
+      ReportPrint3(pRepPenalty,"%lu %llu %lu ",iRun, iStep, bSolutionFound);
       if (bWeighted) {
         ReportPrint1(pRepPenalty,"%.12g",fBestSumFalseW);
       } else {
@@ -1772,7 +1790,7 @@ void ReportVW2WeightsPrint() {
   if (iRun==1) {
     ReportHdrPrint(pRepVW2Weights,"Run ID | Step # | Mean | VW2Weight[1] VW2Weight[2] ...\n");
   }
-  ReportPrint3(pRepVW2Weights,"%lu %lu %g",iRun,iStep,fVW2WeightMean);
+  ReportPrint3(pRepVW2Weights,"%lu %llu %g",iRun,iStep,fVW2WeightMean);
   for (j=1;j<=iNumVars;j++) {
     ReportPrint1(pRepVW2Weights," %g",aVW2Weights[j]);
   }
@@ -1819,10 +1837,10 @@ void ReportMobFixedPrint() {
 
   if (iStep <= iMobFixedWindow) {
     if (bMobilityFixedIncludeStart) {
-      ReportPrint3(pRepMobFixed,"%lu %lu %lu\n",iRun,iStep,aMobilityWindow[iStep-1]);
+      ReportPrint3(pRepMobFixed,"%lu %llu %lu\n",iRun,iStep,aMobilityWindow[iStep-1]);
     }
   } else {
-    ReportPrint3(pRepMobFixed,"%lu %lu %lu\n",iRun,iStep,aMobilityWindow[iMobFixedWindow]);
+    ReportPrint3(pRepMobFixed,"%lu %llu %lu\n",iRun,iStep,aMobilityWindow[iMobFixedWindow]);
   }
 }
 
@@ -1986,7 +2004,7 @@ void ReportParamILSPrint() {
     ReportPrint(pRepParamILS,"TIMEOUT");
   }
   ReportPrint1(pRepParamILS,", %g",fRunTime);
-  ReportPrint1(pRepParamILS,", %lu",iStep);
+  ReportPrint1(pRepParamILS,", %llu",iStep);
   if (bWeighted) {
     ReportPrint1(pRepParamILS,", %g",fBestSumFalseW );
   } else {
@@ -2071,10 +2089,22 @@ void AllocateColumnRAM() {
           pCol->psiColumnData = (SINT32 *) AllocateRAM(iNumRuns * sizeof(SINT32));
           memset(pCol->psiColumnData,0,(iNumRuns)*sizeof(SINT32));
           break;
+        case DTypeUBigInt:
+          pCol->pubiColumnData = (UBIGINT *) AllocateRAM(iNumRuns * sizeof(UBIGINT));
+          memset(pCol->pubiColumnData,0,(iNumRuns)*sizeof(UBIGINT));
+          break;
+        case DTypeSBigInt:
+          pCol->psbiColumnData = (SBIGINT *) AllocateRAM(iNumRuns * sizeof(SBIGINT));
+          memset(pCol->psbiColumnData,0,(iNumRuns)*sizeof(SBIGINT));
+          break;
         case DTypeFloat:
           pCol->pfColumnData = (FLOAT *) AllocateRAM(iNumRuns * sizeof(FLOAT));
           memset(pCol->pfColumnData,0,(iNumRuns)*sizeof(FLOAT));
           break;
+        case DTypeString:
+          ReportPrint(pRepErr,"Unexpected Error: String Column Data\n");
+          AbnormalExit();
+          exit(1);
         default:
           break;
       }
@@ -2136,11 +2166,21 @@ void ColumnRunCalculation() {
           case DTypeSInt:
             pCol->siCurRowValue = *pCol->psiCurValue;
             break;
+          case DTypeUBigInt:
+            pCol->ubiCurRowValue = *pCol->pubiCurValue;
+            break;
+          case DTypeSBigInt:
+            pCol->sbiCurRowValue = *pCol->psbiCurValue;
+            break;
           case DTypeFloat:
             pCol->fCurRowValue = *pCol->pfCurValue;
             break;
-            default:
-              break;
+          case DTypeString:
+            ReportPrint(pRepErr,"Unexpected Error: String Column Data\n");
+            AbnormalExit();
+            exit(1);
+          default:
+            break;
           }
           break;
         case ColTypeMin:
@@ -2152,11 +2192,21 @@ void ColumnRunCalculation() {
           case DTypeSInt:
             pCol->siCurRowValue = pCol->siMinMaxVal;
             break;
+          case DTypeUBigInt:
+            pCol->ubiCurRowValue = pCol->ubiMinMaxVal;
+            break;
+          case DTypeSBigInt:
+            pCol->sbiCurRowValue = pCol->sbiMinMaxVal;
+            break;
           case DTypeFloat:
             pCol->fCurRowValue = pCol->fMinMaxVal;
             break;
-            default:
-              break;
+          case DTypeString:
+            ReportPrint(pRepErr,"Unexpected Error: String Column Data\n");
+            AbnormalExit();
+            exit(1);
+          default:
+            break;
           }
           break;
         case ColTypeFinalDivStep:
@@ -2168,11 +2218,21 @@ void ColumnRunCalculation() {
           case DTypeSInt:
             pCol->fCurRowValue = (FLOAT) *pCol->psiCurValue;
             break;
+          case DTypeUBigInt:
+            pCol->fCurRowValue = (FLOAT) *pCol->pubiCurValue;
+            break;
+          case DTypeSBigInt:
+            pCol->fCurRowValue = (FLOAT) *pCol->psbiCurValue;
+            break;
           case DTypeFloat:
             pCol->fCurRowValue = *pCol->pfCurValue;
             break;
-            default:
-              break;
+          case DTypeString:
+            ReportPrint(pRepErr,"Unexpected Error: String Column Data\n");
+            AbnormalExit();
+            exit(1);
+          default:
+            break;
           }
           pCol->fCurRowValue *= fStepMul;
           if (pCol->eColType == ColTypeFinalDivStep100) {
@@ -2205,6 +2265,10 @@ void ColumnRunCalculation() {
           pCol->puiColumnData[iRun-1] = pCol->uiCurRowValue;
         } else if (pCol->eFinalDataType == DTypeSInt) {
           pCol->psiColumnData[iRun-1] = pCol->siCurRowValue;
+        } else if (pCol->eFinalDataType == DTypeUBigInt) {
+          pCol->pubiColumnData[iRun-1] = pCol->ubiCurRowValue;
+        } else if (pCol->eFinalDataType == DTypeSBigInt) {
+          pCol->psbiColumnData[iRun-1] = pCol->sbiCurRowValue;
         } else {
           pCol->pfColumnData[iRun-1] = pCol->fCurRowValue;
         }
@@ -2214,6 +2278,10 @@ void ColumnRunCalculation() {
         pCol->fCurRowValue = (FLOAT) pCol->uiCurRowValue;
       } else if (pCol->eFinalDataType == DTypeSInt) {
         pCol->fCurRowValue = (FLOAT) pCol->siCurRowValue;
+      } else if (pCol->eFinalDataType == DTypeUBigInt) {
+        pCol->fCurRowValue = (FLOAT) pCol->ubiCurRowValue;
+      } else if (pCol->eFinalDataType == DTypeSBigInt) {
+        pCol->fCurRowValue = (FLOAT) pCol->sbiCurRowValue;
       }
 
       pCol->fColSum += pCol->fCurRowValue;
@@ -2244,11 +2312,21 @@ void ColumnStepCalculation() {
         case DTypeSInt:
           pCol->fRowSum2 += ((FLOAT) *pCol->psiCurValue) * ((FLOAT) *pCol->psiCurValue);
           break;
+        case DTypeUBigInt:
+          pCol->fRowSum2 += ((FLOAT) *pCol->pubiCurValue) * ((FLOAT) *pCol->pubiCurValue);
+          break;
+        case DTypeSBigInt:
+          pCol->fRowSum2 += ((FLOAT) *pCol->psbiCurValue) * ((FLOAT) *pCol->psbiCurValue);
+          break;
         case DTypeFloat:
           pCol->fRowSum2 += ((*pCol->pfCurValue) * (*pCol->pfCurValue));
           break;
-          default:
-            break;
+        case DTypeString:
+          ReportPrint(pRepErr,"Unexpected Error: String Column Data\n");
+          AbnormalExit();
+          exit(1);
+        default:
+          break;
         }
       case ColTypeMean:
         switch (pCol->eSourceDataType) {
@@ -2258,11 +2336,21 @@ void ColumnStepCalculation() {
         case DTypeSInt:
           pCol->fRowSum += (FLOAT) *pCol->psiCurValue;
           break;
+        case DTypeUBigInt:
+          pCol->fRowSum += (FLOAT) *pCol->pubiCurValue;
+          break;
+        case DTypeSBigInt:
+          pCol->fRowSum += (FLOAT) *pCol->psbiCurValue;
+          break;
         case DTypeFloat:
           pCol->fRowSum += *pCol->pfCurValue;
           break;
-          default:
-            break;
+        case DTypeString:
+          ReportPrint(pRepErr,"Unexpected Error: String Column Data\n");
+          AbnormalExit();
+          exit(1);
+        default:
+          break;
         }
         break;
 
@@ -2274,9 +2362,19 @@ void ColumnStepCalculation() {
           case DTypeSInt:
             if (*pCol->psiCurValue < pCol->siMinMaxVal) pCol->siMinMaxVal = *pCol->psiCurValue;
             break;
+          case DTypeUBigInt:
+            if (*pCol->pubiCurValue < pCol->ubiMinMaxVal) pCol->ubiMinMaxVal = *pCol->pubiCurValue;
+            break;
+          case DTypeSBigInt:
+            if (*pCol->psbiCurValue < pCol->sbiMinMaxVal) pCol->sbiMinMaxVal = *pCol->psbiCurValue;
+            break;
           case DTypeFloat:
             if (*pCol->pfCurValue < pCol->fMinMaxVal) pCol->fMinMaxVal = *pCol->pfCurValue;
             break;
+          case DTypeString:
+            ReportPrint(pRepErr,"Unexpected Error: String Column Data\n");
+            AbnormalExit();
+            exit(1);
           default:
             break;
         }
@@ -2290,14 +2388,27 @@ void ColumnStepCalculation() {
           case DTypeSInt:
             if (*pCol->psiCurValue > pCol->siMinMaxVal) pCol->siMinMaxVal = *pCol->psiCurValue;
             break;
+          case DTypeUBigInt:
+            if (*pCol->pubiCurValue > pCol->ubiMinMaxVal) pCol->ubiMinMaxVal = *pCol->pubiCurValue;
+            break;
+          case DTypeSBigInt:
+            if (*pCol->psbiCurValue > pCol->sbiMinMaxVal) pCol->sbiMinMaxVal = *pCol->psbiCurValue;
+            break;
           case DTypeFloat:
             if (*pCol->pfCurValue > pCol->fMinMaxVal) pCol->fMinMaxVal = *pCol->pfCurValue;
             break;
+          case DTypeString:
+            ReportPrint(pRepErr,"Unexpected Error: String Column Data\n");
+            AbnormalExit();
+            exit(1);
           default:
             break;
         }
         break;
 
+      case ColTypeFinal:
+      case ColTypeFinalDivStep:
+      case ColTypeFinalDivStep100:
       default:
         break;
     }
@@ -2347,7 +2458,13 @@ void StringAlgParms() {
         pNext += sprintf(pNext,"%lu ", *(UINT32 *)pCurParm->pParmValue);
         break;
       case PTypeSInt:
-        pNext += sprintf(pNext,"%d ", *(int *)pCurParm->pParmValue);
+        pNext += sprintf(pNext,"%ld ", *(SINT32 *)pCurParm->pParmValue);
+        break;
+      case PTypeUBigInt:
+        pNext += sprintf(pNext,"%llu ", *(UBIGINT *)pCurParm->pParmValue);
+        break;
+      case PTypeSBigInt:
+        pNext += sprintf(pNext,"%lld ", *(SBIGINT *)pCurParm->pParmValue);
         break;
       case PTypeProbability:
         pNext += sprintf(pNext,"%.4g ", ProbToFloat(*(PROBABILITY *)pCurParm->pParmValue));
@@ -2399,7 +2516,7 @@ void UpdateTimes() {
   REPORTCOL *pColTimes;
   REPORTCOL *pColSteps;
   FLOAT *aTimes;
-  UINT32 *aSteps;
+  UBIGINT *aSteps;
 
   FLOAT fTotalSteps = FLOATZERO;
 
@@ -2411,7 +2528,7 @@ void UpdateTimes() {
   
   pColSteps = &aColumns[FindItem(&listColumns,"steps")];
 
-  aSteps = pColSteps->puiColumnData;
+  aSteps = pColSteps->pubiColumnData;
   for (j=0;j<iRun;j++) {
     fTotalSteps += (FLOAT) aSteps[j];
   }
@@ -2442,12 +2559,12 @@ void InitMobilityColumnX() {
 
 void UpdateMobilityColumn() {
 
-  UINT32 iCount = iNumVars;
+  UBIGINT iCount = (UBIGINT) iNumVars;
   FLOAT fStdDev;
   
   if (bMobilityColNActive) {
 
-    if (iStep <= iNumVars) {
+    if (iStep <= (UBIGINT) iNumVars) {
       iCount = iStep;
     } else {
       if (bMobilityFixedIncludeStart==FALSE) {
@@ -2486,6 +2603,8 @@ REPORTCOL *pSortCol;
 UINT32 *aFoundData;
 UINT32 *auiSortColData;
 SINT32 *asiSortColData;
+UBIGINT *aubiSortColData;
+SBIGINT *asbiSortColData;
 FLOAT *afSortColData;
 
 int CompareSortedUInt(const void *a, const void *b) {
@@ -2501,9 +2620,36 @@ int CompareSortedUInt(const void *a, const void *b) {
   return(0);
 }
 
+int CompareSortedUBigInt(const void *a, const void *b) {
+  UBIGINT a1,b1;
+
+  a1 = aubiSortColData[*(UINT32 *)a];
+  b1 = aubiSortColData[*(UINT32 *)b];
+  if (a1 < b1) {
+    return(-1);
+  } else if (a1 > b1) {
+    return(1);
+  };
+  return(0);
+}
+
 int CompareSortedSInt(const void *a, const void *b) {
   return (asiSortColData[*(UINT32 *)a] - asiSortColData[*(UINT32 *)b]);
 }
+
+int CompareSortedSBigInt(const void *a, const void *b) {
+  SBIGINT a1,b1;
+
+  a1 = asbiSortColData[*(UINT32 *)a];
+  b1 = asbiSortColData[*(UINT32 *)b];
+  if (a1 < b1) {
+    return(-1);
+  } else if (a1 > b1) {
+    return(1);
+  };
+  return(0);
+}
+
 
 int CompareSortedFloat(const void *a, const void *b) {
   FLOAT fCompare;
@@ -2536,6 +2682,12 @@ void SortByCurrentColData(REPORTCOL *pCol) {
   } else if (pSortCol->eFinalDataType == DTypeSInt) {
     asiSortColData = pSortCol->psiColumnData;
     qsort((void *)aSortedByCurrent,iRun,sizeof(UINT32),CompareSortedSInt);
+  } else if (pSortCol->eFinalDataType == DTypeUBigInt) {
+    aubiSortColData = pSortCol->pubiColumnData;
+    qsort((void *)aSortedByCurrent,iRun,sizeof(UINT32),CompareSortedUBigInt);
+  } else if (pSortCol->eFinalDataType == DTypeSBigInt) {
+    asbiSortColData = pSortCol->psbiColumnData;
+    qsort((void *)aSortedByCurrent,iRun,sizeof(UINT32),CompareSortedSBigInt);
   } else {
     afSortColData = pSortCol->pfColumnData;
     qsort((void *)aSortedByCurrent,iRun,sizeof(UINT32),CompareSortedFloat);
@@ -2573,6 +2725,48 @@ int CompareFoundSortedSInt(const void *a, const void *b) {
     }
   }
   return (asiSortColData[*(UINT32 *)a] - asiSortColData[*(UINT32 *)b]);
+}
+
+int CompareFoundSortedUBigInt(const void *a, const void *b) {
+  UBIGINT a1,b1;
+
+  if (aFoundData[*(UINT32 *)a] != aFoundData[*(UINT32 *)b]) {
+    if (aFoundData[*(UINT32 *)a]) {
+      return(-1);
+    } else {
+      return(1);
+    }
+  }
+
+  a1 = aubiSortColData[*(UINT32 *)a];
+  b1 = aubiSortColData[*(UINT32 *)b];
+  if (a1 < b1) {
+    return(-1);
+  } else if (a1 > b1) {
+    return(1);
+  };
+  return(0);
+}
+
+int CompareFoundSortedSBigInt(const void *a, const void *b) {
+  SBIGINT a1,b1;
+
+  if (aFoundData[*(UINT32 *)a] != aFoundData[*(UINT32 *)b]) {
+    if (aFoundData[*(UINT32 *)a]) {
+      return(-1);
+    } else {
+      return(1);
+    }
+  }
+
+  a1 = asbiSortColData[*(UINT32 *)a];
+  b1 = asbiSortColData[*(UINT32 *)b];
+  if (a1 < b1) {
+    return(-1);
+  } else if (a1 > b1) {
+    return(1);
+  };
+  return(0);
 }
 
 int CompareFoundSortedFloat(const void *a, const void *b) {
@@ -2617,6 +2811,12 @@ void SortByCurrentColDataAndFound(REPORTCOL *pCol) {
   } else if (pSortCol->eFinalDataType == DTypeSInt) {
     asiSortColData = pSortCol->psiColumnData;
     qsort((void *)aSortedByCurrent,iRun,sizeof(UINT32),CompareFoundSortedSInt);
+  } else if (pSortCol->eFinalDataType == DTypeUBigInt) {
+    aubiSortColData = pSortCol->pubiColumnData;
+    qsort((void *)aSortedByCurrent,iRun,sizeof(UINT32),CompareFoundSortedUBigInt);
+  } else if (pSortCol->eFinalDataType == DTypeSBigInt) {
+    asbiSortColData = pSortCol->psbiColumnData;
+    qsort((void *)aSortedByCurrent,iRun,sizeof(UINT32),CompareFoundSortedSBigInt);
   } else {
     afSortColData = pSortCol->pfColumnData;
     qsort((void *)aSortedByCurrent,iRun,sizeof(UINT32),CompareFoundSortedFloat);

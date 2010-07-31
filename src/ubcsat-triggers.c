@@ -171,8 +171,8 @@ void CreateVarLastChange();
 void InitVarLastChange();
 void UpdateVarLastChange();
 
-UINT32 *aVarLastChange;
-UINT32 iVarLastChangeReset;
+UBIGINT *aVarLastChange;
+UBIGINT iVarLastChangeReset;
 
 
 /***** Trigger TrackChanges[W] *****/
@@ -198,12 +198,12 @@ void FlipTrackChangesFCLW();
 UINT32 iNumChanges;
 UINT32 *aChangeList;
 SINT32 *aChangeOldScore;
-UINT32 *aChangeLastStep;
+UBIGINT *aChangeLastStep;
 
 UINT32 iNumChangesW;
 UINT32 *aChangeListW;
 FLOAT *aChangeOldScoreW;
-UINT32 *aChangeLastStepW;
+UBIGINT *aChangeLastStepW;
 
 
 /***** Trigger DecPromVars[W] *****/
@@ -287,7 +287,7 @@ UINT32 *aBreakPenaltyINT;
 
 /***** Trigger NullFlips *****/
 
-UINT32 iNumNullFlips;
+UBIGINT iNumNullFlips;
 
 void InitNullFlips();
 void UpdateNullFlips();
@@ -295,7 +295,7 @@ void UpdateNullFlips();
 
 /***** Trigger LocalMins *****/
 
-UINT32 iNumLocalMins;
+UBIGINT iNumLocalMins;
 
 void InitLocalMins();
 void UpdateLocalMins();
@@ -305,7 +305,7 @@ void UpdateLocalMins();
 
 void CreateLogDist();
 
-UINT32 *aLogDistValues;
+UBIGINT *aLogDistValues;
 UINT32 iNumLogDistValues;
 UINT32 iLogDistStepsPerDecade;
 
@@ -316,9 +316,9 @@ void InitBestFalse();
 void UpdateBestFalse();
 
 UINT32 iBestNumFalse;
-UINT32 iBestStepNumFalse;
+UBIGINT iBestStepNumFalse;
 FLOAT fBestSumFalseW;
-UINT32 iBestStepSumFalseW;
+UBIGINT iBestStepSumFalseW;
 
 
 /***** Trigger SaveBest *****/
@@ -352,9 +352,9 @@ void UpdateFirstLM();
 void CalcFirstLM();
 
 UINT32 iFirstLM;
-UINT32 iFirstLMStep;
+UBIGINT iFirstLMStep;
 FLOAT fFirstLMW;
-UINT32 iFirstLMStepW;
+UBIGINT iFirstLMStepW;
 
 
 /***** Trigger FirstLMRatio *****/
@@ -386,7 +386,7 @@ FLOAT fTrajBestLMCVW;
 
 void CheckNoImprove();
 
-UINT32 iNoImprove;
+UBIGINT iNoImprove;
 
 
 /***** Trigger StartSeed *****/
@@ -415,7 +415,7 @@ void CreateFlipCounts();
 void InitFlipCounts();
 void UpdateFlipCounts();
 
-UINT32 *aFlipCounts;
+UBIGINT *aFlipCounts;
 
 
 /***** Trigger FlipCountStats *****/
@@ -434,8 +434,8 @@ void PreInitBiasCounts();
 void UpdateBiasCounts();
 void FinalBiasCounts();
 
-UINT32 *aBiasTrueCounts;
-UINT32 *aBiasFalseCounts;
+UBIGINT *aBiasTrueCounts;
+UBIGINT *aBiasFalseCounts;
 
 
 /***** Trigger BiasStats *****/
@@ -452,7 +452,7 @@ void CreateUnsatCounts();
 void InitUnsatCounts();
 void UpdateUnsatCounts();
 
-UINT32 *aUnsatCounts;
+UBIGINT *aUnsatCounts;
 
 
 /***** Trigger UnsatCountStats *****/
@@ -470,7 +470,7 @@ void CreateNumFalseCounts();
 void InitNumFalseCounts();
 void UpdateNumFalseCounts();
 
-UINT32 *aNumFalseCounts;
+UBIGINT *aNumFalseCounts;
 UINT32 *aNumFalseCountsWindow;
 
 
@@ -480,7 +480,7 @@ void CreateDistanceCounts();
 void InitDistanceCounts();
 void UpdateDistanceCounts();
 
-UINT32 *aDistanceCounts;
+UBIGINT *aDistanceCounts;
 UINT32 *aDistanceCountsWindow;
 
 
@@ -490,7 +490,7 @@ void CreateClauseLast();
 void InitClauseLast();
 void UpdateClauseLast();
 
-UINT32 *aClauseLast;
+UBIGINT *aClauseLast;
 
 
 /***** Trigger SQGrid *****/
@@ -602,12 +602,12 @@ FLOAT fBranchFactorW;
 void InitStepsUpDownSide();
 void UpdateStepsUpDownSide();
 
-UINT32 iNumUpSteps;
-UINT32 iNumDownSteps;
-UINT32 iNumSideSteps;
-UINT32 iNumUpStepsW;
-UINT32 iNumDownStepsW;
-UINT32 iNumSideStepsW;
+UBIGINT iNumUpSteps;
+UBIGINT iNumDownSteps;
+UBIGINT iNumSideSteps;
+UBIGINT iNumUpStepsW;
+UBIGINT iNumDownStepsW;
+UBIGINT iNumSideStepsW;
 
 /****** Trigger NumRestarts *****/
 
@@ -1220,7 +1220,7 @@ void InitVarsFromFile() {
               if (iLit) {
                 if (iLit > 0) {
                   iValue = 1;
-                  iVar = iLit;
+                  iVar = (UINT32) iLit;
                 } else {
                   iValue = 0;
                   iVar = (UINT32) (-iLit);
@@ -1248,7 +1248,7 @@ void InitVarsFromFile() {
             if (iLit) {
               if (iLit > 0) {
                 iValue = 1;
-                iVar = iLit;
+                iVar = (UINT32) iLit;
               } else {
                 iValue = 0;
                 iVar = (UINT32) (-iLit);
@@ -2533,7 +2533,7 @@ void FlipVarInFalse() {
 }
 
 void CreateVarLastChange() {
-  aVarLastChange = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
+  aVarLastChange = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
 }
 
 void InitVarLastChange() {
@@ -2554,7 +2554,7 @@ void UpdateVarLastChange() {
 
 void CreateTrackChanges() {
   aChangeList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
-  aChangeLastStep = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
+  aChangeLastStep = (UBIGINT *) AllocateRAM((iNumVars+1) * sizeof(UBIGINT));
   aChangeOldScore = (SINT32 *) AllocateRAM((iNumVars+1) * sizeof(SINT32));
 }
 
@@ -2805,7 +2805,7 @@ void FlipTrackChangesFCL() {
 
 void CreateTrackChangesW() {
   aChangeListW = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
-  aChangeLastStepW = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
+  aChangeLastStepW = (UBIGINT *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
   aChangeOldScoreW = (FLOAT *) AllocateRAM((iNumVars+1) * sizeof(FLOAT));
 }
 
@@ -3152,7 +3152,7 @@ void CreateBestScoreList() {
 void InitBestScoreList() {
   UINT32 j;
 
-  iBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
   iNumBestScoreList = 0;
   
   for (j=1;j<=iNumVars;j++) {
@@ -3178,7 +3178,7 @@ void UpdateBestScoreList() {
     return;
   }
 
-  iBestNewScore = iNumClauses;
+  iBestNewScore = (SINT32) iNumClauses;
 
   for (j=0;j<iNumChanges;j++) {
     if (aVarScore[aChangeList[j]] < iBestNewScore) {
@@ -3935,7 +3935,7 @@ void CreateLogDist() {
   FLOAT fFactor;
 
   iMaxLogDistValues = ((UINT32) log10((FLOAT) iCutoff)) * iLogDistStepsPerDecade + 2;
-  aLogDistValues = (UINT32 *) AllocateRAM(iMaxLogDistValues * sizeof(UINT32));
+  aLogDistValues = (UBIGINT *) AllocateRAM(iMaxLogDistValues * sizeof(UBIGINT));
 
   fFactor = powf(10.0f,1.0f / (float) iLogDistStepsPerDecade);
   fCurValue = 10.0f;
@@ -3943,7 +3943,7 @@ void CreateLogDist() {
   iNumLogDistValues = 0;
 
   while (fCurValue <= (FLOAT) iCutoff) {
-    aLogDistValues[iNumLogDistValues++] = (UINT32) fCurValue;
+    aLogDistValues[iNumLogDistValues++] = (UBIGINT) fCurValue;
     fCurValue *= fFactor;
   }
   if (aLogDistValues[iNumLogDistValues-1] != iCutoff) {
@@ -4172,7 +4172,7 @@ void CheckForRestarts() {
 }      
 
 void CreateFlipCounts() {
-  aFlipCounts = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
+  aFlipCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
 }
 
 void InitFlipCounts() {
@@ -4199,8 +4199,8 @@ void FlipCountStats() {
 }
 
 void CreateBiasCounts() {
-  aBiasTrueCounts = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
-  aBiasFalseCounts = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
+  aBiasTrueCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
+  aBiasFalseCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
 }
 
 void PreInitBiasCounts() {
@@ -4241,10 +4241,10 @@ void FinalBiasCounts() {
 }
 
 void BiasStats() {
-  UINT32 iCountSame;
-  UINT32 iCountDiff;
-  UINT32 iCountMax;
-  UINT32 iCountMin;
+  UBIGINT iCountSame;
+  UBIGINT iCountDiff;
+  UBIGINT iCountMax;
+  UBIGINT iCountMin;
   UINT32 j;
 
   iCountSame = 0;
@@ -4281,7 +4281,7 @@ void BiasStats() {
 }
 
 void CreateUnsatCounts() {
-  aUnsatCounts = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aUnsatCounts = (UBIGINT *) AllocateRAM(iNumClauses*sizeof(UBIGINT));
 }
 
 void InitUnsatCounts() {
@@ -4313,7 +4313,7 @@ void UnsatCountStats() {
 }
 
 void CreateNumFalseCounts() {
-  aNumFalseCounts = (UINT32 *) AllocateRAM((iNumClauses+1)*sizeof(UINT32));
+  aNumFalseCounts = (UBIGINT *) AllocateRAM((iNumClauses+1)*sizeof(UBIGINT));
   if (iReportFalseHistCount) {
     aNumFalseCountsWindow = (UINT32 *) AllocateRAM(iReportFalseHistCount*sizeof(UINT32));
   }
@@ -4340,7 +4340,7 @@ void UpdateNumFalseCounts() {
 }
 
 void CreateDistanceCounts() {
-  aDistanceCounts = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
+  aDistanceCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
   if (iReportDistHistCount) {
     aDistanceCountsWindow = (UINT32 *) AllocateRAM(iReportDistHistCount*sizeof(UINT32));
   }
@@ -4368,7 +4368,7 @@ void UpdateDistanceCounts() {
 }
 
 void CreateClauseLast() {
-  aClauseLast = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aClauseLast = (UBIGINT *) AllocateRAM(iNumClauses*sizeof(UBIGINT));
 }
 
 void InitClauseLast() {
@@ -4560,7 +4560,7 @@ void InitMobilityWindow() {
 void UpdateMobilityWindow() {
 
   UINT32 iWindowLen;
-  UINT32 iStopWindow;
+  UBIGINT iStopWindow;
   SINT32 iCurPos;
   UINT32 iCurVar;
 
@@ -4577,7 +4577,7 @@ void UpdateMobilityWindow() {
   }
 
   aMobilityWindow[0] = 0;
-  iCurPos = (iStep % iVarFlipHistoryLen);
+  iCurPos = (SINT32) (iStep % iVarFlipHistoryLen);
 
   for (iWindowLen = 1; iWindowLen < iStopWindow; iWindowLen++) {
 
@@ -4601,7 +4601,7 @@ void UpdateMobilityWindow() {
 
     iCurPos--;
     if (iCurPos == -1) {
-      iCurPos = iVarFlipHistoryLen - 1;
+      iCurPos = (SINT32) (iVarFlipHistoryLen - 1);
     }
   }
 }
@@ -4659,9 +4659,9 @@ void UpdateAutoCorr() {
     fCurValue = (FLOAT) iNumFalse;
   }
 
-  if (iStep <= iAutoCorrMaxLen) {
+  if (iStep <= (UBIGINT) iAutoCorrMaxLen) {
     aAutoCorrStartBuffer[iStep - 1] = fCurValue;
-    iLoopIndex = iStep-1;
+    iLoopIndex = (UINT32) (iStep-1);
   } else {
     iLoopIndex = iAutoCorrMaxLen;
   }
@@ -4688,9 +4688,9 @@ void CalcAutoCorr() {
   FLOAT fSumEnd = fAutoCorrSum;
   FLOAT fSumEnd2 = fAutoCorrSum2;
 
-  if (iStep <= iAutoCorrMaxLen) {
-    iLoopIndex = iStep-1;
-    for (k=iStep; k<iAutoCorrMaxLen; k++) {
+  if (iStep <= (UBIGINT) iAutoCorrMaxLen) {
+    iLoopIndex = (UINT32) iStep-1;
+    for (k = (UINT32) iStep; k<iAutoCorrMaxLen; k++) {
       aAutoCorrValues[k] = FLOATZERO;
     }
   } else {
@@ -4873,7 +4873,7 @@ void LoadKnownSolutions() {
     vsKnownNew = NewVarState();
 
     while (!feof(filKnown)) {
-      if (fgets(sKnownLine,iLineLen,filKnown)) {
+      if (fgets(sKnownLine,(int) iLineLen,filKnown)) {
         if ((*sKnownLine)&&(*sKnownLine != '#')) {
           if (SetCurVarStateString(vsKnownNew, sKnownLine)) {
             AddToVarStateList(&vslKnownSoln,vsKnownNew);

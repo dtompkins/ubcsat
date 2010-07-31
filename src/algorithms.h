@@ -88,7 +88,7 @@ void AddRNoveltyPlus();
 void AddAdaptNoveltyPlus();
 void InitAdaptNoveltyNoise();
 void AdaptNoveltyNoiseAdjust();
-extern UINT32 iLastAdaptStep;
+extern UBIGINT iLastAdaptStep;
 extern UINT32 iLastAdaptNumFalse;
 extern FLOAT fLastAdaptSumFalseW;
 extern UINT32 iInvPhi;

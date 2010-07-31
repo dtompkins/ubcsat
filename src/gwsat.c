@@ -73,7 +73,7 @@ void PickGWSat() {
   } else {
 
     iNumCandidates = 0;
-    iBestScore = iNumClauses;
+    iBestScore = (SINT32) iNumClauses;
 
     /* check score of all variables */
 
@@ -82,7 +82,7 @@ void PickGWSat() {
       /* Maintaing VarFalseList requires MakeCount[],
          so use makecount & breakcount to calculate score */
 
-      iScore = aBreakCount[j] - aMakeCount[j];
+      iScore = (SINT32) aBreakCount[j] - (SINT32) aMakeCount[j];
 
       /* build candidate list of best vars */
 

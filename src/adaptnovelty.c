@@ -28,7 +28,7 @@ UINT32 iInvTheta=6;             /* = 1/theta */
 FLOAT fAdaptPhi;
 FLOAT fAdaptTheta;
 
-UINT32 iLastAdaptStep;
+UBIGINT iLastAdaptStep;
 UINT32 iLastAdaptNumFalse;
 FLOAT fLastAdaptSumFalseW;
 

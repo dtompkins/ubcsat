@@ -40,8 +40,8 @@ UINT32 iLSTabuTenureHigh;
 UINT32 iPerturbTabuTenureLow;
 UINT32 iPerturbTabuTenureHigh;
 
-UINT32 iIrotsLSBestStep;
-UINT32 iIrotsLSBestValue;
+UBIGINT iIrotsLSBestStep;
+UBIGINT iIrotsLSBestValue;
 FLOAT fIrotsLSBestValueW;
 
 UINT32 iIrotsSavedValue;

@@ -83,8 +83,8 @@ void PickRNoveltyCore() {
   UINT32 iBestVar=0;
   UINT32 iSecondBestVar=0;
 
-  iBestScore = iNumClauses;
-  iSecondBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
+  iSecondBestScore = (SINT32) iNumClauses;
 
   if (iNumFalse) {
     iClause = aFalseList[RandomInt(iNumFalse)];

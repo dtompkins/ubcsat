@@ -37,5 +37,5 @@
 
 #define IsLitTrue(L) (aVarValue[(L) >> 1] ^ (L & 0x00000001))
 
-#define SetLitFromFile(V) (((V) < 0) ? (((-(V)) << 1) + 1) : ((V) << 1))
+#define SetLitFromFile(V) ((LITTYPE) (((V) < 0) ? (((-(V)) << 1) + 1) : ((V) << 1)))
 

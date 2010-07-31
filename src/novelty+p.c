@@ -82,8 +82,8 @@ void PickNoveltyPlusP() {
 
     } else {
 
-      iBestScore = iNumClauses;
-      iSecondBestScore = iNumClauses;
+      iBestScore = (SINT32) iNumClauses;
+      iSecondBestScore = (SINT32) iNumClauses;
       pLit = pClauseLits[iClause];
       iYoungestVar = GetVarFromLit(*pLit);
 
@@ -267,7 +267,7 @@ SINT32 BestLookAheadScore(UINT32 iLookVar) {
     pClause++;
   }
 
-  iBestLookAheadScore = iNumClauses;
+  iBestLookAheadScore = (SINT32) iNumClauses;
 
   /* for each varaible that has 'changed' and/or is a Decreasing promising varaible */
 

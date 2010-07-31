@@ -68,10 +68,10 @@ void PickWalkSatTabu() {
   UINT32 iNumOcc;
   UINT32 iVar;
   
-  UINT32 iTabuCutoff;
+  UBIGINT iTabuCutoff;
 
   iNumCandidates = 0;
-  iBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
 
   /* calculation of tabu cutoff */
 
@@ -157,7 +157,7 @@ void PickWalkSatTabuW() {
   UINT32 iNumOcc;
   UINT32 iVar;
   
-  UINT32 iTabuCutoff;
+  UBIGINT iTabuCutoff;
 
   iNumCandidates = 0;
   fBestScore = fTotalWeight;

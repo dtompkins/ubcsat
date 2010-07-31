@@ -71,7 +71,7 @@ void PickRoTS() {
   
   UINT32 j;
   SINT32 iScore;
-  UINT32 iTabuCutoff;
+  UBIGINT iTabuCutoff;
 
   /* every N steps, choose the tabu tenure uniformly from the tabu range */
 
@@ -93,7 +93,7 @@ void PickRoTS() {
   }
 
   iNumCandidates = 0;
-  iBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
 
   /* check all variables */
 
@@ -149,7 +149,7 @@ void PickRoTSW() {
   
   UINT32 j;
   FLOAT fScore;
-  UINT32 iTabuCutoff;
+  UBIGINT iTabuCutoff;
 
   if (iTabuTenureLow != iTabuTenureHigh) {
     if ((iStep % iNumVars)==0) {

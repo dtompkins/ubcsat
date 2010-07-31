@@ -59,7 +59,7 @@ FLOAT fFlipsPerSecond;
 FLOAT fBestScore;
 FLOAT fTargetW;
 SINT32 iBestScore;
-UINT32 iCutoff;
+UBIGINT iCutoff;
 UINT32 iFind;
 UINT32 iFindUnique;
 UINT32 iFlipCandidate;
@@ -80,7 +80,7 @@ UINT32 iRunProceduresLoop;
 UINT32 iRunProceduresLoop2;
 UINT32 iSeed;
 UINT32 iStagnateRestart;
-UINT32 iStep;
+UBIGINT iStep;
 UINT32 iTarget;
 FLOAT fTimeOut;
 FLOAT fGlobalTimeOut;
@@ -280,6 +280,8 @@ void ActivateDynamicParms() {
 
   UINT32 *iTarget;
   SINT32 *siTarget;
+  UBIGINT *biTarget;
+  SBIGINT *sbiTarget;
   FLOAT *fTarget;
   
   for (j=0;j<iNumDynamicParms;j++) {
@@ -300,12 +302,31 @@ void ActivateDynamicParms() {
         }        
         break;
 
+      case DTypeUBigInt:
+        biTarget = (UBIGINT *) pCurParm->pTarget;
+        if (*biTarget==0) {
+          *biTarget = (UBIGINT) (*(pCurParm->pBase) * pCurParm->fFactor);
+        }
+        break;
+
+      case DTypeSBigInt:
+        sbiTarget = (SBIGINT *) pCurParm->pTarget;
+        if (*sbiTarget==0) {
+          *sbiTarget = (SBIGINT) (*(pCurParm->pBase) * pCurParm->fFactor);
+        }        
+        break;
+
       case DTypeFloat:
         fTarget = (FLOAT *) pCurParm->pTarget;
         if (*fTarget==FLOATZERO) {
           *fTarget = (*(pCurParm->pBase) * pCurParm->fFactor);
         }
         break;
+
+      case DTypeString:
+        ReportPrint(pRepErr,"Unexpected Error: String Dynamic Parameter\n");
+        AbnormalExit();
+        exit(1);
 
       default:
         break;
@@ -440,6 +461,57 @@ void AddColumnUInt(const char *sID,
   AddItem(&listColumns,sID);
 }
 
+void AddColumnUBigInt(const char *sID, 
+                  const char *sDescription, 
+                  const char *sHeader1,  
+                  const char *sHeader2,  
+                  const char *sHeader3, 
+                  const char *sPrintFormat, 
+                  UBIGINT *pCurValue,
+                  const char *sTriggers,
+                  enum COLTYPE eColType
+                  )
+{
+
+  REPORTCOL *pCol;
+  
+  pCol = &aColumns[listColumns.iNumItems];
+
+  pCol->bActive = FALSE;
+  pCol->bAllocateColumnRAM = FALSE;
+
+  SetString(&pCol->sDescription,sDescription);
+  SetString(&pCol->sHeader1,sHeader1);
+  SetString(&pCol->sHeader2,sHeader2);
+  SetString(&pCol->sHeader3,sHeader3);
+  SetString(&pCol->sPrintFormat,sPrintFormat);
+  pCol->pubiCurValue = pCurValue;
+
+  pCol->eSourceDataType = DTypeUBigInt;
+
+  SetString(&pCol->sTriggers,sTriggers);
+  
+  pCol->pubiColumnData = NULL;
+  pCol->pfColumnData = NULL;
+
+  pCol->eColType = eColType;
+
+  if ((eColType == ColTypeMean)||
+      (eColType == ColTypeStddev)||
+      (eColType == ColTypeCV)||
+      (eColType == ColTypeFinalDivStep)||
+      (eColType == ColTypeFinalDivStep100)) {
+    pCol->eFinalDataType = DTypeFloat;
+  } else {
+    pCol->eFinalDataType = DTypeUBigInt;
+  }
+
+  pCol->fColSum = FLOATZERO;
+  pCol->fColSum2 = FLOATZERO;
+
+  AddItem(&listColumns,sID);
+}
+
 void AddContainerItem(ITEMLIST *pList,const char *sID, const char *sList) {
   SetString(&pList->aItems[pList->iNumItems].sID,sID);
   pList->aItems[pList->iNumItems].bContainer = TRUE;
@@ -539,6 +611,21 @@ void AddParmUInt(ALGPARMLIST *pParmList,
   p->pParmValue = (void *) pInt;
   p->defDefault.iUInt = iDefInt;
   p->eType = PTypeUInt;
+}
+
+void AddParmUBigInt(ALGPARMLIST *pParmList, 
+                  const char *sSwitch, 
+                  const char *sTerseDescription, 
+                  const char *sVerboseDescription,
+                  const char *sTriggers,
+                  UBIGINT *pBigInt,
+                  UBIGINT iDefBigInt)
+{
+  ALGPARM *p;
+  p = AddParmCommon(pParmList,sSwitch,sTerseDescription,sVerboseDescription,sTriggers);
+  p->pParmValue = (void *) pBigInt;
+  p->defDefault.iUBigInt = iDefBigInt;
+  p->eType = PTypeUBigInt;
 }
 
 void AddParmProbability(ALGPARMLIST *pParmList,
@@ -701,7 +788,7 @@ void AddStatCustom(const char *sID,
 
 }
 
-void CalculateStats(FLOAT *fMean, FLOAT *fStddev, FLOAT *fCV, FLOAT fSum, FLOAT fSum2, UINT32 iCount) {
+void CalculateStats(FLOAT *fMean, FLOAT *fStddev, FLOAT *fCV, FLOAT fSum, FLOAT fSum2, UBIGINT iCount) {
   
   FLOAT fCountMul;
   FLOAT fCountMulMinusOne;
@@ -736,7 +823,7 @@ void CalculateStats(FLOAT *fMean, FLOAT *fStddev, FLOAT *fCV, FLOAT fSum, FLOAT 
   }
 }
 
-FLOAT CorrelationCoeff(FLOAT fSumA, FLOAT fSumA2,FLOAT fSumB, FLOAT fSumB2, FLOAT fSumAB, UINT32 iCount) {
+FLOAT CorrelationCoeff(FLOAT fSumA, FLOAT fSumA2,FLOAT fSumB, FLOAT fSumB2, FLOAT fSumAB, UBIGINT iCount) {
 
   FLOAT fMeanA;
   FLOAT fStddevA;
@@ -800,7 +887,7 @@ void CheckParamterFile(int iCommandLineCount,char **aCommandLineArgs) {
   }
 
   if (iNumParmFiles==0) {
-    iNumTotalParms = iCommandLineCount - 1;
+    iNumTotalParms = (UINT32) (iCommandLineCount - 1);
     if (iNumTotalParms>=MAXTOTALPARMS) {
       ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXTOTALPARMS [%d]\n",MAXTOTALPARMS);
       AbnormalExit();
@@ -1033,17 +1120,17 @@ ALGORITHM *FindAlgorithm(const char *sFindName, const char *sFindVar, BOOL bFind
 }
 
 UINT32 FindItem(ITEMLIST *pList, const char *sID) {
-  SINT32 j;
+  UINT32 j;
   char *pPos;
   char *pPos2;
   UINT32 iLen;
 
-  pPos = strchr(sID,'[');
+  pPos = strchr((char *) sID,'[');
   if (pPos) {
-    pPos2 = strchr(sID,']');
+    pPos2 = strchr((char *) sID,']');
     if (pPos2) {
-      iLen = pPos - sID;
-      for (j=0;j<(SINT32)pList->iNumItems;j++) {
+      iLen = (UINT32) (pPos - sID);
+      for (j=0;j<pList->iNumItems;j++) {
         if (strlen(pList->aItems[j].sID) == iLen) {
           if (strncmp(sID,pList->aItems[j].sID,iLen)==0) {
             return(j);
@@ -1054,7 +1141,7 @@ UINT32 FindItem(ITEMLIST *pList, const char *sID) {
       ReportPrint1(pRepErr,"Error: unbalanced [] in (%s)\n",sID);
     }
   } else {
-    for (j=0;j<(SINT32)pList->iNumItems;j++) {
+    for (j=0;j<pList->iNumItems;j++) {
         if (strcmp(sID,pList->aItems[j].sID)==0) {
           return(j);
         }
@@ -1240,7 +1327,7 @@ void ParseAllParameters(int argc, char *argv[]) {
 void ParseItemList(ITEMLIST *pList, const char *sItems, CALLBACKPTR ItemFunction) {
 
   const char *pPos;
-  SINT32 j;
+  UINT32 j;
 
   if (*sItems==0) {
     return;
@@ -1264,7 +1351,7 @@ void ParseItemList(ITEMLIST *pList, const char *sItems, CALLBACKPTR ItemFunction
   if (pList->aItems[j].bContainer) {
     ParseItemList(pList,pList->aItems[j].sContainerList,ItemFunction);
   } else {
-    ItemFunction((UINT32) j,sItems);
+    ItemFunction(j,sItems);
   }
 }
 
@@ -1327,19 +1414,73 @@ void ParseParameters(ALGPARMLIST *pParmList) {
           if (iCurParm == iNumTotalParms) {
             HelpBadParm(aTotalParms[iCurParm-1]);
           }
-          if (aTotalParms[iCurParm][strlen(aTotalParms[iCurParm])-1] == 'n') {
-            if (strlen(aTotalParms[iCurParm]) > 1 ) {
-              if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
+          if (strcmp(aTotalParms[iCurParm],"max")==0) {
+            *((SINT32 *) pParm->pParmValue) = SINT32MAX;
+          } else {
+            if (aTotalParms[iCurParm][strlen(aTotalParms[iCurParm])-1] == 'n') {
+              if (strlen(aTotalParms[iCurParm]) > 1 ) {
+                if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
+                  HelpBadParm(aTotalParms[iCurParm-1]);
+                }
+              } else {
+                fTemp = 1.0f;
+              }
+              AddDynamicParm(pParm->pParmValue,DTypeSInt,&iNumVars,fTemp);
+              *((SINT32 *) pParm->pParmValue) = 0;
+            } else {
+              if (sscanf(aTotalParms[iCurParm],"%ld",(SINT32 *) pParm->pParmValue)==0) {
                 HelpBadParm(aTotalParms[iCurParm-1]);
               }
-            } else {
-              fTemp = 1.0f;
             }
-            AddDynamicParm(pParm->pParmValue,DTypeSInt,&iNumVars,fTemp);
-            *((SINT32 *) pParm->pParmValue) = 0;
+          }
+          aParmValid[iCurParm++] = TRUE;
+          break;
+        case PTypeUBigInt:
+          if (iCurParm == iNumTotalParms) {
+            HelpBadParm(aTotalParms[iCurParm-1]);
+          }
+          if (strcmp(aTotalParms[iCurParm],"max")==0) {
+            *((UBIGINT *) pParm->pParmValue) = UBIGINTMAX;
           } else {
-            if (sscanf(aTotalParms[iCurParm],"%ld",(SINT32 *) pParm->pParmValue)==0) {
-              HelpBadParm(aTotalParms[iCurParm-1]);
+            if (aTotalParms[iCurParm][strlen(aTotalParms[iCurParm])-1] == 'n') {
+              if (strlen(aTotalParms[iCurParm]) > 1 ) {
+                if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
+                  HelpBadParm(aTotalParms[iCurParm-1]);
+                }
+              } else {
+                fTemp = 1.0f;
+              }
+              AddDynamicParm(pParm->pParmValue,DTypeUBigInt,&iNumVars,fTemp);
+              *((UINT32 *) pParm->pParmValue) = 0;
+            } else {
+              if (sscanf(aTotalParms[iCurParm],"%llu",(UBIGINT *) pParm->pParmValue)==0) {
+                HelpBadParm(aTotalParms[iCurParm-1]);
+              }
+            }
+          }
+          aParmValid[iCurParm++] = TRUE;
+          break;
+        case PTypeSBigInt:
+          if (iCurParm == iNumTotalParms) {
+            HelpBadParm(aTotalParms[iCurParm-1]);
+          }
+          if (strcmp(aTotalParms[iCurParm],"max")==0) {
+            *((SBIGINT *) pParm->pParmValue) = SBIGINTMAX;
+          } else {
+            if (aTotalParms[iCurParm][strlen(aTotalParms[iCurParm])-1] == 'n') {
+              if (strlen(aTotalParms[iCurParm]) > 1 ) {
+                if (sscanf(aTotalParms[iCurParm],"%f",&fTemp)==0) {
+                  HelpBadParm(aTotalParms[iCurParm-1]);
+                }
+              } else {
+                fTemp = 1.0f;
+              }
+              AddDynamicParm(pParm->pParmValue,DTypeSBigInt,&iNumVars,fTemp);
+              *((SBIGINT *) pParm->pParmValue) = 0;
+            } else {
+              if (sscanf(aTotalParms[iCurParm],"%lld",(SBIGINT *) pParm->pParmValue)==0) {
+                HelpBadParm(aTotalParms[iCurParm-1]);
+              }
             }
           }
           aParmValid[iCurParm++] = TRUE;
@@ -1437,7 +1578,7 @@ void ParseParameters(ALGPARMLIST *pParmList) {
           iCurReport = -1;          
           for (j=0;j<iNumReports;j++) {
             if (strcmp(aTotalParms[iCurParm],aReports[j].sID)==0) {
-              iCurReport = j;
+              iCurReport = (SINT32) j;
               break;
             }
           }
@@ -1500,7 +1641,15 @@ void ParseParameters(ALGPARMLIST *pParmList) {
                       SetString((char **) &pRep->aParameters[iNumRepParms],aTotalParms[iCurParm]);
                       aParmValid[iCurParm++] = TRUE;
                       break;
-
+                    case PTypeReport:
+                    case PTypeProbability:
+                    case PTypeBool:
+                    case PTypeUBigInt:
+                    case PTypeSBigInt:
+                    case PTypeSInt:
+                      ReportPrint(pRepErr,"Unexpected Error: bad report parameter\n");
+                      AbnormalExit();
+                      exit(1);
                     default:
                       break;
                   }
@@ -1539,7 +1688,13 @@ void PrintAlgParmSettings(REPORT *pRep, ALGPARMLIST *pParmList) {
         ReportHdrPrint1(pRep,"%lu ", *(UINT32 *)pCurParm->pParmValue);
         break;
       case PTypeSInt:
-        ReportHdrPrint1(pRep,"%d ", *(int *)pCurParm->pParmValue);
+        ReportHdrPrint1(pRep,"%ld ", *(SINT32 *)pCurParm->pParmValue);
+        break;
+      case PTypeUBigInt:
+        ReportHdrPrint1(pRep,"%llu ", *(UBIGINT *)pCurParm->pParmValue);
+        break;
+      case PTypeSBigInt:
+        ReportHdrPrint1(pRep,"%lld ", *(SBIGINT *)pCurParm->pParmValue);
         break;
       case PTypeProbability:
         ReportHdrPrint1(pRep,"%.4g ", ProbToFloat(*(PROBABILITY *)pCurParm->pParmValue));
@@ -1584,6 +1739,12 @@ void SetDefaultParms(ALGPARMLIST *pParmList) {
         break;
       case PTypeSInt:
         *((SINT32 *)pParm->pParmValue) = pParm->defDefault.iSInt;
+        break;
+      case PTypeUBigInt:
+        *((UBIGINT *)pParm->pParmValue) = pParm->defDefault.iUBigInt;
+        break;
+      case PTypeSBigInt:
+        *((SBIGINT *)pParm->pParmValue) = pParm->defDefault.iSBigInt;
         break;
       case PTypeBool:
         *((UINT32 *)pParm->pParmValue) = pParm->defDefault.bBool;
@@ -1690,9 +1851,9 @@ UINT32 SetColStatFlags (char *sStatsParms) {
     pPos2 = strstr(pPos,"+");
 
     if (pPos2) {
-      iLen = pPos2 - pPos;
+      iLen = (UINT32) (pPos2 - pPos);
     } else {
-      iLen = strlen(pPos);
+      iLen = (UINT32) strlen(pPos);
     }
     
     if (iLen) {
@@ -1836,7 +1997,7 @@ BOOL SetCurVarStateString(VARSTATE vsIn, char *sVarState) {
 void SetArrayFromVarState(UINT32 *aOut, VARSTATE vsIn) {
   UINT32 j;
   for (j=0;j<iNumVars;j++) {
-    aOut[j+1] = GetVarStateBit(vsIn,j);
+    aOut[j+1] = (UINT32) GetVarStateBit(vsIn,j);
   }  
 }
 

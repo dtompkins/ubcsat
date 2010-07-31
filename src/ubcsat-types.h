@@ -70,6 +70,17 @@
 #define BOOL unsigned long
 #endif
 
+#ifndef UBIGINT
+#define UBIGINT unsigned long long
+#define UBIGINTMAX 0xFFFFFFFFFFFFFFFFull
+#endif
+
+#ifndef SBIGINT
+#define SBIGINT signed long long
+#define SBIGINTMAX 0x7FFFFFFFFFFFFFFFll
+#define SBIGINTMIN 0x8000000000000000ll
+#endif
+
 #ifndef UINT32
 #define UINT32 unsigned long
 #endif
@@ -127,6 +138,8 @@ enum EVENTPOINT {
 enum PARMTYPE {
    PTypeUInt,
    PTypeSInt,
+   PTypeUBigInt,
+   PTypeSBigInt,
    PTypeBool,
    PTypeString,
    PTypeProbability,
@@ -137,6 +150,8 @@ enum PARMTYPE {
 enum CDATATYPE {
   DTypeUInt,
   DTypeSInt,
+  DTypeUBigInt,
+  DTypeSBigInt,
   DTypeFloat,
   DTypeString
 };
@@ -183,6 +198,8 @@ typedef struct typeTRIGGER {
 typedef union typePARAMETERDEFAULT {
   UINT32 iUInt;
   SINT32 iSInt;
+  UBIGINT iUBigInt;
+  SBIGINT iSBigInt;
   BOOL bBool;
   char *sString;
   PROBABILITY iProb;
@@ -252,14 +269,20 @@ typedef struct typeREPORTCOL {
 
   UINT32 *puiCurValue;
   SINT32 *psiCurValue;
+  UBIGINT *pubiCurValue;
+  SBIGINT *psbiCurValue;
   FLOAT *pfCurValue;
 
   UINT32 *puiColumnData;
   SINT32 *psiColumnData;
+  UBIGINT *pubiColumnData;
+  SBIGINT *psbiColumnData;
   FLOAT *pfColumnData;
 
   UINT32 uiCurRowValue;
   SINT32 siCurRowValue;
+  UBIGINT ubiCurRowValue;
+  SBIGINT sbiCurRowValue;
   FLOAT fCurRowValue;
 
   char *sTriggers;
@@ -270,6 +293,8 @@ typedef struct typeREPORTCOL {
 
   SINT32 siMinMaxVal;
   UINT32 uiMinMaxVal;
+  UBIGINT ubiMinMaxVal;
+  SBIGINT sbiMinMaxVal;
   FLOAT  fMinMaxVal;
 
   FLOAT fRowSum;

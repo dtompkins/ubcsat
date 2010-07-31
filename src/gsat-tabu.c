@@ -59,7 +59,7 @@ void PickGSatTabu() {
   
   UINT32 j;
   SINT32 iScore;
-  UINT32 iTabuCutoff;
+  UBIGINT iTabuCutoff;
 
   /* calculation of tabu cutoff */
 
@@ -73,7 +73,7 @@ void PickGSatTabu() {
   }
 
   iNumCandidates = 0;
-  iBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
 
   for (j=1;j<=iNumVars;j++) {
 
@@ -110,7 +110,7 @@ void PickGSatTabuW() {
   
   UINT32 j;
   FLOAT fScore;
-  UINT32 iTabuCutoff;
+  UBIGINT iTabuCutoff;
 
   /* calculation of tabu cutoff */
 

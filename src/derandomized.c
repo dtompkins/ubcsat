@@ -183,8 +183,8 @@ void PickDANOVP() {
       }
     }
  
-    iBestScore = iNumClauses;
-    iSecondBestScore = iNumClauses;
+    iBestScore = (SINT32) iNumClauses;
+    iSecondBestScore = (SINT32) iNumClauses;
       
     iClauseLen = aClauseLen[iClausePick];
 

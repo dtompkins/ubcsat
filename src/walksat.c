@@ -68,7 +68,7 @@ void PickWalkSatSKC() {
   UINT32 iNumOcc;
 
   iNumCandidates = 0;
-  iBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
 
   /* select an unsatisfied clause uniformly at random */
 

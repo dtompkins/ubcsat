@@ -32,7 +32,7 @@ void InitVW2Auto();
 void UpdateVW2Auto();
 SINT32 iMaxExpProbability;
 FLOAT fVW2AutoAdjustInterval;
-UINT32 iNextVW2AutoAdjustStep;
+UBIGINT iNextVW2AutoAdjustStep;
 FLOAT VW2AutoSmooth[7] = {0.2f, 0.02f, 0.002f, 0.0002f, 0.00002f, 0.000002f, 0.0f};
 
 /***** Trigger VW2Weights *****/
@@ -104,10 +104,10 @@ void PickVW1() {
   UINT32 *pClause;
   LITTYPE litPick;
   UINT32 iNumOcc;
-  UINT32 iBestVarFlipCount;
+  UBIGINT iBestVarFlipCount;
 
   iNumCandidates = 0;
-  iBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
   iBestVarFlipCount = iStep;
 
   /* select an unsatisfied clause uniformly at random */
@@ -211,7 +211,7 @@ void PickVW2() {
   FLOAT fBestVW2Score;
 
   iNumCandidates = 0;
-  iBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
   fBestVW2Score = FLOATMAX;
 
   /* select an unsatisfied clause uniformly at random */
@@ -305,10 +305,10 @@ void InitVW2Auto() {
 
 void UpdateVW2Auto() {
   if ( iStep > iNextVW2AutoAdjustStep ) {
-    iMaxExpProbability = 1 + RandomInt(6);
+    iMaxExpProbability = 1 + (SINT32) RandomInt(6);
     fVW2Smooth = VW2AutoSmooth[RandomInt(7)];
     fVW2AutoAdjustInterval *= 1.1f;
-    iNextVW2AutoAdjustStep = iStep + (UINT32) fVW2AutoAdjustInterval;
+    iNextVW2AutoAdjustStep = iStep + (UBIGINT) fVW2AutoAdjustInterval;
   }
 }
 
@@ -320,7 +320,7 @@ BOOL BoundedExpProbability (SINT32 iExpProbability)
   if (iExpProbability > iMaxExpProbability) {
     iExpProbability = iMaxExpProbability;
   }
-  if (RandomInt(1 << iExpProbability)==0) {
+  if (RandomInt((UINT32) (1 << iExpProbability))==0) {
     return TRUE;
   }
   return FALSE;
@@ -343,8 +343,8 @@ void PickVW2Auto() {
 
   iNumCandidates = 0;
 
-  iPrevScore = iNumClauses;
-  iBestScore = iNumClauses;
+  iPrevScore = (SINT32) iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
   fPrevVW2Weight = FLOATMAX;
 
   /* select an unsatisfied clause uniformly at random */

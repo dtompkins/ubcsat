@@ -93,7 +93,7 @@ void PickPAWS() {
 
     /* use cached value of breakcount - makecount */
 
-    iScore = aBreakPenaltyINT[iVar] - aMakePenaltyINT[iVar];
+    iScore = (SINT32) aBreakPenaltyINT[iVar] - (SINT32) aMakePenaltyINT[iVar];
 
     /* build candidate list of best vars */
 

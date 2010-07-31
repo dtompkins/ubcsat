@@ -91,7 +91,7 @@ void RandomSeed(UINT32 iSeed) {
   fxnRandSeed(iSeed);
 }
 
-UINT32 iNumRandomCalls;
+UBIGINT iNumRandomCalls;
 FXNRAND32 fxnRandOrig;
 
 UINT32 CountRandom() {

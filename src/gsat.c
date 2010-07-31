@@ -66,7 +66,7 @@ void PickGSatSimple() {
   SINT32 iScore;
 
   iNumCandidates = 0;
-  iBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
 
   /* check score of all variables */
 

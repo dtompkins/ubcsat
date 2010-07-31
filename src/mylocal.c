@@ -89,11 +89,11 @@ void PickWalkSatTabuNoNull() {
 
 /***** EXAMPLE 2: Adding a statistic *****/
 
-UINT32 iCurVarAge;                                                /* variable to store current variable age */
+UBIGINT iCurVarAge;                                               /* variable to store current variable age */
 
 void AddAgeStat() {
                                                                   /* note that UInt refers to the data type of the _source_ */
-  AddColumnUInt("agemean",                                        /* name of the column... as in: -r out stdout default,agemean */
+  AddColumnUBigInt("agemean",                                     /* name of the column... as in: -r out stdout default,agemean */
     "Mean age of variables when flipped",                         /* description */
     "   Mean",                                                    /* the next 3 columns are the column headers */
     " Age of",                                                    /* they should be the same width as each other */
