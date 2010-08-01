@@ -27,7 +27,6 @@ namespace ubcsat {
 #endif
 
 void PickWalkSatTabu();
-void PickWalkSatTabuW();
 void PickWalkSatTabuNoNull();
 
 void AddWalkSatTabu() {
@@ -44,18 +43,6 @@ void AddWalkSatTabu() {
   AddParmUInt(&pCurAlg->parmList,"-tabu","tabu tenure [default %s]","variables flipped within the last INT steps are tabu","",&iTabuTenure,10);
 
   CreateTrigger("PickWalkSatTabu",ChooseCandidate,PickWalkSatTabu,"","");
-
-
-  pCurAlg = CreateAlgorithm("walksat-tabu","",TRUE,
-    "WALKSAT-TABU: WalkSAT with TABU search (weighted)",
-    "McAllester, Selman, Kautz [AAAI 97]",
-    "PickWalkSatTabuW",
-    "DefaultProceduresW,Flip+FalseClauseListW,VarLastChange",
-    "default_w","default");
-  
-  CopyParameters(pCurAlg,"walksat-tabu","",FALSE);
-
-  CreateTrigger("PickWalkSatTabuW",ChooseCandidate,PickWalkSatTabuW,"","");
 
 }
 
@@ -148,95 +135,6 @@ void PickWalkSatTabu() {
     iFlipCandidate = aCandidateList[0];
   }
 
-}
-
-void PickWalkSatTabuW() {
- 
-  UINT32 i;
-  UINT32 j;
-  FLOAT fScore;
-  UINT32 iClauseLen;
-  LITTYPE *pLit;
-  UINT32 *pClause;
-  UINT32 iNumOcc;
-  UINT32 iVar;
-  
-  UBIGINT iTabuCutoff;
-
-  iNumCandidates = 0;
-  fBestScore = fTotalWeight;
-
-  /* calculation of tabu cutoff */
-
-  if (iStep > iTabuTenure) {
-    iTabuCutoff = iStep - iTabuTenure;
-    if (iVarLastChangeReset > iTabuCutoff) {
-      iTabuCutoff = iVarLastChangeReset;
-    }
-  } else {
-    iTabuCutoff = 1;
-  }
-
-  /* select the clause according to a weighted scheme */
-
-  iWalkSATTabuClause = PickClauseWCS();
-  iClauseLen = aClauseLen[iWalkSATTabuClause];
-
-  pLit = pClauseLits[iWalkSATTabuClause];
-
-  for (j=0;j<iClauseLen;j++) {
-
-    /* for WalkSAT variants, it's faster to calculate the
-       score for each literal than to cache the values 
-    
-       note that in this case, score is the breakcount[] */
-
-    fScore = FLOATZERO;
-      
-    pClause = pLitClause[GetNegatedLit(*pLit)];
-
-    iVar = GetVarFromLit(*pLit);
-    
-    iNumOcc = aNumLitOcc[GetNegatedLit(*pLit)];
-    
-    for (i=0;i<iNumOcc;i++) {
-      if (aNumTrueLit[*pClause]==1) {
-        fScore += aClauseWeight[*pClause];
-      }
-      pClause++;
-    }
-    
-    /* variables with breakcount (score) = 0 are never tabu */
-
-    if ((fScore==FLOATZERO)||(aVarLastChange[iVar] < iTabuCutoff)) { 
-
-      /* build candidate list of best vars */
-
-      if (fScore <= fBestScore) {
-        if (fScore < fBestScore) {
-          iNumCandidates=0;
-          fBestScore = fScore;
-        }
-        aCandidateList[iNumCandidates++] = iVar;
-      }
-    }
-    pLit++;
-  }
-
-  /* perform a null flip if no candidates exist */
-
-  if (iNumCandidates == 0) {
-    iFlipCandidate = 0;
-    return;
-  }
-
-  /* select flip candidate uniformly from candidate list */
-  
-  if (iNumCandidates > 1) {
-    iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  } else {
-    iFlipCandidate = aCandidateList[0];
-  }
 }
 
 #ifdef __cplusplus

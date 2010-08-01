@@ -71,6 +71,8 @@ void AddAlgorithms() {
 
   AddRGSat();
 
+  AddWeighted();
+
 }
 
 

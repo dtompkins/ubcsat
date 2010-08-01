@@ -99,6 +99,12 @@ extern FLOAT fAdaptTheta;
 /* saps.c */
 
 void AddSAPS();
+void ScaleSAPS();
+extern FLOAT fAlpha;
+extern FLOAT fRho;
+extern FLOAT fPenaltyImprove;
+extern PROBABILITY iPs;
+extern PROBABILITY iRPs;
 
 /* paws.c */
 
@@ -151,4 +157,7 @@ void AddDerandomized();
 
 void AddRGSat();
 
+/* weighted.c */
+
+void AddWeighted();
 

@@ -39,7 +39,6 @@ FLOAT fLastAdaptSumFalseW;
 void InitAdaptNoveltyNoise();
 void AdaptNoveltyNoise();
 void AdaptNoveltyNoiseAdjust();
-void AdaptNoveltyNoiseW();
 
 void AddAdaptNoveltyPlus() {
   
@@ -69,17 +68,6 @@ void AddAdaptNoveltyPlus() {
   AddParmFloat(&pCurAlg->parmList,"-theta","adjustment parameter theta [default %s]","theta determines the stagnation detection","",&fAdaptTheta,(1.0f/6.0f));
   CreateTrigger("AdaptNoveltyNoiseAdjust",PostFlip,AdaptNoveltyNoiseAdjust,"InitAdaptNoveltyNoise","");
 
-  pCurAlg = CreateAlgorithm("adaptnovelty+","",TRUE,
-    "Adaptive Novelty+: Novelty+ with adaptive noise (weighted)",
-    "Hoos [AAAI 02]",
-    "PickNoveltyPlusW",
-    "DefaultProceduresW,Flip+FalseClauseListW,AdaptNoveltyNoiseW,VarLastChange",
-    "default_w","default");
-  
-  CopyParameters(pCurAlg,"adaptnovelty+","",FALSE);
-
-  CreateTrigger("AdaptNoveltyNoiseW",PostFlip,AdaptNoveltyNoiseW,"InitAdaptNoveltyNoise","");
- 
 }
 
 void InitAdaptNoveltyNoise() {
@@ -128,25 +116,6 @@ void AdaptNoveltyNoiseAdjust() {
   }
 }
 
-
-void AdaptNoveltyNoiseW() {
-
-  /* weighted varaint -- see regular algorithm for comments */
-
-  if (iStep-iLastAdaptStep > iNumClauses/iInvTheta) {
-
-    iNovNoise += (PROBABILITY) ((UINT32MAX - iNovNoise)/iInvPhi);
-    iLastAdaptStep = iStep;
-    fLastAdaptSumFalseW = fSumFalseW;
-  
-  } else if (fSumFalseW < fLastAdaptSumFalseW) {
-
-    iNovNoise -= (PROBABILITY) (iNovNoise / iInvPhi / 2);
-    
-    iLastAdaptStep = iStep;
-    fLastAdaptSumFalseW = fSumFalseW;
-  }
-}
 
 #ifdef __cplusplus
 

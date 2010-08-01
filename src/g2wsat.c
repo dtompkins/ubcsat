@@ -27,10 +27,8 @@ namespace ubcsat {
 #endif
 
 void PickG2WSat();
-void PickG2WSatW();
 
 void PickG2WSatNoveltyPlusOldest();
-void PickG2WSatNoveltyPlusOldestW();
 
 void PickG2WSatP();
 
@@ -53,17 +51,6 @@ void AddG2WSat() {
   CreateTrigger("PickG2WSat",ChooseCandidate,PickG2WSat,"","");
 
 
-  pCurAlg = CreateAlgorithm("g2wsat","",TRUE,
-    "G2WSAT: Gradient-based Greedy WalkSAT (weighted)",
-    "Li, Huang  [SAT 05]",
-    "PickG2WSatW",
-    "DefaultProceduresW,Flip+TrackChanges+FCL+W,DecPromVarsW,FalseClauseList,VarLastChange",
-    "default_w","default");
-
-  CopyParameters(pCurAlg,"g2wsat","",FALSE);
-  CreateTrigger("PickG2WSatW",ChooseCandidate,PickG2WSatW,"","");
-
-
   pCurAlg = CreateAlgorithm("g2wsat","novelty+oldest",FALSE,
    "G2WSAT: Gradient-based Greedy WalkSAT (uses Nov+ & oldest dec. prom var)",
     "Li, Wei, and Zhang [SAT 07]",
@@ -73,19 +60,6 @@ void AddG2WSat() {
   
   CopyParameters(pCurAlg,"novelty+","",FALSE);
   CreateTrigger("PickG2WSatNoveltyPlusOldest",ChooseCandidate,PickG2WSatNoveltyPlusOldest,"","");
-
-
-  pCurAlg = CreateAlgorithm("g2wsat","novelty+oldest",TRUE,
-    "G2WSAT: uses Nov+ & oldest dec. prom var) (weighted)",
-    "Li, Wei, and Zhang [SAT 07]",
-    "PickG2WSatNoveltyPlusOldestW",
-    "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange",
-    "default","default");
-  
-  CopyParameters(pCurAlg,"novelty+","",FALSE);
-
-  CreateTrigger("PickG2WSatNoveltyPlusOldestW",ChooseCandidate,PickG2WSatNoveltyPlusOldestW,"","");
-
 
   pCurAlg = CreateAlgorithm("g2wsat+p","",FALSE,
    "G2WSAT+p: Gradient-based Greedy WalkSAT with look-ahead (uses Novelty+p)",
@@ -162,36 +136,6 @@ void PickG2WSat() {
   }
 }
 
-void PickG2WSatW() {
-
-  /* weighted varaint -- see regular algorithm for comments */
- 
-  UINT32 j;
-  UINT32 iVar;
-  FLOAT fScore;
-
-  if (iNumDecPromVarsW > 0 ) {
-    iFlipCandidate = aDecPromVarsListW[0];
-    fBestScore = aVarScoreW[iFlipCandidate];
-    for (j=1;j<iNumDecPromVarsW;j++) {
-      iVar = aDecPromVarsListW[j];
-      fScore = aVarScoreW[iVar];
-      if (fScore < fBestScore) {
-        iFlipCandidate = iVar;
-        fBestScore = aVarScoreW[iVar];
-      } else {
-        if (fScore == fBestScore) {
-          if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
-            iFlipCandidate = iVar;
-          }
-        }
-      }
-    }
-  } else {
-    PickNoveltyPlusPlusW();
-  }
-}
-
 void PickG2WSatNoveltyPlusOldest() {
  
   UINT32 j;
@@ -217,28 +161,6 @@ void PickG2WSatNoveltyPlusOldest() {
     PickNoveltyPlusVarScore();
   }
 }
-
-
-void PickG2WSatNoveltyPlusOldestW() {
-
-  /* weighted varaint -- see regular algorithm for comments */
- 
-  UINT32 j;
-  UINT32 iVar;
-
-  if (iNumDecPromVars > 0 ) {
-    iFlipCandidate = aDecPromVarsList[0];
-    for (j=1;j<iNumDecPromVars;j++) {
-      iVar = aDecPromVarsList[j];
-      if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
-        iFlipCandidate = iVar;
-      }
-    }
-  } else {
-    PickNoveltyPlusW();
-  }
-}
-
 
 void PickG2WSatP() {
  

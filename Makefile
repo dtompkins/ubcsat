@@ -50,7 +50,8 @@ cfiles = src/adaptnovelty.c \
          src/ubcsat.c \
          src/vw.c \
          src/walksat-tabu.c \
-         src/walksat.c
+         src/walksat.c \
+         src/weighted.c
 
 ubcsat: $(hfiles) $(cfiles)
 	gcc -Wall -O3 -lm -o ubcsat $(cfiles)

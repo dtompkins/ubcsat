@@ -27,7 +27,6 @@ namespace ubcsat {
 #endif
 
 void PickRGSat();
-void PickRGSatW();
 
 void AddRGSat() {
 
@@ -39,17 +38,7 @@ void AddRGSat() {
     "PickRGSat",
     "DefaultProcedures,Flip+VarScore",
     "default","default");
-
   CreateTrigger("PickRGSat",CheckRestart,PickRGSat,"","");
-
-  pCurAlg = CreateAlgorithm("rgsat","",TRUE,
-    "RGSAT: Restarting GSAT (poor algorithm -- academic use only) (weighted)",
-    "Tompkins, Hoos [SAIM 04]",
-    "PickRGSatW",
-    "DefaultProceduresW,Flip+VarScoreW",
-    "default_w","default");
-  
-  CreateTrigger("PickRGSatW",CheckRestart,PickRGSatW,"","");
 
 }
 
@@ -86,38 +75,6 @@ void PickRGSat() {
 
     /* Otherwise, restart  */
 
-    iFlipCandidate = 0;
-    bRestart = TRUE;
-  }
-}
-
-
-void PickRGSatW() {
-
-  /* weighted varaint -- see regular algorithm for comments */
-  
-  UINT32 j;
-  FLOAT fScore;
-
-  iNumCandidates = 0;
-  fBestScore = fTotalWeight;
-  for (j=1;j<=iNumVars;j++) {
-    fScore = aVarScoreW[j];
-    if (fScore <= fBestScore) {
-      if (fScore < fBestScore) {
-        iNumCandidates=0;
-        fBestScore = fScore;
-      }
-      aCandidateList[iNumCandidates++] = j;
-    }
-  }
-  if (fBestScore < FLOATZERO) {   
-    if (iNumCandidates > 1) {
-      iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-    } else {
-      iFlipCandidate = aCandidateList[0];
-    }
-  } else {
     iFlipCandidate = 0;
     bRestart = TRUE;
   }

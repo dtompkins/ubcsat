@@ -27,7 +27,6 @@ namespace ubcsat {
 #endif
 
 void PickHSat();
-void PickHSatW();
 
 void AddHSat() {
 
@@ -42,15 +41,6 @@ void AddHSat() {
   
   CreateTrigger("PickHSat",ChooseCandidate,PickHSat,"","");
 
-  pCurAlg = CreateAlgorithm("hsat","",TRUE,
-    "HSAT (weighted)",
-    "Gent, Walsh [AAAI 93]",
-    "PickHSatW",
-    "DefaultProceduresW,Flip+VarScoreW,VarLastChange",
-    "default_w","default");
-  
-  CreateTrigger("PickHSatW",ChooseCandidate,PickHSatW,"","");
- 
 }
 
 void PickHSat() {
@@ -84,46 +74,6 @@ void PickHSat() {
         aCandidateList[iNumCandidates++] = j;
       }
     }
-  }
-  
-  /* select flip candidate uniformly from candidate list */
-  
-  if (iNumCandidates > 1) {
-    iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  } else {
-    iFlipCandidate = aCandidateList[0];
-  }
-}
-
-void PickHSatW() {
-  
-  UINT32 j;
-  FLOAT fScore;
-
-  iNumCandidates = 0;
-  fBestScore = fTotalWeight;
-
-  /* check score of all variables */
-
-  for (j=1;j<=iNumVars;j++) {
-
-    /* use cached value of weighted score */
-
-    fScore = aVarScoreW[j];
-
-    /* build candidate list of best vars */
-
-    if (fScore <= fBestScore) {
-      
-      /* if 2 variables are tied, and one is 'older' then choose older var */
-
-      if ((fScore < fBestScore)||(aVarLastChange[j]<aVarLastChange[*aCandidateList])) {
-        iNumCandidates=0;
-        fBestScore = fScore;
-      }
-      aCandidateList[iNumCandidates++] = j;
-    }
-
   }
   
   /* select flip candidate uniformly from candidate list */

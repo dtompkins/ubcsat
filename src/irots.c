@@ -87,15 +87,6 @@ void AddIRoTS() {
 
   CreateTrigger("CreateIRoTSBackup",CreateStateInfo,CreateIRoTSBackup,"","");
 
-  pCurAlg = CreateAlgorithm("irots","",TRUE,
-    "IRoTS: Iterated Robust TABU Search (weighted)",
-    "Smyth, Hoos, Stuetzle [AI 2003]",
-    "PickRoTSW,PostStepIRoTS",
-    "DefaultProceduresW,Flip+VarScoreW,CreateIRoTSBackup",
-    "default_w","default");
-  
-  CopyParameters(pCurAlg,"irots","",FALSE);
-
 }
 
 void InitIRoTSParms() {

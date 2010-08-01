@@ -37,6 +37,7 @@ INTRO | FIXED | DESCRIPTION
 * new report: ParamILS (-r paramils) see http://www.cs.ubc.ca/labs/beta/Projects/ParamILS/
 
 * code cleanup: Numerous code cleanups to make it more c++ friendly
+                Moved all weighted algorithm variants to weighted.c
                 Current Software Versions are now in ubcsat-version.c
                 Made the makefile a little cleaner
                 Made it clearer output for -filesol uses the output from -r uniquesol (not from -r solution, which has an extra column)

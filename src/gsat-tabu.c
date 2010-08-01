@@ -29,7 +29,6 @@ namespace ubcsat {
 UINT32 iTabuTenure;
 
 void PickGSatTabu();
-void PickGSatTabuW();
 
 void AddGSatTabu() {
 
@@ -45,17 +44,6 @@ void AddGSatTabu() {
   AddParmUInt(&pCurAlg->parmList,"-tabu","tabu tenure [default %s]","variables flipped within the last INT steps are tabu","",&iTabuTenure,10);
 
   CreateTrigger("PickGSatTabu",ChooseCandidate,PickGSatTabu,"","");
-
-  pCurAlg = CreateAlgorithm("gsat-tabu","",TRUE,
-    "GSAT-TABU: GSAT with Tabu search (weighted)",
-    "Mazure, Sais, Gregoire [AAAI 97]",
-    "PickGSatTabuW",
-    "DefaultProceduresW,Flip+VarScoreW,VarLastChange",
-    "default_w","default");
-  
-  CopyParameters(pCurAlg,"gsat-tabu","",FALSE);
-
-  CreateTrigger("PickGSatTabuW",ChooseCandidate,PickGSatTabuW,"","");
 
 }
 
@@ -95,57 +83,6 @@ void PickGSatTabu() {
         if (iScore < iBestScore) {
           iNumCandidates=0;
           iBestScore = iScore;
-        }
-        aCandidateList[iNumCandidates++] = j;
-      }
-    }
-  }
-
-  /* select flip candidate uniformly from candidate list */
-
-  if (iNumCandidates > 1) {
-    iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  } else {
-    iFlipCandidate = aCandidateList[0];
-  }
-}
-
-void PickGSatTabuW() {
-  
-  UINT32 j;
-  FLOAT fScore;
-  UBIGINT iTabuCutoff;
-
-  /* calculation of tabu cutoff */
-
-  if (iStep > iTabuTenure) {
-    iTabuCutoff = iStep - iTabuTenure;
-    if (iVarLastChangeReset > iTabuCutoff) {
-      iTabuCutoff = iVarLastChangeReset;
-    }
-  } else {
-    iTabuCutoff = 1;
-  }
-
-  iNumCandidates = 0;
-  fBestScore = fTotalWeight;
-
-  for (j=1;j<=iNumVars;j++) {
-    
-    /* check score of all non-tabu variables */
-
-    if (aVarLastChange[j] < iTabuCutoff) { 
-      
-      /* use cached value of weighted score */
-
-      fScore = aVarScoreW[j];
-
-      /* build candidate list of best vars */
-
-      if (fScore <= fBestScore) {
-        if (fScore < fBestScore) {
-          iNumCandidates=0;
-          fBestScore = fScore;
         }
         aCandidateList[iNumCandidates++] = j;
       }
