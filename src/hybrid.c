@@ -36,8 +36,8 @@ void AddHybrid() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("hybrid1","",FALSE,
-   "Hybrid1: Switch between VW and adaptG2WSATp",
+  pCurAlg = CreateAlgorithm("hybrid","2007",FALSE,
+   "Hybrid1 Switch between VW and adaptG2WSATp (Sat07 version)",
     "Wei, Li, Zhang  [JSAT 08]",
     "PickHybrid1,InitHybrd1Info,UpdateHybrid1Info",
     "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange,LookAhead,AdaptG2WSatNoise,VW2Weights",
