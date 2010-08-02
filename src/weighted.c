@@ -26,6 +26,134 @@
 namespace ubcsat {
 #endif
 
+void PickNoveltyW() {
+
+  /* weighted varaint -- see regular algorithm for comments */
+ 
+  UINT32 i;
+  UINT32 j;
+  FLOAT fScore;
+  UINT32 iClause;
+  UINT32 iClauseLen;
+  LITTYPE *pLit;
+  UINT32 *pClause;
+  UINT32 iNumOcc;
+  UINT32 iVar;
+  UINT32 iYoungestVar;
+  FLOAT fSecondBestScore;
+  UINT32 iBestVar=0;
+  UINT32 iSecondBestVar=0;
+
+  fBestScore = fTotalWeight;
+  fSecondBestScore = fTotalWeight;
+
+  /* select the clause according to a weighted scheme */
+
+  if (iNumFalse) {
+    iClause = PickClauseWCS();
+    iClauseLen = aClauseLen[iClause];
+  } else {
+    iFlipCandidate = 0;
+    return;
+  }
+  pLit = pClauseLits[iClause];
+  iYoungestVar = GetVarFromLit(*pLit);
+  for (j=0;j<iClauseLen;j++) {
+    fScore = FLOATZERO;
+    iVar = GetVarFromLit(*pLit);
+    iNumOcc = aNumLitOcc[*pLit];
+    pClause = pLitClause[*pLit];
+    for (i=0;i<iNumOcc;i++) {
+      if (aNumTrueLit[*pClause]==0) {
+        fScore -= aClauseWeight[*pClause];
+      }
+      pClause++;
+    }
+    iNumOcc = aNumLitOcc[GetNegatedLit(*pLit)];
+    pClause = pLitClause[GetNegatedLit(*pLit)];
+    for (i=0;i<iNumOcc;i++) {
+      if (aNumTrueLit[*pClause]==1) {
+        fScore += aClauseWeight[*pClause];
+      }
+      pClause++;
+    }
+    if (aVarLastChange[iVar] > aVarLastChange[iYoungestVar]) {
+      iYoungestVar = iVar;
+    }
+    if ((fScore < fBestScore) || ((fScore == fBestScore) && (aVarLastChange[iVar] < aVarLastChange[iBestVar]))) {
+      iSecondBestVar = iBestVar;
+      iBestVar = iVar;
+      fSecondBestScore = fBestScore;
+      fBestScore = fScore;
+    } else if ((fScore < fSecondBestScore) || ((fScore == fSecondBestScore) && (aVarLastChange[iVar] < aVarLastChange[iSecondBestVar]))) {
+      iSecondBestVar = iVar;
+      fSecondBestScore = fScore;
+    }
+    pLit++;
+  }
+  iFlipCandidate = iBestVar;
+  if (iFlipCandidate != iYoungestVar) {
+    return;
+  }
+  if (RandomProb(iNovNoise)) {
+    iFlipCandidate = iSecondBestVar;
+  }
+}
+
+void PickNoveltyPlusW() {
+
+  /* weighted varaint -- see regular algorithm for comments */
+ 
+  UINT32 iClause;
+  UINT32 iClauseLen;
+  LITTYPE litPick;
+  
+  if (RandomProb(iNovWpDp)) {
+    if (iNumFalse) {
+      iClause = aFalseList[RandomInt(iNumFalse)];
+      iClauseLen = aClauseLen[iClause];
+      litPick = (pClauseLits[iClause][RandomInt(iClauseLen)]);
+      iFlipCandidate = GetVarFromLit(litPick);
+    } else {
+      iFlipCandidate = 0;
+    }
+  } else {
+    PickNoveltyW();
+  }
+}
+
+void PickNoveltyPlusPlusW() {
+
+  /* weighted varaint -- see regular algorithm for comments */
+ 
+  UINT32 j;
+  UINT32 iClause;
+  UINT32 iClauseLen;
+  UINT32 iVar;
+  LITTYPE *pLit;
+
+  if (RandomProb(iNovWpDp)) {
+    if (iNumFalse) {
+      iClause = aFalseList[RandomInt(iNumFalse)];
+      iClauseLen = aClauseLen[iClause];
+      pLit = pClauseLits[iClause];
+      iFlipCandidate = GetVarFromLit(*pLit);
+      pLit++;
+      for (j=1;j<iClauseLen;j++) {
+        iVar = GetVarFromLit(*pLit);
+        if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
+          iFlipCandidate = iVar;
+        }
+        pLit++;
+      }
+    } else {
+      iFlipCandidate = 0;
+    }
+  } else {
+    PickNoveltyW();
+  }
+}
+
 void AdaptNoveltyNoiseW() {
 
   /* weighted varaint -- see regular algorithm for comments */
@@ -42,6 +170,62 @@ void AdaptNoveltyNoiseW() {
     
     iLastAdaptStep = iStep;
     fLastAdaptSumFalseW = fSumFalseW;
+  }
+}
+
+void PickG2WSatNoveltyPlusOldestW() {
+
+  /* weighted varaint -- see regular algorithm for comments */
+ 
+  UINT32 j;
+  UINT32 iVar;
+
+  if (iNumDecPromVars > 0 ) {
+    iFlipCandidate = aDecPromVarsList[0];
+    for (j=1;j<iNumDecPromVars;j++) {
+      iVar = aDecPromVarsList[j];
+      if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
+        iFlipCandidate = iVar;
+      }
+    }
+  } else {
+    PickNoveltyPlusW();
+  }
+}
+
+void PickGSatW() {
+  
+  UINT32 j;
+  FLOAT fScore;
+
+  iNumCandidates = 0;
+  fBestScore = fTotalWeight;
+
+  /* check score of all variables */
+
+  for (j=1;j<=iNumVars;j++) {
+    
+    /* use cached value of weighted score */
+
+    fScore = aVarScoreW[j];
+
+    /* build candidate list of best vars */
+
+    if (fScore <= fBestScore) {
+      if (fScore < fBestScore) {
+        iNumCandidates=0;
+        fBestScore = fScore;
+      }
+      aCandidateList[iNumCandidates++] = j;
+    }
+  }
+  
+  /* select flip candidate uniformly from candidate list */
+  
+  if (iNumCandidates > 1) {
+    iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
+  } else {
+    iFlipCandidate = aCandidateList[0];
   }
 }
 
@@ -72,26 +256,6 @@ void PickG2WSatW() {
     }
   } else {
     PickNoveltyPlusPlusW();
-  }
-}
-
-void PickG2WSatNoveltyPlusOldestW() {
-
-  /* weighted varaint -- see regular algorithm for comments */
- 
-  UINT32 j;
-  UINT32 iVar;
-
-  if (iNumDecPromVars > 0 ) {
-    iFlipCandidate = aDecPromVarsList[0];
-    for (j=1;j<iNumDecPromVars;j++) {
-      iVar = aDecPromVarsList[j];
-      if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
-        iFlipCandidate = iVar;
-      }
-    }
-  } else {
-    PickNoveltyPlusW();
   }
 }
 
@@ -139,42 +303,6 @@ void PickGSatTabuW() {
 
   /* select flip candidate uniformly from candidate list */
 
-  if (iNumCandidates > 1) {
-    iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  } else {
-    iFlipCandidate = aCandidateList[0];
-  }
-}
-
-void PickGSatW() {
-  
-  UINT32 j;
-  FLOAT fScore;
-
-  iNumCandidates = 0;
-  fBestScore = fTotalWeight;
-
-  /* check score of all variables */
-
-  for (j=1;j<=iNumVars;j++) {
-    
-    /* use cached value of weighted score */
-
-    fScore = aVarScoreW[j];
-
-    /* build candidate list of best vars */
-
-    if (fScore <= fBestScore) {
-      if (fScore < fBestScore) {
-        iNumCandidates=0;
-        fBestScore = fScore;
-      }
-      aCandidateList[iNumCandidates++] = j;
-    }
-  }
-  
-  /* select flip candidate uniformly from candidate list */
-  
   if (iNumCandidates > 1) {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
   } else {
@@ -289,134 +417,6 @@ void PickHWSatW() {
      /* otherwise, perform a regular HWSAT step */
 
      PickHSatW();
-  }
-}
-
-void PickNoveltyW() {
-
-  /* weighted varaint -- see regular algorithm for comments */
- 
-  UINT32 i;
-  UINT32 j;
-  FLOAT fScore;
-  UINT32 iClause;
-  UINT32 iClauseLen;
-  LITTYPE *pLit;
-  UINT32 *pClause;
-  UINT32 iNumOcc;
-  UINT32 iVar;
-  UINT32 iYoungestVar;
-  FLOAT fSecondBestScore;
-  UINT32 iBestVar=0;
-  UINT32 iSecondBestVar=0;
-
-  fBestScore = fTotalWeight;
-  fSecondBestScore = fTotalWeight;
-
-  /* select the clause according to a weighted scheme */
-
-  if (iNumFalse) {
-    iClause = PickClauseWCS();
-    iClauseLen = aClauseLen[iClause];
-  } else {
-    iFlipCandidate = 0;
-    return;
-  }
-  pLit = pClauseLits[iClause];
-  iYoungestVar = GetVarFromLit(*pLit);
-  for (j=0;j<iClauseLen;j++) {
-    fScore = FLOATZERO;
-    iVar = GetVarFromLit(*pLit);
-    iNumOcc = aNumLitOcc[*pLit];
-    pClause = pLitClause[*pLit];
-    for (i=0;i<iNumOcc;i++) {
-      if (aNumTrueLit[*pClause]==0) {
-        fScore -= aClauseWeight[*pClause];
-      }
-      pClause++;
-    }
-    iNumOcc = aNumLitOcc[GetNegatedLit(*pLit)];
-    pClause = pLitClause[GetNegatedLit(*pLit)];
-    for (i=0;i<iNumOcc;i++) {
-      if (aNumTrueLit[*pClause]==1) {
-        fScore += aClauseWeight[*pClause];
-      }
-      pClause++;
-    }
-    if (aVarLastChange[iVar] > aVarLastChange[iYoungestVar]) {
-      iYoungestVar = iVar;
-    }
-    if ((fScore < fBestScore) || ((fScore == fBestScore) && (aVarLastChange[iVar] < aVarLastChange[iBestVar]))) {
-      iSecondBestVar = iBestVar;
-      iBestVar = iVar;
-      fSecondBestScore = fBestScore;
-      fBestScore = fScore;
-    } else if ((fScore < fSecondBestScore) || ((fScore == fSecondBestScore) && (aVarLastChange[iVar] < aVarLastChange[iSecondBestVar]))) {
-      iSecondBestVar = iVar;
-      fSecondBestScore = fScore;
-    }
-    pLit++;
-  }
-  iFlipCandidate = iBestVar;
-  if (iFlipCandidate != iYoungestVar) {
-    return;
-  }
-  if (RandomProb(iNovNoise)) {
-    iFlipCandidate = iSecondBestVar;
-  }
-}
-
-void PickNoveltyPlusW() {
-
-  /* weighted varaint -- see regular algorithm for comments */
- 
-  UINT32 iClause;
-  UINT32 iClauseLen;
-  LITTYPE litPick;
-  
-  if (RandomProb(iWp)) {
-    if (iNumFalse) {
-      iClause = aFalseList[RandomInt(iNumFalse)];
-      iClauseLen = aClauseLen[iClause];
-      litPick = (pClauseLits[iClause][RandomInt(iClauseLen)]);
-      iFlipCandidate = GetVarFromLit(litPick);
-    } else {
-      iFlipCandidate = 0;
-    }
-  } else {
-    PickNoveltyW();
-  }
-}
-
-void PickNoveltyPlusPlusW() {
-
-  /* weighted varaint -- see regular algorithm for comments */
- 
-  UINT32 j;
-  UINT32 iClause;
-  UINT32 iClauseLen;
-  UINT32 iVar;
-  LITTYPE *pLit;
-
-  if (RandomProb(iDp)) {
-    if (iNumFalse) {
-      iClause = aFalseList[RandomInt(iNumFalse)];
-      iClauseLen = aClauseLen[iClause];
-      pLit = pClauseLits[iClause];
-      iFlipCandidate = GetVarFromLit(*pLit);
-      pLit++;
-      for (j=1;j<iClauseLen;j++) {
-        iVar = GetVarFromLit(*pLit);
-        if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
-          iFlipCandidate = iVar;
-        }
-        pLit++;
-      }
-    } else {
-      iFlipCandidate = 0;
-    }
-  } else {
-    PickNoveltyW();
   }
 }
 
