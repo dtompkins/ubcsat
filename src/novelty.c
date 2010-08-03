@@ -27,7 +27,7 @@ namespace ubcsat {
 #endif
 
 PROBABILITY iNovNoise;
-PROBABILITY iDp;
+PROBABILITY iNovWpDp;
 
 void PickNovelty();
 void PickNoveltyPlus();
@@ -67,7 +67,7 @@ void AddNoveltyPlus() {
   
   CopyParameters(pCurAlg,"novelty","",FALSE);
 
-  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iWp,0.01);
+  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iNovWpDp,0.01);
 
   CreateTrigger("PickNoveltyPlus",ChooseCandidate,PickNoveltyPlus,"","");
 }
@@ -85,7 +85,7 @@ void AddNoveltyPlusPlus() {
   
   CopyParameters(pCurAlg,"novelty","",FALSE);
 
-  AddParmProbability(&pCurAlg->parmList,"-dp","diversification probability [default %s]","with probability PR, select the least recently flipped~variable from a randomly selected unsat clause","",&iDp,0.05);
+  AddParmProbability(&pCurAlg->parmList,"-dp","diversification probability [default %s]","with probability PR, select the least recently flipped~variable from a randomly selected unsat clause","",&iNovWpDp,0.05);
 
   CreateTrigger("PickNoveltyPlusPlus",ChooseCandidate,PickNoveltyPlusPlus,"","");
 }
@@ -203,10 +203,10 @@ void PickNoveltyPlus() {
   UINT32 iClauseLen;
   LITTYPE litPick;
 
-  /* with probability (iWp) uniformly choose an unsatisfied clause,
+  /* with probability (iNovWpDp) uniformly choose an unsatisfied clause,
      and then uniformly choose a literal from that clause */
 
-  if (RandomProb(iWp)) {
+  if (RandomProb(iNovWpDp)) {
     if (iNumFalse) {
       iClause = aFalseList[RandomInt(iNumFalse)];
       iClauseLen = aClauseLen[iClause];
@@ -231,10 +231,10 @@ void PickNoveltyPlusPlus() {
   UINT32 iVar;
   LITTYPE *pLit;
 
-  /* with probability (iDp) uniformly choose an unsatisfied clause,
+  /* with probability (iNovWpDp) uniformly choose an unsatisfied clause,
      and then select the "oldest" literal from that clause */
 
-  if (RandomProb(iDp)) {
+  if (RandomProb(iNovWpDp)) {
     if (iNumFalse) {
       iClause = aFalseList[RandomInt(iNumFalse)];
       iClauseLen = aClauseLen[iClause];
@@ -326,7 +326,7 @@ void PickNoveltyPlusVarScore() {
   UINT32 iClauseLen;
   LITTYPE litPick;
 
-  if (RandomProb(iWp)) {
+  if (RandomProb(iNovWpDp)) {
     if (iNumFalse) {
       iClause = aFalseList[RandomInt(iNumFalse)];
       iClauseLen = aClauseLen[iClause];
@@ -350,7 +350,7 @@ void PickNoveltyPlusPlusVarScore() {
   UINT32 iVar;
   LITTYPE *pLit;
 
-  if (RandomProb(iDp)) {
+  if (RandomProb(iNovWpDp)) {
     if (iNumFalse) {
       iClause = aFalseList[RandomInt(iNumFalse)];
       iClauseLen = aClauseLen[iClause];

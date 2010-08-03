@@ -49,7 +49,6 @@ void AddHWSat();
 /* walksat.c */
 
 void AddWalkSat();
-UINT32 PickClauseWCS();
 
 /* walksat-tabu.c */
 
@@ -62,21 +61,21 @@ extern UINT32 iWalkSATTabuClause;
 void AddNovelty();
 void AddNoveltyPlus();
 void AddNoveltyPlusPlus();
-void PickNoveltyPlusW();
+void PickNoveltyPlus();
 void PickNoveltyPlusPlus();
-void PickNoveltyPlusPlusW();
 
 void PickNoveltyVarScore();
 void PickNoveltyPlusVarScore();
 void PickNoveltyPlusPlusVarScore();
 
 extern PROBABILITY iNovNoise;
-extern PROBABILITY iDp;
+extern PROBABILITY iNovWpDp;
 
 /* novelty+p.c */
 
 void AddNoveltyPlusP();
 void PickNoveltyPlusP();
+void PickNoveltyPlusPlusP();
 
 /* rnovelty.c */
 
@@ -118,6 +117,10 @@ void AddDDFW();
 /* g2wsat.c */
 
 void AddG2WSat();
+extern BOOL bG2WsatNovPlusPlus;
+extern BOOL bG2WsatNovLookAhead;
+extern BOOL bG2WsatSelectOldest;
+extern FXNPTR fxnG2WsatNovelty;
 
 /* vw.c */
 

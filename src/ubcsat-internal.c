@@ -1750,7 +1750,7 @@ void SetDefaultParms(ALGPARMLIST *pParmList) {
         *((SBIGINT *)pParm->pParmValue) = pParm->defDefault.iSBigInt;
         break;
       case PTypeBool:
-        *((UINT32 *)pParm->pParmValue) = pParm->defDefault.bBool;
+        *((BOOL *)pParm->pParmValue) = pParm->defDefault.bBool;
         break;
       case PTypeProbability:
         *((PROBABILITY *)pParm->pParmValue) = pParm->defDefault.iProb;

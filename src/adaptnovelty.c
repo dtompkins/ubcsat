@@ -51,7 +51,7 @@ void AddAdaptNoveltyPlus() {
     "DefaultProcedures,Flip+FalseClauseList,AdaptNoveltyNoise,VarLastChange",
     "default","default");
   
-  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iWp,0.01);
+  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iNovWpDp,0.01);
 
   CreateTrigger("InitAdaptNoveltyNoise",PostInit,InitAdaptNoveltyNoise,"","");
   CreateTrigger("AdaptNoveltyNoise",PostFlip,AdaptNoveltyNoise,"InitAdaptNoveltyNoise","");

@@ -207,10 +207,10 @@ void PickRNoveltyPlus() {
   UINT32 iClauseLen;
   LITTYPE litPick;
 
-  /* with probability (iWp) uniformly choose an unsatisfied clause,
+  /* with probability (iNovWpDp) uniformly choose an unsatisfied clause,
      and then uniformly choose a literal from that clause */
 
-  if (RandomProb(iWp)) {
+  if (RandomProb(iNovWpDp)) {
     if (iNumFalse) {
       iClause = aFalseList[RandomInt(iNumFalse)];
       iClauseLen = aClauseLen[iClause];

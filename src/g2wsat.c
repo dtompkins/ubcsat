@@ -26,78 +26,73 @@
 namespace ubcsat {
 #endif
 
-void PickG2WSat();
-
-void PickG2WSatNoveltyPlusOldest();
-
-void PickG2WSatP();
+void PickG2WSatGeneral();
+void ConfigureG2WSatGeneral();
 
 void InitAdaptG2WSatNoise();
 void AdaptG2WSatNoise();
 
+FXNPTR fxnG2WsatNovelty;
+
+BOOL bG2WsatNovPlusPlus;
+BOOL bG2WsatNovLookAhead;
+BOOL bG2WsatSelectOldest;
 
 void AddG2WSat() {
 
   ALGORITHM *pCurAlg;
 
   pCurAlg = CreateAlgorithm("g2wsat","",FALSE,
-   "G2WSAT: Gradient-based Greedy WalkSAT (uses Novelty++)",
-    "Li, Huang  [SAT 05]",
-    "PickG2WSat",
+   "G2WSAT: Gradient-based Greedy WalkSAT",
+    "Li, Huang  [SAT 05] and Li, Wei, Zhang [SAT 07] (-lookahead)",
+    "PickG2WSatGeneral,ConfigureG2WSatGeneral",
     "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange",
     "default","default");
   
-  CopyParameters(pCurAlg,"novelty++","",FALSE);
-  CreateTrigger("PickG2WSat",ChooseCandidate,PickG2WSat,"","");
+  AddParmProbability(&pCurAlg->parmList,"-novnoise","novelty noise [default %s]","","",&iNovNoise,0.50);
+  AddParmProbability(&pCurAlg->parmList,"-wpdp","walk / diversification probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iNovWpDp,0.05);
 
+  AddParmBool(&pCurAlg->parmList,"-nov++","use Novelty++ instead of Novelty+","if true, use Novelty++~if false, use Novelty+","",&bG2WsatNovPlusPlus,TRUE);
+  AddParmBool(&pCurAlg->parmList,"-lookahead","use lookahead (Novelty+p or Novelty++p)","if true, use Novelty+p or Novelty++p (see -nov++)~if false, use Novelty+ or Novelty++","",&bG2WsatNovLookAhead,FALSE);
+  AddParmBool(&pCurAlg->parmList,"-oldest","select oldest or best promising variable","if true, select oldest promising variable~if false, select best promising variable","",&bG2WsatSelectOldest,FALSE);
 
-  pCurAlg = CreateAlgorithm("g2wsat","novelty+oldest",FALSE,
-   "G2WSAT: Gradient-based Greedy WalkSAT (uses Nov+ & oldest dec. prom var)",
-    "Li, Wei, and Zhang [SAT 07]",
-    "PickG2WSatNoveltyPlusOldest",
-    "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange",
-    "default","default");
-  
-  CopyParameters(pCurAlg,"novelty+","",FALSE);
-  CreateTrigger("PickG2WSatNoveltyPlusOldest",ChooseCandidate,PickG2WSatNoveltyPlusOldest,"","");
-
-  pCurAlg = CreateAlgorithm("g2wsat+p","",FALSE,
-   "G2WSAT+p: Gradient-based Greedy WalkSAT with look-ahead (uses Novelty+p)",
-    "Li, Wei, Zhang  [SAT 07]",
-    "PickG2WSatP",
-    "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange,LookAhead",
-    "default","default");
-  
-  CopyParameters(pCurAlg,"novelty+p","",FALSE);
-
-  CreateTrigger("PickG2WSatP",ChooseCandidate,PickG2WSatP,"","");
+  CreateTrigger("PickG2WSatGeneral",ChooseCandidate,PickG2WSatGeneral,"","");
+  CreateTrigger("ConfigureG2WSatGeneral",PostParameters,ConfigureG2WSatGeneral,"","");
 
 
   pCurAlg = CreateAlgorithm("adaptg2wsat","",FALSE,
-   "Adaptive G2WSat: Adaptive G2WSAT (uses Nov+, Oldest DecPromVar)",
+   "Adaptive G2WSat",
     "Li, Wei, Zhang  [SAT 07]",
-    "PickG2WSatNoveltyPlusOldest",
-    "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange,AdaptG2WSatNoise",
+    "PickG2WSatGeneral,ConfigureG2WSatGeneral,InitAdaptG2WSatNoise,AdaptG2WSatNoise",
+    "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange",
     "default","default");
-  
-  CopyParameters(pCurAlg,"g2wsat","novelty+oldest",FALSE);
+
+  AddParmBool(&pCurAlg->parmList,"-nov++","use Novelty++ instead of Novelty+","if true, use Novelty++~if false, use Novelty+","",&bG2WsatNovPlusPlus,FALSE);
+  AddParmBool(&pCurAlg->parmList,"-lookahead","use lookahead (Novelty+p or Novelty++p)","if true, use Novelty+p or Novelty++p (see -nov++)~if false, use Novelty+ or Novelty++","",&bG2WsatNovLookAhead,FALSE);
+  AddParmBool(&pCurAlg->parmList,"-oldest","select oldest or best promising variable","if true, select oldest promising variable~if false, select best promising variable","",&bG2WsatSelectOldest,FALSE);
 
   CreateTrigger("InitAdaptG2WSatNoise",PostInit,InitAdaptG2WSatNoise,"","");
   CreateTrigger("AdaptG2WSatNoise",PostFlip,AdaptG2WSatNoise,"InitAdaptG2WSatNoise","");
-
-
-  pCurAlg = CreateAlgorithm("adaptg2wsat+p","",FALSE,
-   "Adapt+G2WSat+p: Adaptive G2WSAT+p",
-    "Li, Wei, Zhang  [SAT 07]",
-    "PickG2WSatP",
-    "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange,LookAhead,AdaptG2WSatNoise",
-    "default","default");
-
-  CopyParameters(pCurAlg,"g2wsat+p","",FALSE);
 }
 
+void ConfigureG2WSatGeneral() {
+  if (bG2WsatNovLookAhead) {
+    ActivateTriggers("LookAhead");
+    if (bG2WsatNovPlusPlus) {
+      fxnG2WsatNovelty = PickNoveltyPlusPlusP;
+    } else {
+      fxnG2WsatNovelty = PickNoveltyPlusP;
+    }
+  } else {
+    if (bG2WsatNovPlusPlus) {
+      fxnG2WsatNovelty = PickNoveltyPlusPlus;
+    } else {
+      fxnG2WsatNovelty = PickNoveltyPlus;
+    }
+  }
+}
 
-void PickG2WSat() {
+void PickG2WSatGeneral() {
  
   UINT32 j;
   UINT32 iVar;
@@ -107,99 +102,54 @@ void PickG2WSat() {
 
   if (iNumDecPromVars > 0 ) {
 
-    /* Find the one with the 'best' score */
+    if (bG2WsatSelectOldest) {
+      iFlipCandidate = aDecPromVarsList[0];
+      for (j=1;j<iNumDecPromVars;j++) {
+        iVar = aDecPromVarsList[j];
+        if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
+          iFlipCandidate = iVar;
+        }
+      }
+    } else {
 
-    iFlipCandidate = aDecPromVarsList[0];
-    iBestScore = aVarScore[iFlipCandidate];        
-    for (j=1;j<iNumDecPromVars;j++) {
-      iVar = aDecPromVarsList[j];
-      iScore = aVarScore[iVar];
-      if (iScore < iBestScore) {
-        iFlipCandidate = iVar;
-        iBestScore = iScore;
-      } else {
+      /* Find the one with the 'best' score */
 
-        /* If there is a tie, prefer the 'oldest' variable */
-
-        if (iScore == iBestScore) {
-          if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
-            iFlipCandidate = iVar;
+      iFlipCandidate = aDecPromVarsList[0];
+      iBestScore = aVarScore[iFlipCandidate];        
+      for (j=1;j<iNumDecPromVars;j++) {
+        iVar = aDecPromVarsList[j];
+        iScore = aVarScore[iVar];
+        if (iScore < iBestScore) {
+          iFlipCandidate = iVar;
+          iBestScore = iScore;
+        } else {
+          /* If there is a tie, prefer the 'oldest' variable */
+          if (iScore == iBestScore) {
+            if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
+              iFlipCandidate = iVar;
+            }
           }
         }
       }
     }
   } else {
-
-    /* Otherwise, just use Novelty++ */
-
-    PickNoveltyPlusPlusVarScore();
-  }
-}
-
-void PickG2WSatNoveltyPlusOldest() {
- 
-  UINT32 j;
-  UINT32 iVar;
-
-  /* If there are Decreasing Promising Variables */
-
-  if (iNumDecPromVars > 0 ) {
-
-    /* Find the one with that is the 'oldest' */
-
-    iFlipCandidate = aDecPromVarsList[0];
-    for (j=1;j<iNumDecPromVars;j++) {
-      iVar = aDecPromVarsList[j];
-      if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
-        iFlipCandidate = iVar;
-      }
-    }
-  } else {
-
-    /* Otherwise, just use Novelty+ (not Novelty++ as with regular G2WSat */
-
-    PickNoveltyPlusVarScore();
-  }
-}
-
-void PickG2WSatP() {
- 
-  UINT32 j;
-
-  /* If there are Decreasing Promising Variables */
-
-  if (iNumDecPromVars > 0 ) {
-
-    /* Find the one with that is the 'oldest' */
-
-    iFlipCandidate = aDecPromVarsList[0];
-    for (j=1;j<iNumDecPromVars;j++) {
-      if (aVarLastChange[aDecPromVarsList[j]] < aVarLastChange[iFlipCandidate]) {
-        iFlipCandidate = aDecPromVarsList[j];
-      }
-    }
-  } else {
-
-    /* Otherwise, just use Novelty+p */
-
-    PickNoveltyPlusP();
+    fxnG2WsatNovelty();
   }
 }
 
 void InitAdaptG2WSatNoise() {
   InitAdaptNoveltyNoise();
-  iWp = 0;
+  iNovWpDp = 0;
   fAdaptTheta = 0.2f;
   fAdaptPhi = 0.1f;
 }
 
 void AdaptG2WSatNoise() {
   AdaptNoveltyNoiseAdjust();
-  iWp = iNovNoise/10;
+  iNovWpDp = iNovNoise/10;
 }
 
 #ifdef __cplusplus
-
 }
 #endif
 

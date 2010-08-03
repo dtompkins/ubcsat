@@ -26,6 +26,31 @@
 namespace ubcsat {
 #endif
 
+UINT32 PickClauseWCS() {
+
+  /* this routine randomly selects a weighted clause so that
+     clauses with larger weights are more likely to be selected 
+     ('roulette' selection) */
+
+  UINT32 j;
+  FLOAT fRandClause;
+  FLOAT fClauseSum;
+  UINT32 iClause = 0;
+
+  fRandClause = RandomFloat() * fSumFalseW;
+
+  fClauseSum = FLOATZERO;
+
+  for (j=0;j<iNumFalse;j++) {
+    iClause = aFalseList[j];
+    fClauseSum += aClauseWeight[iClause];
+    if (fRandClause < fClauseSum) {
+      break;
+    }
+  }
+  return(iClause);
+}
+
 void PickNoveltyW() {
 
   /* weighted varaint -- see regular algorithm for comments */
@@ -159,39 +184,85 @@ void AdaptNoveltyNoiseW() {
   /* weighted varaint -- see regular algorithm for comments */
 
   if (iStep-iLastAdaptStep > iNumClauses/iInvTheta) {
-
     iNovNoise += (PROBABILITY) ((UINT32MAX - iNovNoise)/iInvPhi);
     iLastAdaptStep = iStep;
     fLastAdaptSumFalseW = fSumFalseW;
-  
   } else if (fSumFalseW < fLastAdaptSumFalseW) {
-
     iNovNoise -= (PROBABILITY) (iNovNoise / iInvPhi / 2);
-    
     iLastAdaptStep = iStep;
     fLastAdaptSumFalseW = fSumFalseW;
   }
 }
 
-void PickG2WSatNoveltyPlusOldestW() {
+void AdaptNoveltyNoiseAdjustW() {
+
+  /* this varaint allows for different values of Phi & Theta */
+  
+  if (iStep-iLastAdaptStep > iNumClauses*fAdaptTheta) {
+    iNovNoise += (PROBABILITY) ((UINT32MAX - iNovNoise)*fAdaptPhi);
+    iLastAdaptStep = iStep;
+    iLastAdaptNumFalse = iNumFalse;
+    fLastAdaptSumFalseW = fSumFalseW;
+  } else if (fSumFalseW < fLastAdaptSumFalseW) {
+    iNovNoise -= (PROBABILITY) (iNovNoise * fAdaptPhi / 2);
+    iLastAdaptStep = iStep;
+    fLastAdaptSumFalseW = fSumFalseW;
+  }
+}
+
+void AdaptG2WSatNoiseW() {
+  AdaptNoveltyNoiseAdjustW();
+  iNovWpDp = iNovNoise/10;
+}
+
+void ConfigureG2WSatGeneralW() {
+  if (bG2WsatNovPlusPlus) {
+    fxnG2WsatNovelty = PickNoveltyPlusPlusW;
+  } else {
+    fxnG2WsatNovelty = PickNoveltyPlusW;
+  }
+}
+
+void PickG2WSatGeneralW() {
 
   /* weighted varaint -- see regular algorithm for comments */
  
   UINT32 j;
   UINT32 iVar;
+  FLOAT fScore;
 
-  if (iNumDecPromVars > 0 ) {
-    iFlipCandidate = aDecPromVarsList[0];
-    for (j=1;j<iNumDecPromVars;j++) {
-      iVar = aDecPromVarsList[j];
-      if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
-        iFlipCandidate = iVar;
+  if (iNumDecPromVarsW > 0 ) {
+    if (bG2WsatSelectOldest) {
+      iFlipCandidate = aDecPromVarsList[0];
+      for (j=1;j<iNumDecPromVars;j++) {
+        iVar = aDecPromVarsList[j];
+        if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
+          iFlipCandidate = iVar;
+        }
+      }
+    } else {
+      iFlipCandidate = aDecPromVarsListW[0];
+      fBestScore = aVarScoreW[iFlipCandidate];
+      for (j=1;j<iNumDecPromVarsW;j++) {
+        iVar = aDecPromVarsListW[j];
+        fScore = aVarScoreW[iVar];
+        if (fScore < fBestScore) {
+          iFlipCandidate = iVar;
+          fBestScore = aVarScoreW[iVar];
+        } else {
+          if (fScore == fBestScore) {
+            if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
+              iFlipCandidate = iVar;
+            }
+          }
+        }
       }
     }
   } else {
-    PickNoveltyPlusW();
+    fxnG2WsatNovelty();
   }
 }
+
 
 void PickGSatW() {
   
@@ -226,36 +297,6 @@ void PickGSatW() {
     iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
   } else {
     iFlipCandidate = aCandidateList[0];
-  }
-}
-
-void PickG2WSatW() {
-
-  /* weighted varaint -- see regular algorithm for comments */
- 
-  UINT32 j;
-  UINT32 iVar;
-  FLOAT fScore;
-
-  if (iNumDecPromVarsW > 0 ) {
-    iFlipCandidate = aDecPromVarsListW[0];
-    fBestScore = aVarScoreW[iFlipCandidate];
-    for (j=1;j<iNumDecPromVarsW;j++) {
-      iVar = aDecPromVarsListW[j];
-      fScore = aVarScoreW[iVar];
-      if (fScore < fBestScore) {
-        iFlipCandidate = iVar;
-        fBestScore = aVarScoreW[iVar];
-      } else {
-        if (fScore == fBestScore) {
-          if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
-            iFlipCandidate = iVar;
-          }
-        }
-      }
-    }
-  } else {
-    PickNoveltyPlusPlusW();
   }
 }
 
@@ -555,32 +596,6 @@ void PostFlipSAPSWSmooth() {
 
 }
 
-UINT32 PickClauseWCS() {
-
-  /* this routine randomly selects a weighted clause so that
-     clauses with larger weights are more likely to be selected 
-     ('roulette' selection) */
-
-  UINT32 j;
-  FLOAT fRandClause;
-  FLOAT fClauseSum;
-  UINT32 iClause = 0;
-
-  fRandClause = RandomFloat() * fSumFalseW;
-
-  fClauseSum = FLOATZERO;
-
-  for (j=0;j<iNumFalse;j++) {
-    iClause = aFalseList[j];
-    fClauseSum += aClauseWeight[iClause];
-    if (fRandClause < fClauseSum) {
-      break;
-    }
-  }
-  return(iClause);
-}
-
-
 void PickWalkSatSKCW() {
 
   /* weighted varaint -- see regular algorithm for comments */
@@ -750,22 +765,39 @@ void AddWeighted() {
   CreateTrigger("AdaptNoveltyNoiseW",PostFlip,AdaptNoveltyNoiseW,"InitAdaptNoveltyNoise","");
 
   pCurAlg = CreateAlgorithm("g2wsat","",TRUE,
-    "G2WSAT: Gradient-based Greedy WalkSAT (weighted)",
-    "Li, Huang  [SAT 05]",
-    "PickG2WSatW",
+   "G2WSAT: Gradient-based Greedy WalkSAT (weighted)",
+    "Li, Huang  [SAT 05] and Li, Wei, Zhang [SAT 07] (-lookahead)",
+    "PickG2WSatGeneralW,ConfigureG2WSatGeneralW",
     "DefaultProceduresW,Flip+TrackChanges+FCL+W,DecPromVarsW,FalseClauseList,VarLastChange",
-    "default_w","default");
-  CopyParameters(pCurAlg,"g2wsat","",FALSE);
-  CreateTrigger("PickG2WSatW",ChooseCandidate,PickG2WSatW,"","");
+    "default","default");
+  
+  AddParmProbability(&pCurAlg->parmList,"-novnoise","novelty noise [default %s]","","",&iNovNoise,0.50);
+  AddParmProbability(&pCurAlg->parmList,"-wpdp","walk / diversification probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iNovWpDp,0.05);
+  AddParmBool(&pCurAlg->parmList,"-nov++","use Novelty++ instead of Novelty+","if true, use Novelty++~if false, use Novelty+","",&bG2WsatNovPlusPlus,TRUE);
+  /* 
+    for now, no lookahead 
+    AddParmBool(&pCurAlg->parmList,"-lookahead","use lookahead (Novelty+p or Novelty++p)","if true, use Novelty+p or Novelty++p (see -nov++)~if false, use Novelty+ or Novelty++","",&bG2WsatNovLookAhead,TRUE);
+  */
+  AddParmBool(&pCurAlg->parmList,"-oldest","select oldest or best promising variable","if true, select oldest promising variable~if false, select best promising variable","",&bG2WsatSelectOldest,FALSE);
 
-  pCurAlg = CreateAlgorithm("g2wsat","novelty+oldest",TRUE,
-    "G2WSAT: uses Nov+ & oldest dec. prom var) (weighted)",
-    "Li, Wei, and Zhang [SAT 07]",
-    "PickG2WSatNoveltyPlusOldestW",
+  CreateTrigger("PickG2WSatGeneralW",ChooseCandidate,PickG2WSatGeneralW,"","");
+  CreateTrigger("ConfigureG2WSatGeneralW",PostParameters,ConfigureG2WSatGeneralW,"","");
+
+  pCurAlg = CreateAlgorithm("adaptg2wsat","",TRUE,
+   "Adaptive G2WSat",
+    "Li, Wei, Zhang  [SAT 07]",
+    "PickG2WSatGeneralW,ConfigureG2WSatGeneralW,InitAdaptG2WSatNoise,AdaptG2WSatNoiseW",
     "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange",
     "default","default");
-  CopyParameters(pCurAlg,"novelty+","",FALSE);
-  CreateTrigger("PickG2WSatNoveltyPlusOldestW",ChooseCandidate,PickG2WSatNoveltyPlusOldestW,"","");
+
+  AddParmBool(&pCurAlg->parmList,"-nov++","use Novelty++ instead of Novelty+","if true, use Novelty++~if false, use Novelty+","",&bG2WsatNovPlusPlus,FALSE);
+  /* 
+    for now, no lookahead 
+    AddParmBool(&pCurAlg->parmList,"-lookahead","use lookahead (Novelty+p or Novelty++p)","if true, use Novelty+p or Novelty++p (see -nov++)~if false, use Novelty+ or Novelty++","",&bG2WsatNovLookAhead,TRUE);
+  */
+  AddParmBool(&pCurAlg->parmList,"-oldest","select oldest or best promising variable","if true, select oldest promising variable~if false, select best promising variable","",&bG2WsatSelectOldest,TRUE);
+
+  CreateTrigger("AdaptG2WSatNoiseW",PostFlip,AdaptG2WSatNoiseW,"InitAdaptG2WSatNoise","");
 
   pCurAlg = CreateAlgorithm("gsat-tabu","",TRUE,
     "GSAT-TABU: GSAT with Tabu search (weighted)",
