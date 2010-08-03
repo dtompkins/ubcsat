@@ -20,4 +20,4 @@
 
 */
 
-const char sVersion[] = "1.2-h3 BETA -- do not use for published results";
+const char sVersion[] = "1.2-h4 BETA -- do not use for published results";

@@ -117,6 +117,7 @@ void AddDDFW();
 
 void AddG2WSat();
 void PickG2WSatP();
+void PickG2WSatNoveltyPlusOldest();
 
 /* vw.c */
 

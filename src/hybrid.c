@@ -22,9 +22,13 @@
 
 #include "ubcsat.h"
 
+void InitHybrdInfo();
+void UpdateHybridInfo();
+
 void PickHybrid1();
-void InitHybrd1Info();
-void UpdateHybrid1Info();
+void InitHybrd1();
+
+void PickHybrid2();
 
 FLOAT fHybridGamma;
 FLOAT fVW2WeightMax;
@@ -37,17 +41,29 @@ void AddHybrid() {
   ALGORITHM *pCurAlg;
 
   pCurAlg = CreateAlgorithm("hybrid","2007",FALSE,
-   "Hybrid1 Switch between VW and adaptG2WSATp (Sat07 version)",
+   "Hybrid1: Switch between VW and adaptG2WSATp (Sat07 version)",
     "Wei, Li, Zhang  [JSAT 08]",
-    "PickHybrid1,InitHybrd1Info,UpdateHybrid1Info",
+    "PickHybrid1,InitHybrdInfo,UpdateHybridInfo,InitHybrid1",
     "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange,LookAhead,AdaptG2WSatNoise,VW2Weights",
     "default","default");
 
-  AddParmFloat(&pCurAlg->parmList,"-gamma","Hybrid1 switching criteria [default %s]","paramater to adjust selecting VW over AdaptG2WSATp~use VW if max.vw2w > gamma * avg.vw2w","",&fHybridGamma,10);
-  
+  AddParmFloat(&pCurAlg->parmList,"-gamma","Hybrid1 switching criteria [default %s]","paramater to adjust selecting VW over AdaptG2WSATp~use VW if max.vw2w > gamma * avg.vw2w","",&fHybridGamma,15);
+
+  CreateTrigger("InitHybrdInfo",InitStateInfo,InitHybrdInfo,"","");
+  CreateTrigger("UpdateHybridInfo",UpdateStateInfo,UpdateHybridInfo,"","UpdateVW2Weights");
+
   CreateTrigger("PickHybrid1",ChooseCandidate,PickHybrid1,"","");
-  CreateTrigger("InitHybrd1Info",InitStateInfo,InitHybrd1Info,"","");
-  CreateTrigger("UpdateHybrid1Info",UpdateStateInfo,UpdateHybrid1Info,"","UpdateVW2Weights");
+  CreateTrigger("InitHybrd1",InitStateInfo,InitHybrd1,"","");
+
+
+  pCurAlg = CreateAlgorithm("hybrid","2009",FALSE,
+   "Hybrid2: Switch between VW and adaptG2WSAT+ (Sat09 version)",
+    "Wei, Li, Zhang  [JSAT 08]",
+    "PickHybrid2,InitHybrdInfo,UpdateHybridInfo,InitVW2Auto,UpdateVW2Auto",
+    "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange,LookAhead,AdaptG2WSatNoise,VW2Weights",
+    "default","default");
+  AddParmFloat(&pCurAlg->parmList,"-gamma","Hybrid2 switching criteria [default %s]","paramater to adjust selecting VW over AdaptG2WSAT+~use VW if max.vw2w > gamma * avg.vw2w","",&fHybridGamma,1.025);
+  CreateTrigger("PickHybrid2",ChooseCandidate,PickHybrid2,"","");
 
   AddColumnUInt("numalg1","# of Search Steps Algorithm 1",
     "  # Search",
@@ -64,6 +80,21 @@ void AddHybrid() {
     &iNumAlg2,"",ColTypeFinal);
 }
 
+void InitHybrdInfo() {
+  fVW2WeightMax = FLOATZERO;
+  iNumAlg1 = 0;
+  iNumAlg2 = 0;
+}
+
+void UpdateHybridInfo() {
+  FLOAT fPrevWeight = aVW2Weights[iFlipCandidate];
+  aVW2Weights[iFlipCandidate] = (1.0f - fVW2Smooth) * (aVW2Weights[iFlipCandidate] + 1.0f) + (fVW2Smooth * (FLOAT) iStep);
+  fVW2WeightMean += (aVW2Weights[iFlipCandidate] - fPrevWeight) / iNumVars;
+  if (aVW2Weights[iFlipCandidate] > fVW2WeightMax) {
+    fVW2WeightMax = aVW2Weights[iFlipCandidate];
+  }
+}
+
 void PickHybrid1() {
   if (fVW2WeightMax > fHybridGamma * fVW2WeightMean) {
     PickVW2Auto();
@@ -74,20 +105,17 @@ void PickHybrid1() {
   }
 }
 
-void InitHybrd1Info() {
-  fVW2WeightMax = FLOATZERO;
+void InitHybrd1() {
   iMaxExpProbability=2;
   fVW2Smooth = 0.0f;
-  iNumAlg1 = 0;
-  iNumAlg2 = 0;
 }
 
-void UpdateHybrid1Info() {
-  FLOAT fPrevWeight = aVW2Weights[iFlipCandidate];
-  //aVW2Weights[iFlipCandidate] = (1.0f - fVW2Smooth) * (aVW2Weights[iFlipCandidate] + 1.0f) + (fVW2Smooth * (FLOAT) iStep);
-  aVW2Weights[iFlipCandidate] = aVW2Weights[iFlipCandidate] + 1.0f;
-  fVW2WeightMean += (aVW2Weights[iFlipCandidate] - fPrevWeight) / iNumVars;
-  if (aVW2Weights[iFlipCandidate] > fVW2WeightMax) {
-    fVW2WeightMax = aVW2Weights[iFlipCandidate];
+void PickHybrid2() {
+  if (fVW2WeightMax > fHybridGamma * fVW2WeightMean) {
+    PickVW2Auto();
+    iNumAlg1++;
+  } else {
+    PickG2WSatNoveltyPlusOldest();
+    iNumAlg2++;
   }
 }
