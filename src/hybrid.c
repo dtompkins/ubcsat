@@ -35,6 +35,7 @@ FLOAT fVW2WeightMax;
 
 UINT32 iNumAlg1;
 UINT32 iNumAlg2;
+UINT32 iNumAlg3;
 
 void AddHybrid() {
 
@@ -78,25 +79,36 @@ void AddHybrid() {
     "     Alg 2",
     "%10u",
     &iNumAlg2,"",ColTypeFinal);
+
+  AddColumnUInt("numalg3","# of Search Steps Algorithm 3",
+    "  # Search",
+    "     Steps",
+    "     Alg 3",
+    "%10u",
+    &iNumAlg3,"",ColTypeFinal);
 }
 
 void InitHybrdInfo() {
   fVW2WeightMax = FLOATZERO;
   iNumAlg1 = 0;
   iNumAlg2 = 0;
+  iNumAlg3 = 0;
 }
 
 void UpdateHybridInfo() {
-  FLOAT fPrevWeight = aVW2Weights[iFlipCandidate];
-  aVW2Weights[iFlipCandidate] = (1.0f - fVW2Smooth) * (aVW2Weights[iFlipCandidate] + 1.0f) + (fVW2Smooth * (FLOAT) iStep);
-  fVW2WeightMean += (aVW2Weights[iFlipCandidate] - fPrevWeight) / iNumVars;
-  if (aVW2Weights[iFlipCandidate] > fVW2WeightMax) {
-    fVW2WeightMax = aVW2Weights[iFlipCandidate];
+  FLOAT fPrevWeight;
+  if (iFlipCandidate) {
+    fPrevWeight = aVW2Weights[iFlipCandidate];
+    aVW2Weights[iFlipCandidate] = (1.0f - fVW2Smooth) * (aVW2Weights[iFlipCandidate] + 1.0f) + (fVW2Smooth * (FLOAT) iStep);
+    fVW2WeightMean += (aVW2Weights[iFlipCandidate] - fPrevWeight) / iNumVars;
+    if (aVW2Weights[iFlipCandidate] > fVW2WeightMax) {
+      fVW2WeightMax = aVW2Weights[iFlipCandidate];
+    }
   }
 }
 
 void PickHybrid1() {
-  if (fVW2WeightMax > fHybridGamma * fVW2WeightMean) {
+  if (fVW2WeightMax >= fHybridGamma * fVW2WeightMean) {
     PickVW2Auto();
     iNumAlg1++;
   } else {

@@ -196,6 +196,8 @@ void SmoothSAPS() {
     
   fTotalPenaltyFL += (fAveragePenalty * (FLOAT) iNumClauses);
 
+  fMaxPenaltyFL += fAveragePenalty;
+
   for (j=1;j<=iNumVars;j++) {
     aMakePenaltyFL[j] += fAveragePenalty * (FLOAT) aMakeCount[j];
     aBreakPenaltyFL[j] += fAveragePenalty * (FLOAT) aBreakCount[j];
@@ -227,6 +229,8 @@ void AdjustPenalties() {
     fTotalPenaltyFL = 0;
 
     fBasePenaltyFL /= fMaxClausePenalty;
+
+    fMaxPenaltyFL /= fMaxClausePenalty;
 
     for(j=0;j<iNumClauses;j++) {
 
@@ -269,6 +273,10 @@ void ScaleSAPS() {
     fOld = aClausePenaltyFL[iClause];
 
     aClausePenaltyFL[iClause] *= fAlpha;
+
+    if (aClausePenaltyFL[iClause] > fMaxPenaltyFL) {
+      fMaxPenaltyFL = aClausePenaltyFL[iClause];
+    }
 
     fDiff = aClausePenaltyFL[iClause] - fOld;
 
@@ -317,6 +325,7 @@ void SmoothSAPSWSmooth() {
   LITTYPE *pLit;
 
   fTotalPenaltyFL = FLOATZERO;
+  fMaxPenaltyFL = FLOATZERO;
  
   for(j=0;j<iNumClauses;j++) {
 
@@ -337,6 +346,9 @@ void SmoothSAPSWSmooth() {
       aBreakPenaltyFL[aCritSat[j]] += fDiff;
     }
     fTotalPenaltyFL += aClausePenaltyFL[j];
+    if (aClausePenaltyFL[j] > fMaxPenaltyFL) {
+      fMaxPenaltyFL = aClausePenaltyFL[j];
+    }
   }
 
 }

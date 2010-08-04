@@ -245,6 +245,7 @@ BOOL bClausePenaltyCreated;
 BOOL bClausePenaltyFLOAT;
 FLOAT fBasePenaltyFL;
 FLOAT fTotalPenaltyFL;
+FLOAT fMaxPenaltyFL;
 
 
 
@@ -3230,6 +3231,7 @@ void InitClausePenaltyFL() {
 
   fBasePenaltyFL = 1.0f;
   fTotalPenaltyFL = (FLOAT) iNumClauses;
+  fMaxPenaltyFL = 1.0f;
  
 }
 
@@ -3237,10 +3239,14 @@ void InitClausePenaltyFLW() {
   UINT32 j;
   
   fTotalPenaltyFL = FLOATZERO;  
+  fMaxPenaltyFL = FLOATZERO;
 
   for (j=0;j<iNumClauses;j++) {
     aClausePenaltyFL[j] = aClauseWeight[j];
     fTotalPenaltyFL += aClausePenaltyFL[j];
+    if (aClausePenaltyFL[j] > fMaxPenaltyFL) {
+      fMaxPenaltyFL = aClausePenaltyFL[j];
+    }
   }
 
   fBasePenaltyFL = 1.0f;

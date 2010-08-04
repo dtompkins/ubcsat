@@ -49,6 +49,12 @@ void AddHWSat();
 /* hybrid.c */
 
 void AddHybrid();
+void UpdateHybridInfo();
+extern FLOAT fVW2WeightMax;
+
+/* ncvw.c */
+
+void AddNCVW();
 
 /* walksat.c */
 
@@ -103,6 +109,8 @@ extern FLOAT fAdaptTheta;
 /* saps.c */
 
 void AddSAPS();
+void PickSAPS();
+void PostFlipRSAPS();
 
 /* paws.c */
 
@@ -118,11 +126,13 @@ void AddDDFW();
 void AddG2WSat();
 void PickG2WSatP();
 void PickG2WSatNoveltyPlusOldest();
+void AdaptG2WSatNoise();
 
 /* vw.c */
 
 void AddVW();
 void PickVW2Auto();
+void UpdateVW2Auto();
 BOOL BoundedExpProbability (SINT32 iExpProbability);
 
 extern FLOAT fVW2Smooth;

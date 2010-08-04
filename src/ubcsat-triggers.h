@@ -231,6 +231,7 @@ extern BOOL bClausePenaltyCreated;
 extern BOOL bClausePenaltyFLOAT;
 extern FLOAT fBasePenaltyFL;
 extern FLOAT fTotalPenaltyFL;
+extern FLOAT fMaxPenaltyFL;
 
 
 /***** Trigger MakeBreakPenaltyFL *****/

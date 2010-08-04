@@ -56,6 +56,8 @@ void AddAlgorithms() {
   AddVW();
 
   AddHybrid();
+  
+  AddNCVW();
 
   AddRoTS();
   AddIRoTS();
