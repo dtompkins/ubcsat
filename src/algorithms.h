@@ -50,6 +50,7 @@ void AddHWSat();
 
 void AddHybrid();
 void UpdateHybridInfo();
+void InitHybridInfo();
 extern FLOAT fVW2WeightMax;
 
 /* ncvw.c */
@@ -111,6 +112,10 @@ extern FLOAT fAdaptTheta;
 void AddSAPS();
 void PickSAPS();
 void PostFlipRSAPS();
+extern FLOAT fAlpha;
+extern FLOAT fRho;
+extern FLOAT fPenaltyImprove;
+
 
 /* paws.c */
 

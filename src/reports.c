@@ -818,32 +818,34 @@ void AddReports() {
 
 
   AddColumnUInt("percentalg1","Percent of Algorithm 1 Steps",
-    "Percent",
-    "   Alg.",
-    "      1",
-    "%7.4f",
+    "      ",
+    "     %%",
+    " Alg 1",
+    "%6.2f",
     &aMultiAlgCounts[1],"MultiAlgCounts",ColTypeFinalDivStep100);
 
   AddColumnUInt("percentalg2","Percent of Algorithm 2 Steps",
-    "Percent",
-    "   Alg.",
-    "      2",
-    "%7.4f",
+    "      ",
+    "     %%",
+    " Alg 2",
+    "%6.2f",
     &aMultiAlgCounts[2],"MultiAlgCounts",ColTypeFinalDivStep100);
 
   AddColumnUInt("percentalg3","Percent of Algorithm 3 Steps",
-    "Percent",
-    "   Alg.",
-    "      3",
-    "%7.4f",
+    "      ",
+    "     %%",
+    " Alg 3",
+    "%6.2f",
     &aMultiAlgCounts[3],"MultiAlgCounts",ColTypeFinalDivStep100);
 
   AddColumnUInt("percentalg4","Percent of Algorithm 4 Steps",
-    "Percent",
-    "   Alg.",
-    "      4",
-    "%7.4f",
+    "      ",
+    "     %%",
+    " Alg 4",
+    "%6.2f",
     &aMultiAlgCounts[4],"MultiAlgCounts",ColTypeFinalDivStep100);
+
+  AddColumnComposite("multialg","percentalg1,percentalg2,percentalg3,percentalg4");
   
   AddColumnFloat("timesteps","Time in seconds, calculated based on steps (RTD Only)",
     "  CPU Time",
