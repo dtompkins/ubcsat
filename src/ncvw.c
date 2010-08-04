@@ -29,10 +29,6 @@ FLOAT fNcvwGamma;
 FLOAT fNcvwDelta;
 FLOAT fNcvwPi;
 
-extern UINT32 iNumAlg1;
-extern UINT32 iNumAlg2;
-extern UINT32 iNumAlg3;
-
 UINT32 iSelectedAlg;
 
 void AddNCVW() {
@@ -72,18 +68,14 @@ void PickNCVW() {
   FLOAT fAveragePenalty = fTotalPenaltyFL / (FLOAT) iNumClauses;
   if (fVW2WeightMax >= fNcvwGamma * fVW2WeightMean) {
     PickVW2Auto();
-    iNumAlg1++;
-    iSelectedAlg = 1;
+    iMultiAlgCurrent = 3;
   } else {
     fAveragePenalty = fTotalPenaltyFL / (FLOAT) iNumClauses;
     if ((fAveragePenalty <= fNcvwPi) || (fMaxPenaltyFL >= fNcvwDelta * fAveragePenalty)) {
       PickSAPS();
-      iNumAlg2++;
-      iSelectedAlg = 2;
+      iMultiAlgCurrent = 4;
     } else {
       PickG2WSatNoveltyPlusOldest();
-      iNumAlg3++;
-      iSelectedAlg = 3;
     }
   }
 }
@@ -95,7 +87,7 @@ void PostFlipNCVW() {
     UpdateVW2Auto();
     AdaptG2WSatNoise();
   }
-  if (iSelectedAlg == 2) {
+  if (iMultiAlgCurrent == 4) {
     PostFlipRSAPS();
   }
 }

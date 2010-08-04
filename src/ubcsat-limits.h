@@ -49,3 +49,5 @@
 
 #define MAXDYNAMICPARMS 16
 
+#define MAXMULTIALGS 32
+

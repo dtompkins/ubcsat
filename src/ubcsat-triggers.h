@@ -668,3 +668,15 @@ extern FLOAT fFDCRun;
 extern VARSTATELIST vslUnique;
 extern UINT32 iNumUniqueSolutions;
 extern UINT32 iLastUnique;
+
+
+/***** Trigger MultiAlgCounts *****/
+
+/*
+    aMultiAlgCounts[j]       number of steps algorithm [j] was selected
+    iMultiAlgCurrent         algorithm # for the current step
+*/
+
+extern UINT32 aMultiAlgCounts[];
+extern UINT32 iNumMultiAlgs;
+extern UINT32 iMultiAlgCurrent;

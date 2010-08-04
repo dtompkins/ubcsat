@@ -141,6 +141,13 @@ void ReportAutoCorrPrint();
 /***** Trigger ReportTriggersPrint *****/
 void ReportTriggersPrint();
 
+/***** Trigger ReportMultiAlgCounts *****/
+void ReportMultiAlgCounts();
+
+/***** Trigger ReportMultiAlgSwitch *****/
+UINT32 iMultiAlgPrevious;
+void ReportMultiAlgSwitch();
+
 /***** Trigger ReportParamILSPrint *****/
 void ReportParamILSPrint();
 
@@ -281,6 +288,10 @@ void AddReportTriggers() {
   CreateTrigger("ReportParamILSPrint",PostRun,ReportParamILSPrint,"BestFalse","");
 
   CreateTrigger("ReportSatCompetitionPrint",FinalReports,ReportSatCompetitionPrint,"","");
+
+  CreateTrigger("ReportMultiAlgCounts",PostRun,ReportMultiAlgCounts,"MultiAlgCounts","");
+  
+  CreateTrigger("ReportMultiAlgSwitch",PostStep,ReportMultiAlgSwitch,"","");
 
   CreateTrigger("ActivateStepsFoundColumns",PostParameters,ActivateStepsFoundColumns,"","");
 
@@ -1975,6 +1986,39 @@ void ReportTriggersPrint() {
     }
   }
 }
+
+/***** Report -r multialgcount *****/
+
+void ReportMultiAlgCounts() {
+  UINT32 j;
+  if (iRun==1) {
+    ReportHdrPrefix(pRepMultiAlgCounts);
+    ReportHdrPrint(pRepMultiAlgCounts," Run ID | # Steps Alg[1] | # Steps Alg[2] ... \n");
+  }
+  ReportPrint1(pRepMultiAlgCounts,"%lu",iRun);
+  for (j=1;j<(iNumMultiAlgs+1);j++) {
+    ReportPrint1(pRepMultiAlgCounts," %lu",aMultiAlgCounts[j]); // todo UBIGINT
+  }
+  ReportPrint(pRepBiasCounts,"\n");
+}
+
+
+
+/***** Report -r multialgswitch *****/
+
+void ReportMultiAlgSwitch() {
+  if ((iRun==1)&&(iStep==1)) {
+    iMultiAlgPrevious = 0;
+    ReportHdrPrefix(pRepMultiAlgSwitch);
+    ReportHdrPrint(pRepMultiAlgSwitch," Run ID | Steps # | Algorithm #\n");
+  }
+  if (iMultiAlgCurrent != iMultiAlgPrevious) {
+    ReportPrint3(pRepMultiAlgSwitch,"%lu %lu %d\n",iRun,iStep,iMultiAlgCurrent); //todo llu
+  }
+  iMultiAlgPrevious = iMultiAlgCurrent;
+}
+
+
 
 /***** Report -r paramils *****/
 

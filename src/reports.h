@@ -56,6 +56,8 @@ extern REPORT *pRepMobFixed;
 extern REPORT *pRepMobFixedFreq;
 extern REPORT *pRepAutoCorr;
 extern REPORT *pRepTriggers;
+extern REPORT *pRepMultiAlgCounts;
+extern REPORT *pRepMultiAlgSwitch;
 extern REPORT *pRepParamILS;
 extern REPORT *pRepSATComp;
 

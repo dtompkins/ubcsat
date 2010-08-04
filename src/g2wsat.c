@@ -196,6 +196,7 @@ void PickG2WSatNoveltyPlusOldest() {
   /* If there are Decreasing Promising Variables */
 
   if (iNumDecPromVars > 0 ) {
+    iMultiAlgCurrent = 1;
 
     /* Find the one with that is the 'oldest' */
 
@@ -207,6 +208,7 @@ void PickG2WSatNoveltyPlusOldest() {
       }
     }
   } else {
+    iMultiAlgCurrent = 2;
 
     /* Otherwise, just use Novelty+ (not Novelty++ as with regular G2WSat */
 
@@ -243,6 +245,7 @@ void PickG2WSatP() {
   /* If there are Decreasing Promising Variables */
 
   if (iNumDecPromVars > 0 ) {
+    iMultiAlgCurrent = 1;
 
     /* Find the one with that is the 'oldest' */
 
@@ -253,6 +256,8 @@ void PickG2WSatP() {
       }
     }
   } else {
+    
+    iMultiAlgCurrent = 2;
 
     /* Otherwise, just use Novelty+p */
 

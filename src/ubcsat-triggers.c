@@ -691,6 +691,16 @@ UINT32 iNumShareClauses;
 void CreateVarsShareClauses();
 
 
+/***** Trigger MultiAlgCounts *****/
+
+UINT32 aMultiAlgCounts[MAXMULTIALGS+1];
+UINT32 iNumMultiAlgs;
+UINT32 iMultiAlgCurrent;
+
+void CreateMultiAlgCounts();
+void InitMultiAlgCounts();
+void UpdateMultiAlgCounts();
+
 
 void AddDataTriggers() {
 
@@ -971,6 +981,12 @@ void AddDataTriggers() {
   CreateContainerTrigger("UniqueSolutions","CreateUniqueSolutions,UpdateUniqueSolutions");
 
   CreateTrigger("VarsShareClauses",CreateData,CreateVarsShareClauses,"LitOccurence","");
+
+  CreateTrigger("CreateMultiAlgCounts",CreateStateInfo,CreateMultiAlgCounts,"","");
+  CreateTrigger("InitMultiAlgCounts",InitStateInfo,InitMultiAlgCounts,"","");
+  CreateTrigger("UpdateMultiAlgCounts",PostStep,UpdateMultiAlgCounts,"","");
+  CreateContainerTrigger("MultiAlgCounts","CreateMultiAlgCounts,InitMultiAlgCounts,UpdateMultiAlgCounts");
+
 
 }
 
@@ -5043,4 +5059,28 @@ void CreateVarsShareClauses() {
       pLit++;
     }
   } 
+}
+
+void CreateMultiAlgCounts() {
+  //aMultiAlgCounts = (UINT32 *) AllocateRAM((MAXMULTIALGS+1)*sizeof(UINT32));
+  iNumMultiAlgs = 1;
+}
+
+void InitMultiAlgCounts() {
+  if (iStep == 1) {
+    iMultiAlgCurrent = 0;
+    memset(aMultiAlgCounts,0,(MAXMULTIALGS+1)*sizeof(UINT32));
+  }
+}
+
+void UpdateMultiAlgCounts() {
+  if (iMultiAlgCurrent > iNumMultiAlgs) {
+    iNumMultiAlgs = iMultiAlgCurrent;
+    if (iNumMultiAlgs > MAXMULTIALGS) {
+      ReportPrint1(pRepErr,"Unexpected Error: increase constant MAXMULTIALGS [%d]\n",MAXMULTIALGS); //todo
+      AbnormalExit();
+      exit(1);
+    }
+  }
+  aMultiAlgCounts[iMultiAlgCurrent]++;
 }

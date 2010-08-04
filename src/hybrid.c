@@ -26,16 +26,12 @@ void InitHybrdInfo();
 void UpdateHybridInfo();
 
 void PickHybrid1();
-void InitHybrd1();
+void InitHybrid1();
 
 void PickHybrid2();
 
 FLOAT fHybridGamma;
 FLOAT fVW2WeightMax;
-
-UINT32 iNumAlg1;
-UINT32 iNumAlg2;
-UINT32 iNumAlg3;
 
 void AddHybrid() {
 
@@ -54,7 +50,7 @@ void AddHybrid() {
   CreateTrigger("UpdateHybridInfo",UpdateStateInfo,UpdateHybridInfo,"","UpdateVW2Weights");
 
   CreateTrigger("PickHybrid1",ChooseCandidate,PickHybrid1,"","");
-  CreateTrigger("InitHybrd1",InitStateInfo,InitHybrd1,"","");
+  CreateTrigger("InitHybrid1",InitStateInfo,InitHybrid1,"","");
 
 
   pCurAlg = CreateAlgorithm("hybrid","2009",FALSE,
@@ -66,33 +62,10 @@ void AddHybrid() {
   AddParmFloat(&pCurAlg->parmList,"-gamma","Hybrid2 switching criteria [default %s]","paramater to adjust selecting VW over AdaptG2WSAT+~use VW if max.vw2w > gamma * avg.vw2w","",&fHybridGamma,1.025);
   CreateTrigger("PickHybrid2",ChooseCandidate,PickHybrid2,"","");
 
-  AddColumnUInt("numalg1","# of Search Steps Algorithm 1",
-    "  # Search",
-    "     Steps",
-    "     Alg 1",
-    "%10u",
-    &iNumAlg1,"",ColTypeFinal);
-
-  AddColumnUInt("numalg2","# of Search Steps Algorithm 2",
-    "  # Search",
-    "     Steps",
-    "     Alg 2",
-    "%10u",
-    &iNumAlg2,"",ColTypeFinal);
-
-  AddColumnUInt("numalg3","# of Search Steps Algorithm 3",
-    "  # Search",
-    "     Steps",
-    "     Alg 3",
-    "%10u",
-    &iNumAlg3,"",ColTypeFinal);
 }
 
 void InitHybrdInfo() {
   fVW2WeightMax = FLOATZERO;
-  iNumAlg1 = 0;
-  iNumAlg2 = 0;
-  iNumAlg3 = 0;
 }
 
 void UpdateHybridInfo() {
@@ -109,25 +82,23 @@ void UpdateHybridInfo() {
 
 void PickHybrid1() {
   if (fVW2WeightMax >= fHybridGamma * fVW2WeightMean) {
+    iMultiAlgCurrent = 3;
     PickVW2Auto();
-    iNumAlg1++;
   } else {
     PickG2WSatP();
-    iNumAlg2++;
   }
 }
 
-void InitHybrd1() {
+void InitHybrid1() {
   iMaxExpProbability=2;
   fVW2Smooth = 0.0f;
 }
 
 void PickHybrid2() {
   if (fVW2WeightMax > fHybridGamma * fVW2WeightMean) {
+    iMultiAlgCurrent = 3;
     PickVW2Auto();
-    iNumAlg1++;
   } else {
     PickG2WSatNoveltyPlusOldest();
-    iNumAlg2++;
   }
 }

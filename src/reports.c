@@ -56,6 +56,8 @@ REPORT *pRepMobFixed;
 REPORT *pRepMobFixedFreq;
 REPORT *pRepAutoCorr;
 REPORT *pRepTriggers;
+REPORT  *pRepMultiAlgCounts;
+REPORT  *pRepMultiAlgSwitch;
 REPORT *pRepParamILS;
 REPORT *pRepSATComp;
 
@@ -152,6 +154,10 @@ void AddReports() {
   
   pRepTriggers = CreateReport("triggers","Trigger Report","Prints Out All Active Triggers","stdout","ReportTriggersPrint");
   AddReportParmUInt(pRepTriggers,"Show All Triggers (not just active) [default = 0]",&bReportTriggersAll,0);
+
+  pRepMultiAlgCounts = CreateReport("multialgcount","Multi-Algorithm Counts","Prints the number of steps each algorithm was selected","stdout","ReportMultiAlgCounts");
+
+  pRepMultiAlgSwitch = CreateReport("multialgswitch","Multi-Algorithm Switching","Prints the step # when the algorithm multialg switches","stdout","ReportMultiAlgSwitch");
 
   pRepParamILS = CreateReport("paramils","Output for ParamILS","Prints required output ParamILS~(use -r out null and -r stats null)~see http://www.cs.ubc.ca/labs/beta/Projects/ParamILS/","stdout","ReportParamILSPrint");
 
@@ -810,7 +816,34 @@ void AddReports() {
 
   AddStatCol("percentside_w","PercentWeightedSideSteps","mean",FALSE);
 
-  
+
+  AddColumnUInt("percentalg1","Percent of Algorithm 1 Steps",
+    "Percent",
+    "   Alg.",
+    "      1",
+    "%7.4f",
+    &aMultiAlgCounts[1],"MultiAlgCounts",ColTypeFinalDivStep100);
+
+  AddColumnUInt("percentalg2","Percent of Algorithm 2 Steps",
+    "Percent",
+    "   Alg.",
+    "      2",
+    "%7.4f",
+    &aMultiAlgCounts[2],"MultiAlgCounts",ColTypeFinalDivStep100);
+
+  AddColumnUInt("percentalg3","Percent of Algorithm 3 Steps",
+    "Percent",
+    "   Alg.",
+    "      3",
+    "%7.4f",
+    &aMultiAlgCounts[3],"MultiAlgCounts",ColTypeFinalDivStep100);
+
+  AddColumnUInt("percentalg4","Percent of Algorithm 4 Steps",
+    "Percent",
+    "   Alg.",
+    "      4",
+    "%7.4f",
+    &aMultiAlgCounts[4],"MultiAlgCounts",ColTypeFinalDivStep100);
   
   AddColumnFloat("timesteps","Time in seconds, calculated based on steps (RTD Only)",
     "  CPU Time",
