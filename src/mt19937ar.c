@@ -43,6 +43,10 @@
 
 #include <stdio.h>
 
+#ifdef __cplusplus
+namespace mersenne {
+#endif
+
 /* Period parameters */  
 #define N 624
 #define M 397
@@ -192,3 +196,7 @@ int main(void)
     return 0;
 }
 */
+
+#ifdef __cplusplus
+}
+#endif

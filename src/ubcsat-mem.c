@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 /*  
     This file contains the simple memory managment of ubcsat
 */
@@ -105,3 +109,9 @@ void FreeRAM() {
     }
   }
 }
+
+#ifdef __cplusplus
+
+}
+#endif
+

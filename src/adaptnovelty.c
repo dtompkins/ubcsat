@@ -22,20 +22,23 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 UINT32 iInvPhi=5;               /* = 1/phi   */
 UINT32 iInvTheta=6;             /* = 1/theta */
 
 FLOAT fAdaptPhi;
 FLOAT fAdaptTheta;
 
-UINT32 iLastAdaptStep;
+UBIGINT iLastAdaptStep;
 UINT32 iLastAdaptNumFalse;
 FLOAT fLastAdaptSumFalseW;
 
 void InitAdaptNoveltyNoise();
 void AdaptNoveltyNoise();
 void AdaptNoveltyNoiseAdjust();
-void AdaptNoveltyNoiseW();
 
 void AddAdaptNoveltyPlus() {
   
@@ -48,7 +51,7 @@ void AddAdaptNoveltyPlus() {
     "DefaultProcedures,Flip+FalseClauseList,AdaptNoveltyNoise,VarLastChange",
     "default","default");
   
-  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iWp,0.01);
+  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iNovWpDp,0.01);
 
   CreateTrigger("InitAdaptNoveltyNoise",PostInit,InitAdaptNoveltyNoise,"","");
   CreateTrigger("AdaptNoveltyNoise",PostFlip,AdaptNoveltyNoise,"InitAdaptNoveltyNoise","");
@@ -65,17 +68,6 @@ void AddAdaptNoveltyPlus() {
   AddParmFloat(&pCurAlg->parmList,"-theta","adjustment parameter theta [default %s]","theta determines the stagnation detection","",&fAdaptTheta,(1.0f/6.0f));
   CreateTrigger("AdaptNoveltyNoiseAdjust",PostFlip,AdaptNoveltyNoiseAdjust,"InitAdaptNoveltyNoise","");
 
-  pCurAlg = CreateAlgorithm("adaptnovelty+","",TRUE,
-    "Adaptive Novelty+: Novelty+ with adaptive noise (weighted)",
-    "Hoos [AAAI 02]",
-    "PickNoveltyPlusW",
-    "DefaultProceduresW,Flip+FalseClauseListW,AdaptNoveltyNoiseW,VarLastChange",
-    "default_w","default");
-  
-  CopyParameters(pCurAlg,"adaptnovelty+","",FALSE);
-
-  CreateTrigger("AdaptNoveltyNoiseW",PostFlip,AdaptNoveltyNoiseW,"InitAdaptNoveltyNoise","");
- 
 }
 
 void InitAdaptNoveltyNoise() {
@@ -125,22 +117,7 @@ void AdaptNoveltyNoiseAdjust() {
 }
 
 
-void AdaptNoveltyNoiseW() {
+#ifdef __cplusplus
 
-  /* weighted varaint -- see regular algorithm for comments */
-
-  if (iStep-iLastAdaptStep > iNumClauses/iInvTheta) {
-
-    iNovNoise += (PROBABILITY) ((UINT32MAX - iNovNoise)/iInvPhi);
-    iLastAdaptStep = iStep;
-    fLastAdaptSumFalseW = fSumFalseW;
-  
-  } else if (fSumFalseW < fLastAdaptSumFalseW) {
-
-    iNovNoise -= (PROBABILITY) (iNovNoise / iInvPhi / 2);
-    
-    iLastAdaptStep = iStep;
-    fLastAdaptSumFalseW = fSumFalseW;
-  }
 }
-
+#endif

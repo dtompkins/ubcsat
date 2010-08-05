@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickURWalk();
 void PickCRWalk();
 void SchoeningRestart();
@@ -39,13 +43,6 @@ void AddRandom() {
 
   CreateTrigger("PickURWalk",ChooseCandidate,PickURWalk,"","");  
 
-  pCurAlg = CreateAlgorithm("urwalk","",TRUE,
-    "Uninformed Random Walk: flip any var at random (weighted)",
-    "",
-    "PickURWalk",
-    "DefaultProceduresW",
-    "default_w","default");
-
   pCurAlg = CreateAlgorithm("crwalk","",FALSE,
     "Conflict-Directed Random Walk: choose unsat clause, then literal at random",
     "Papadimitriou [FOCS 91]",
@@ -55,13 +52,6 @@ void AddRandom() {
 
   CreateTrigger("PickCRWalk",ChooseCandidate,PickCRWalk,"","");
 
-  pCurAlg = CreateAlgorithm("crwalk","",TRUE,
-    "Conflict-Directed Random Walk (weighted)",
-    "Papadimitriou [FOCS 91]",
-    "PickCRWalk",
-    "DefaultProceduresW,Flip+FalseClauseListW",
-    "default_w","default");
-
   CreateTrigger("SchoeningRestart",CreateData,SchoeningRestart,"","");
 
   pCurAlg = CreateAlgorithm("crwalk","schoening",FALSE,
@@ -70,13 +60,6 @@ void AddRandom() {
     "PickCRWalk,SchoeningRestart",
     "DefaultProcedures,Flip+FalseClauseList",
     "default","default");
-
-  pCurAlg = CreateAlgorithm("crwalk","schoening",TRUE,
-    "Conflict-Directed Random Walk, restart every 3n steps (weighted)",
-    "Schoening [FOCS 99]",
-    "PickCRWalk,SchoeningRestart",
-    "DefaultProceduresW,Flip+FalseClauseListW",
-    "default_w","default");
 
 }
 
@@ -110,3 +93,7 @@ void SchoeningRestart() {
 
 }
 
+#ifdef __cplusplus
+
+}
+#endif

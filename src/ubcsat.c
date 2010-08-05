@@ -22,7 +22,9 @@
 
 #include "ubcsat.h"
 
-#include "version.h"
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
 
 int ubcsatmain(int argc, char *argv[]) {
   
@@ -130,11 +132,21 @@ int ubcsatmain(int argc, char *argv[]) {
   
 }
 
-#ifndef ALTERNATEMAIN
+#ifdef __cplusplus
+}
+#endif
+
+
+#ifdef __cplusplus
+
+int main(int argc, char *argv[]) {
+  return(ubcsat::ubcsatmain(argc,argv));
+}
+
+#else
 
 int main(int argc, char *argv[]) {
   return(ubcsatmain(argc,argv));
 }
 
 #endif
-

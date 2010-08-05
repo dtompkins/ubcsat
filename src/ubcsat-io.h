@@ -38,7 +38,7 @@ void CloseSingleFile(FILE *filToClose);
 
 void SetupFile(FILE **fFil,const char *sOpenType, const char *sFilename, FILE *filDefault, BOOL bAllowNull);
 
-extern UINT32 iNumRandomCalls;
+extern UBIGINT iNumRandomCalls;
 void SetupCountRandom();
 void InitCountRandom();
 

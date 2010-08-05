@@ -20,4 +20,15 @@
 
 */
 
+#include "ubcsat.h"
+
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 const char sVersion[] = "1.2-h5 BETA -- do not use for published results";
+
+#ifdef __cplusplus
+}
+#endif
+

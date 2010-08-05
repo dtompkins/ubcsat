@@ -60,7 +60,6 @@ void AddNCVW();
 /* walksat.c */
 
 void AddWalkSat();
-UINT32 PickClauseWCS();
 
 /* walksat-tabu.c */
 
@@ -73,21 +72,21 @@ extern UINT32 iWalkSATTabuClause;
 void AddNovelty();
 void AddNoveltyPlus();
 void AddNoveltyPlusPlus();
-void PickNoveltyPlusW();
+void PickNoveltyPlus();
 void PickNoveltyPlusPlus();
-void PickNoveltyPlusPlusW();
 
 void PickNoveltyVarScore();
 void PickNoveltyPlusVarScore();
 void PickNoveltyPlusPlusVarScore();
 
 extern PROBABILITY iNovNoise;
-extern PROBABILITY iDp;
+extern PROBABILITY iNovWpDp;
 
 /* novelty+p.c */
 
 void AddNoveltyPlusP();
 void PickNoveltyPlusP();
+void PickNoveltyPlusPlusP();
 
 /* rnovelty.c */
 
@@ -99,7 +98,7 @@ void AddRNoveltyPlus();
 void AddAdaptNoveltyPlus();
 void InitAdaptNoveltyNoise();
 void AdaptNoveltyNoiseAdjust();
-extern UINT32 iLastAdaptStep;
+extern UBIGINT iLastAdaptStep;
 extern UINT32 iLastAdaptNumFalse;
 extern FLOAT fLastAdaptSumFalseW;
 extern UINT32 iInvPhi;
@@ -112,10 +111,12 @@ extern FLOAT fAdaptTheta;
 void AddSAPS();
 void PickSAPS();
 void PostFlipRSAPS();
+void ScaleSAPS();
 extern FLOAT fAlpha;
 extern FLOAT fRho;
 extern FLOAT fPenaltyImprove;
-
+extern PROBABILITY iPs;
+extern PROBABILITY iRPs;
 
 /* paws.c */
 
@@ -129,9 +130,10 @@ void AddDDFW();
 /* g2wsat.c */
 
 void AddG2WSat();
-void PickG2WSatP();
-void PickG2WSatNoveltyPlusOldest();
 void AdaptG2WSatNoise();
+extern UINT32 iG2WsatSubAlgID;
+extern UINT32 iG2WsatPromSelectID;
+extern FXNPTR fxnG2WsatNovelty;
 
 /* vw.c */
 
@@ -175,4 +177,7 @@ void AddDerandomized();
 
 void AddRGSat();
 
+/* weighted.c */
+
+void AddWeighted();
 

@@ -22,8 +22,11 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void SAMDUpdateVarLastChange();
-void SAMDUpdateVarLastChangeW();
 
 void AddSAMD() {
 
@@ -40,16 +43,6 @@ void AddSAMD() {
 
   CreateTrigger("SAMDUpdateVarLastChange",UpdateStateInfo,SAMDUpdateVarLastChange,"VarLastChange","UpdateVarLastChange");
 
-  pCurAlg = CreateAlgorithm("samd","",TRUE,
-    "SAMD: Steepest Ascent Mildest Descent (weighted)",
-    "Hansen and Jaumard [Computing 1990]",
-    "PickGSatTabuW,SAMDUpdateVarLastChangeW",
-    "DefaultProceduresW,Flip+VarScoreW",
-    "default_w","default");
-  
-  CopyParameters(pCurAlg,"gsat-tabu","",1);
-
-  CreateTrigger("SAMDUpdateVarLastChangeW",UpdateStateInfo,SAMDUpdateVarLastChangeW,"VarLastChange","UpdateVarLastChange");
 }
 
 /* SAMD is essentially the same as GSAT-TABU, 
@@ -63,11 +56,7 @@ void SAMDUpdateVarLastChange() {
   }
 }
 
-void SAMDUpdateVarLastChangeW() {
-  if (fBestScore >= FLOATZERO) {
-    UpdateVarLastChange();
-  }
+#ifdef __cplusplus
+
 }
-
-
-
+#endif

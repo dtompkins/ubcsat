@@ -22,10 +22,13 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 UINT32 iTabuTenure;
 
 void PickGSatTabu();
-void PickGSatTabuW();
 
 void AddGSatTabu() {
 
@@ -42,24 +45,13 @@ void AddGSatTabu() {
 
   CreateTrigger("PickGSatTabu",ChooseCandidate,PickGSatTabu,"","");
 
-  pCurAlg = CreateAlgorithm("gsat-tabu","",TRUE,
-    "GSAT-TABU: GSAT with Tabu search (weighted)",
-    "Mazure, Sais, Gregoire [AAAI 97]",
-    "PickGSatTabuW",
-    "DefaultProceduresW,Flip+VarScoreW,VarLastChange",
-    "default_w","default");
-  
-  CopyParameters(pCurAlg,"gsat-tabu","",FALSE);
-
-  CreateTrigger("PickGSatTabuW",ChooseCandidate,PickGSatTabuW,"","");
-
 }
 
 void PickGSatTabu() {
   
   UINT32 j;
   SINT32 iScore;
-  UINT32 iTabuCutoff;
+  UBIGINT iTabuCutoff;
 
   /* calculation of tabu cutoff */
 
@@ -73,7 +65,7 @@ void PickGSatTabu() {
   }
 
   iNumCandidates = 0;
-  iBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
 
   for (j=1;j<=iNumVars;j++) {
 
@@ -106,54 +98,7 @@ void PickGSatTabu() {
   }
 }
 
-void PickGSatTabuW() {
-  
-  UINT32 j;
-  FLOAT fScore;
-  UINT32 iTabuCutoff;
+#ifdef __cplusplus
 
-  /* calculation of tabu cutoff */
-
-  if (iStep > iTabuTenure) {
-    iTabuCutoff = iStep - iTabuTenure;
-    if (iVarLastChangeReset > iTabuCutoff) {
-      iTabuCutoff = iVarLastChangeReset;
-    }
-  } else {
-    iTabuCutoff = 1;
-  }
-
-  iNumCandidates = 0;
-  fBestScore = fTotalWeight;
-
-  for (j=1;j<=iNumVars;j++) {
-    
-    /* check score of all non-tabu variables */
-
-    if (aVarLastChange[j] < iTabuCutoff) { 
-      
-      /* use cached value of weighted score */
-
-      fScore = aVarScoreW[j];
-
-      /* build candidate list of best vars */
-
-      if (fScore <= fBestScore) {
-        if (fScore < fBestScore) {
-          iNumCandidates=0;
-          fBestScore = fScore;
-        }
-        aCandidateList[iNumCandidates++] = j;
-      }
-    }
-  }
-
-  /* select flip candidate uniformly from candidate list */
-
-  if (iNumCandidates > 1) {
-    iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  } else {
-    iFlipCandidate = aCandidateList[0];
-  }
 }
-
+#endif

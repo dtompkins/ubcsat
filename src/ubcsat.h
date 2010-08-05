@@ -20,14 +20,20 @@
 
 */
 
-#ifndef UBCSAT
+#ifndef UBCSAT_H
 
-#define UBCSAT
+#define UBCSAT_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+
+#include "mt19937ar.h"
+
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
 
 #include "ubcsat-limits.h"
 #include "ubcsat-types.h"
@@ -44,6 +50,11 @@
 #include "reports.h"
 
 #include "mylocal.h"
+
+#ifdef __cplusplus
+
+}
+#endif
 
 #endif
 

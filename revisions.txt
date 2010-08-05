@@ -29,12 +29,20 @@ INTRO | FIXED | DESCRIPTION
 1.0.0   1.2.0   HSAT could pick the wrong variable
 1.1.0   1.2.0   Novelty++ Weighted [alg novelty++ -w] called the wrong trigger / wouldn't execute
 
+* new feature: Now support runs of length 2^64
+
 * new algorithm: VW2/2005 (-alg vw2 -v 2005) -- vw2 variant from the SAT 2005 Competition
+
+* changed algorithms: G2WSAT (and adaptG2WSAT) are now more generaland with parameters to control behaviour
 
 * new report: vw2weights
 * new report: ParamILS (-r paramils) see http://www.cs.ubc.ca/labs/beta/Projects/ParamILS/
 
-* code cleanup: Made it clearer output for -filesol uses the output from -r uniquesol (not from -r solution, which has an extra column)
+* code cleanup: Numerous code cleanups to make it more c++ friendly
+                Moved all weighted algorithm variants to weighted.c
+                Current Software Versions are now in ubcsat-version.c
+                Made the makefile a little cleaner
+                Made it clearer output for -filesol uses the output from -r uniquesol (not from -r solution, which has an extra column)
 
 ------------------------
 Changes in version 1.1.0

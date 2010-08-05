@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void AddParameters() {
 
   AddParmString(&parmAlg,"-alg","algorithm name","","",&sAlgName,"");
@@ -39,10 +43,10 @@ void AddParameters() {
   AddParmBool(&parmHelp,"-helpterse,-ht","list all parameters and algorithms (terse)","","",&bShowHelpT,FALSE);
 
   AddParmUInt(&parmUBCSAT,"-runs","number of independent attempts (runs) [default %s]","","",&iNumRuns,1);
-  AddParmUInt(&parmUBCSAT,"-cutoff","maximum number of search steps per run [default %s]","you can specify \"-cutoff max\" for largest integer limit","",&iCutoff,100000);
+  AddParmUBigInt(&parmUBCSAT,"-cutoff","maximum number of search steps per run [default %s]","you can specify \"-cutoff max\" for largest integer limit","",&iCutoff,100000);
   AddParmFloat(&parmUBCSAT,"-timeout","maximum number of seconds per run","each run will terminate unsuccessfully after FL seconds,~or when the -cutoff is reached: whichever happens first~so use \"-cutoff max\" to ensure timeout times are reached","CheckTimeout",&fTimeOut,FLOATZERO);
   AddParmFloat(&parmUBCSAT,"-gtimeout","global timeout: maximum number of seconds for all runs","the current run and all remaining runs will terminate~after FL seconds","CheckTimeout",&fGlobalTimeOut,FLOATZERO);
-  AddParmUInt(&parmUBCSAT,"-noimprove","terminate run if no improvement in INT steps","if no improvement in the solution quality has been made~in INT steps, then the run will terminate~(for solution quality description see -target and -wtarget)","NoImprove",&iNoImprove,0);
+  AddParmUBigInt(&parmUBCSAT,"-noimprove","terminate run if no improvement in INT steps","if no improvement in the solution quality has been made~in INT steps, then the run will terminate~(for solution quality description see -target and -wtarget)","NoImprove",&iNoImprove,0);
   
   AddParmUInt(&parmUBCSAT,"-target","target solution quality","for regular (unweighted) algorithms, the solution quality~is measured as the number of false clauses~~for MAX-SAT (or for some other reason) you can set~the desired solution quality so that solution is found if~the number false clauses <= target~~default target solution quality is zero (no false clauses)","",&iTarget,0);
   AddParmFloat(&parmUBCSAT,"-wtarget","weighted target solution quality","similar to -target, except the solution quality is the~sum of the weights of the false clauses","",&fTargetW,0);
@@ -80,3 +84,8 @@ void AddParameters() {
   AddParmString(&parmIO,"-fileabort,-fa","specify a signal file to terminate all remaining runs","during a long execution with numerous runs, you can create~an abort file (the contents of the file are not important)~to prevent any remaining runs from starting...~the current run will finish and all reports will finish","FileAbort",&sFilenameAbort,"");
 
 }
+
+#ifdef __cplusplus
+
+}
+#endif

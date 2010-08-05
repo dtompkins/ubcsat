@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickRNovelty();
 void PickRNoveltyPlus();
 
@@ -83,8 +87,8 @@ void PickRNoveltyCore() {
   UINT32 iBestVar=0;
   UINT32 iSecondBestVar=0;
 
-  iBestScore = iNumClauses;
-  iSecondBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
+  iSecondBestScore = (SINT32) iNumClauses;
 
   if (iNumFalse) {
     iClause = aFalseList[RandomInt(iNumFalse)];
@@ -203,10 +207,10 @@ void PickRNoveltyPlus() {
   UINT32 iClauseLen;
   LITTYPE litPick;
 
-  /* with probability (iWp) uniformly choose an unsatisfied clause,
+  /* with probability (iNovWpDp) uniformly choose an unsatisfied clause,
      and then uniformly choose a literal from that clause */
 
-  if (RandomProb(iWp)) {
+  if (RandomProb(iNovWpDp)) {
     if (iNumFalse) {
       iClause = aFalseList[RandomInt(iNumFalse)];
       iClauseLen = aClauseLen[iClause];
@@ -224,3 +228,7 @@ void PickRNoveltyPlus() {
 
 }
 
+#ifdef __cplusplus
+
+}
+#endif

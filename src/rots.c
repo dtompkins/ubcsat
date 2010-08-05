@@ -22,13 +22,16 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 UINT32 iTabuTenureInterval;
 UINT32 iTabuTenureLow;
 UINT32 iTabuTenureHigh;
 
 void InitRoTS();
 void PickRoTS();
-void PickRoTSW();
 
 void AddRoTS() {
 
@@ -47,16 +50,6 @@ void AddRoTS() {
   CreateTrigger("InitRoTS",PostParameters,InitRoTS,"","");
   CreateTrigger("PickRoTS",ChooseCandidate,PickRoTS,"InitRoTS,VarLastChange,BestFalse","");
 
-  pCurAlg = CreateAlgorithm("rots","",1,
-    "RoTS: Robust TABU Search (weighted)",
-    "Taillard [Parallel Computing 1991], based on implementation by Stuetzle",
-    "PickRoTSW",
-    "DefaultProceduresW,Flip+VarScoreW",
-    "default_w","default");
-  
-  CopyParameters(pCurAlg,"rots","",FALSE);
-  CreateTrigger("PickRoTSW",ChooseCandidate,PickRoTSW,"InitRoTS,VarLastChange,BestFalse","");
-
 }
 
 void InitRoTS() {
@@ -71,7 +64,7 @@ void PickRoTS() {
   
   UINT32 j;
   SINT32 iScore;
-  UINT32 iTabuCutoff;
+  UBIGINT iTabuCutoff;
 
   /* every N steps, choose the tabu tenure uniformly from the tabu range */
 
@@ -93,7 +86,7 @@ void PickRoTS() {
   }
 
   iNumCandidates = 0;
-  iBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
 
   /* check all variables */
 
@@ -143,53 +136,7 @@ void PickRoTS() {
 
 }
 
-void PickRoTSW() {
+#ifdef __cplusplus
 
-  /* weighted varaint -- see regular algorithm for comments */
-  
-  UINT32 j;
-  FLOAT fScore;
-  UINT32 iTabuCutoff;
-
-  if (iTabuTenureLow != iTabuTenureHigh) {
-    if ((iStep % iNumVars)==0) {
-      iTabuTenure = iTabuTenureLow + RandomInt(iTabuTenureHigh - iTabuTenureLow);
-    }
-  }
-  if (iStep > iTabuTenure) {
-    iTabuCutoff = iStep - iTabuTenure;
-    if (iVarLastChangeReset > iTabuCutoff) {
-      iTabuCutoff = iVarLastChangeReset;
-    }
-  } else {
-    iTabuCutoff = 1;
-  }
-  iNumCandidates = 0;
-  fBestScore = fTotalWeight;
-  for (j=1;j<=iNumVars;j++) {
-    fScore = aVarScoreW[j];
-    if (aVarLastChange[j] >= iTabuCutoff) { 
-      if ((fSumFalseW + fScore) < fBestSumFalseW) {
-        iFlipCandidate = j;
-        return;
-      }
-    } else if ((iStep - aVarLastChange[j]) > (iNumVars * 10)) {
-      iFlipCandidate = j;
-      return;
-    } else { 
-      if (fScore <= fBestScore) {
-        if (fScore < fBestScore) {
-          iNumCandidates=0;
-          fBestScore = fScore;
-        }
-        aCandidateList[iNumCandidates++] = j;
-      }
-    }
-  }
-  if (iNumCandidates > 1) {
-    iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  } else {
-    iFlipCandidate = aCandidateList[0];
-  }
 }
-
+#endif

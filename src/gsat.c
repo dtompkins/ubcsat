@@ -22,9 +22,12 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickGSatSimple();
 void PickGSatWithBSL();
-void PickGSatW();
 
 void AddGSat() {
 
@@ -48,15 +51,6 @@ void AddGSat() {
   
   CreateTrigger("PickGSatSimple",ChooseCandidate,PickGSatSimple,"","");
 
-  pCurAlg = CreateAlgorithm("gsat","",TRUE,
-    "GSAT: Greedy search for SAT (weighted)",
-    "Selman, Levesque, Mitchell [AAAI 93]",
-    "PickGSatW",
-    "DefaultProceduresW,Flip+VarScoreW",
-    "default_w","default");
-  
-  CreateTrigger("PickGSatW",ChooseCandidate,PickGSatW,"","");
-
 }
 
 
@@ -66,7 +60,7 @@ void PickGSatSimple() {
   SINT32 iScore;
 
   iNumCandidates = 0;
-  iBestScore = iNumClauses;
+  iBestScore = (SINT32) iNumClauses;
 
   /* check score of all variables */
 
@@ -108,39 +102,6 @@ void PickGSatWithBSL() {
   }
 }
 
-
-void PickGSatW() {
-  
-  UINT32 j;
-  FLOAT fScore;
-
-  iNumCandidates = 0;
-  fBestScore = fTotalWeight;
-
-  /* check score of all variables */
-
-  for (j=1;j<=iNumVars;j++) {
-    
-    /* use cached value of weighted score */
-
-    fScore = aVarScoreW[j];
-
-    /* build candidate list of best vars */
-
-    if (fScore <= fBestScore) {
-      if (fScore < fBestScore) {
-        iNumCandidates=0;
-        fBestScore = fScore;
-      }
-      aCandidateList[iNumCandidates++] = j;
-    }
-  }
-  
-  /* select flip candidate uniformly from candidate list */
-  
-  if (iNumCandidates > 1) {
-    iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
-  } else {
-    iFlipCandidate = aCandidateList[0];
-  }
+#ifdef __cplusplus
 }
+#endif

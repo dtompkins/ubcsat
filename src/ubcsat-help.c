@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 /*  
   This file contains routines for displaying help 
 */
@@ -37,7 +41,7 @@ BOOL bShowHelpC;
 BOOL bShowHelpS;
 
 void HelpNoAlgorithm();
-void HelpBadReport();
+void HelpBadReport(char *sParm);
 void HelpPrintAlgorithms();
 void HelpPrintAlgorithmsW();
 void HelpPrintParms();
@@ -441,6 +445,15 @@ void HelpPrintReport(REPORT *pRep) {
         case PTypeString:
           ReportPrint1(pRepHelp," [%s] \n",(char *)pRep->aParameters[k]);          
           break;
+        case PTypeReport:
+        case PTypeProbability:
+        case PTypeBool:
+        case PTypeUBigInt:
+        case PTypeSBigInt:
+        case PTypeSInt:
+          ReportPrint(pRepErr,"Unexpected Error: bad report parameter\n");
+          AbnormalExit();
+          exit(1);
         default:
           break;
       }
@@ -522,6 +535,12 @@ void HelpPrintParameter(ALGPARM *pCurParm, BOOL bAlgOffset) {
     case PTypeSInt:
       sprintf(sHelpString,"%ld",pCurParm->defDefault.iSInt);
       break;
+    case PTypeUBigInt:
+      sprintf(sHelpString,"%llu",pCurParm->defDefault.iUBigInt);
+      break;
+    case PTypeSBigInt:
+      sprintf(sHelpString,"%lld",pCurParm->defDefault.iSBigInt);
+      break;
     case PTypeProbability:
       sprintf(sHelpString,"%.4g",ProbToFloat(pCurParm->defDefault.iProb));
       break;
@@ -554,9 +573,9 @@ void HelpPrintParameter(ALGPARM *pCurParm, BOOL bAlgOffset) {
     case PTypeBool:
       break;
     case PTypeUInt:
-      ReportPrint(pRepHelp,"INT ");
-      break;
     case PTypeSInt:
+    case PTypeUBigInt:
+    case PTypeSBigInt:
       ReportPrint(pRepHelp,"INT ");
       break;
     case PTypeProbability:
@@ -636,6 +655,12 @@ void HelpPrintParametersTerse(ALGPARMLIST *pParmList) {
         break;
       case PTypeSInt:
         sprintf(sHelpString,"%ld",pCurParm->defDefault.iSInt);
+        break;
+      case PTypeUBigInt:
+        sprintf(sHelpString,"%llu",pCurParm->defDefault.iUBigInt);
+        break;
+      case PTypeSBigInt:
+        sprintf(sHelpString,"%lld",pCurParm->defDefault.iSBigInt);
         break;
       case PTypeProbability:
         sprintf(sHelpString,"%.4g",ProbToFloat(pCurParm->defDefault.iProb));
@@ -766,7 +791,10 @@ void HelpBadReport(char *sParm) {
   exit(1);
 }
 
+#ifdef __cplusplus
 
+}
+#endif
 
 
 

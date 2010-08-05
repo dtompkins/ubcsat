@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickDCRWalk();
 void CreateClausePickCount();
 void InitClausePickCount();
@@ -183,8 +187,8 @@ void PickDANOVP() {
       }
     }
  
-    iBestScore = iNumClauses;
-    iSecondBestScore = iNumClauses;
+    iBestScore = (SINT32) iNumClauses;
+    iSecondBestScore = (SINT32) iNumClauses;
       
     iClauseLen = aClauseLen[iClausePick];
 
@@ -295,4 +299,7 @@ void AdaptNoveltyNoiseDet() {
   }
 }
 
+#ifdef __cplusplus
 
+}
+#endif

@@ -167,8 +167,8 @@ extern UINT32 *aVarInFalseListPos;
 */
 
 void UpdateVarLastChange();
-extern UINT32 *aVarLastChange;
-extern UINT32 iVarLastChangeReset;
+extern UBIGINT *aVarLastChange;
+extern UBIGINT iVarLastChangeReset;
 
 
 /***** Trigger TrackChanges *****/
@@ -182,12 +182,12 @@ extern UINT32 iVarLastChangeReset;
 extern UINT32 iNumChanges;
 extern UINT32 *aChangeList;
 extern SINT32 *aChangeOldScore;
-extern UINT32 *aChangeLastStep;
+extern UBIGINT *aChangeLastStep;
 
 extern UINT32 iNumChangesW;
 extern UINT32 *aChangeListW;
 extern FLOAT *aChangeOldScoreW;
-extern UINT32 *aChangeLastStepW;
+extern UBIGINT *aChangeLastStepW;
 
 #define UpdateChange(var) {if(aChangeLastStep[var]!=iStep) {aChangeOldScore[var] = aVarScore[var]; aChangeLastStep[var]=iStep; aChangeList[iNumChanges++]=var;}}
 
@@ -275,7 +275,7 @@ extern UINT32 *aBreakPenaltyINT;
     iNumNullFlips         number of null flips (steps where iFlipCandidate == 0)
 */
 
-extern UINT32 iNumNullFlips;
+extern UBIGINT iNumNullFlips;
 
  
 /***** Trigger LocalMins *****/
@@ -283,7 +283,7 @@ extern UINT32 iNumNullFlips;
     LocalMins              number of local minima encountered this run
 */
 
-extern UINT32 iNumLocalMins;
+extern UBIGINT iNumLocalMins;
 
 
 /***** Trigger LogDist *****/
@@ -293,7 +293,7 @@ extern UINT32 iNumLocalMins;
     iLogDistStepsPerDecade    # of elements in aLogDistValues per decade
 */
 
-extern UINT32 *aLogDistValues;
+extern UBIGINT *aLogDistValues;
 extern UINT32 iNumLogDistValues;
 extern UINT32 iLogDistStepsPerDecade;
 
@@ -307,9 +307,9 @@ extern UINT32 iLogDistStepsPerDecade;
 */
 
 extern UINT32 iBestNumFalse;
-extern UINT32 iBestStepNumFalse;
+extern UBIGINT iBestStepNumFalse;
 extern FLOAT fBestSumFalseW;
-extern UINT32 iBestStepSumFalseW;
+extern UBIGINT iBestStepSumFalseW;
 
 
 /***** Trigger SaveBest *****/
@@ -349,9 +349,9 @@ extern FLOAT fImproveMeanW;
 */
 
 extern UINT32 iFirstLM;
-extern UINT32 iFirstLMStep;
+extern UBIGINT iFirstLMStep;
 extern FLOAT fFirstLMW;
-extern UINT32 iFirstLMStepW;
+extern UBIGINT iFirstLMStepW;
 
 
 /***** Trigger FirstLMRatio *****/
@@ -385,7 +385,7 @@ extern FLOAT fTrajBestLMCVW;
     iNoImprove            terminate this run if no improvement in iNoImprove steps
 */
 
-extern UINT32 iNoImprove;
+extern UBIGINT iNoImprove;
 
 
 /***** Trigger StartSeed *****/
@@ -415,7 +415,7 @@ extern UINT32 iStartSeed;
     aFlipCounts[j]        # of times that variable[j] has been flipped this run
 */
 
-extern UINT32 *aFlipCounts;
+extern UBIGINT *aFlipCounts;
 
 
 /***** Trigger FlipCountStats *****/
@@ -436,8 +436,8 @@ extern FLOAT fFlipCountsStdDev;
     aBiasFalseCounts[j] # of steps that variable[j] has been False
 */
 
-extern UINT32 *aBiasTrueCounts;
-extern UINT32 *aBiasFalseCounts;
+extern UBIGINT *aBiasTrueCounts;
+extern UBIGINT *aBiasFalseCounts;
 
 
 /***** Trigger BiasStats *****/
@@ -455,7 +455,7 @@ extern FLOAT fMeanMaxBias;
     aUnsatCounts[j]       # of steps that clause[j] has been unsatisfied
 */
 
-extern UINT32 *aUnsatCounts;
+extern UBIGINT *aUnsatCounts;
 
 
 /***** Trigger UnsatCountStats *****/
@@ -476,8 +476,8 @@ extern FLOAT fUnsatCountsStdDev;
     aNumFalseCountsWindow[j]  NumFalse values for the last iReportFalseHistCount steps
 */
 
-extern UINT32 *aNumFalseCounts;
-extern UINT32 *aNumFalseCountsWindow;
+extern UBIGINT *aNumFalseCounts;
+extern UBIGINT *aNumFalseCountsWindow;
 
 
 /***** Trigger DistanceCounts *****/
@@ -486,8 +486,8 @@ extern UINT32 *aNumFalseCountsWindow;
     aDistanceCountsWindow[j]  Hamming Distance values for the last iReportDistHistCount steps
 */
 
-extern UINT32 *aDistanceCounts;
-extern UINT32 *aDistanceCountsWindow;
+extern UBIGINT *aDistanceCounts;
+extern UBIGINT *aDistanceCountsWindow;
 
 
 /***** Trigger ClauseLast *****/
@@ -495,7 +495,7 @@ extern UINT32 *aDistanceCountsWindow;
     aClauseLast[j]        last step # for which clause[j] was unsatisfied
 */
 
-extern UINT32 *aClauseLast;
+extern UBIGINT *aClauseLast;
 
 
 /***** Trigger ClauseLast *****/
@@ -605,12 +605,12 @@ extern FLOAT fBranchFactorW;
     iNumSideSteps       Number of "sideways" steps this run
 */
   
-extern UINT32 iNumUpSteps;
-extern UINT32 iNumDownSteps;
-extern UINT32 iNumSideSteps;
-extern UINT32 iNumUpStepsW;
-extern UINT32 iNumDownStepsW;
-extern UINT32 iNumSideStepsW;
+extern UBIGINT iNumUpSteps;
+extern UBIGINT iNumDownSteps;
+extern UBIGINT iNumSideSteps;
+extern UBIGINT iNumUpStepsW;
+extern UBIGINT iNumDownStepsW;
+extern UBIGINT iNumSideStepsW;
 
 
 /***** Trigger NumRestarts *****/

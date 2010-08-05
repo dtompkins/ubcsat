@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 /* note that this IRoTS implementation differs slightly from
    the previously published software... in mostly unimportant
    ways.  in this implementation we have strived to match the
@@ -40,8 +44,8 @@ UINT32 iLSTabuTenureHigh;
 UINT32 iPerturbTabuTenureLow;
 UINT32 iPerturbTabuTenureHigh;
 
-UINT32 iIrotsLSBestStep;
-UINT32 iIrotsLSBestValue;
+UBIGINT iIrotsLSBestStep;
+UBIGINT iIrotsLSBestValue;
 FLOAT fIrotsLSBestValueW;
 
 UINT32 iIrotsSavedValue;
@@ -82,15 +86,6 @@ void AddIRoTS() {
   CreateTrigger("PostStepIRoTS",PostStep,PostStepIRoTS,"InitIRoTS,InitIRoTSParms","");
 
   CreateTrigger("CreateIRoTSBackup",CreateStateInfo,CreateIRoTSBackup,"","");
-
-  pCurAlg = CreateAlgorithm("irots","",TRUE,
-    "IRoTS: Iterated Robust TABU Search (weighted)",
-    "Smyth, Hoos, Stuetzle [AI 2003]",
-    "PickRoTSW,PostStepIRoTS",
-    "DefaultProceduresW,Flip+VarScoreW,CreateIRoTSBackup",
-    "default_w","default");
-  
-  CopyParameters(pCurAlg,"irots","",FALSE);
 
 }
 
@@ -319,3 +314,7 @@ void IRoTSRestore() {
   }
 }
 
+#ifdef __cplusplus
+
+}
+#endif

@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 FLOAT fAlpha;
 FLOAT fRho;
 FLOAT fPenaltyImprove;
@@ -33,8 +37,6 @@ const FLOAT fMaxClausePenalty = 1000.0f;
 
 void PickSAPS();
 void PostFlipSAPS();
-
-void PostFlipSAPSWSmooth();
 
 void InitRSAPS();
 void PickRSAPS();
@@ -65,31 +67,6 @@ void AddSAPS() {
   CreateTrigger("PostFlipSAPS",PostFlip,PostFlipSAPS,"","");
 
 
-
-  pCurAlg = CreateAlgorithm("saps","winit",TRUE,
-    "SAPS: (weighted -- init to weights)",
-    "Hutter, Tompkins, Hoos [CP 02]",
-    "PickSAPS,PostFlipSAPS",
-    "DefaultProceduresW,InitClausePenaltyFLW,Flip+MBPFL+FCL+VIF+W",
-    "default_w","default");
-  
-  CopyParameters(pCurAlg,"saps","",FALSE);
-
-
-
-  pCurAlg = CreateAlgorithm("saps","wsmooth",TRUE,
-    "SAPS: (weighted -- init and smooth to weights)",
-    "Hutter, Tompkins, Hoos [CP 02]",
-    "PickSAPS,PostFlipSAPSWSmooth",
-    "DefaultProceduresW,InitClausePenaltyFLW,Flip+MBPFL+FCL+VIF+W",
-    "default_w","default");
-  
-  CopyParameters(pCurAlg,"saps","",FALSE);
-
-  CreateTrigger("PostFlipSAPSWSmooth",PostFlip,PostFlipSAPSWSmooth,"","");
-
-
-
   pCurAlg = CreateAlgorithm("rsaps","",FALSE,
     "RSAPS: Reactive Scaling And Probabilistic Smoothing",
     "Hutter, Tompkins, Hoos [CP 02]",
@@ -101,7 +78,6 @@ void AddSAPS() {
 
   CreateTrigger("PostFlipRSAPS",PostFlip,PostFlipRSAPS,"","");
   CreateTrigger("InitRSAPS",PostInit,InitRSAPS,"","");
-
 
 
   pCurAlg = CreateAlgorithm("sapsnr","",FALSE,
@@ -316,58 +292,6 @@ void PostFlipSAPS() {
 
 }
 
-void SmoothSAPSWSmooth() {
-  
-  UINT32 j;
-  UINT32 k;
-  FLOAT fOld;
-  FLOAT fDiff;
-  LITTYPE *pLit;
-
-  fTotalPenaltyFL = FLOATZERO;
-  fMaxPenaltyFL = FLOATZERO;
- 
-  for(j=0;j<iNumClauses;j++) {
-
-  /* smooth penalties back towards original clause weights */
-
-    fOld = aClausePenaltyFL[j];
-    aClausePenaltyFL[j] = aClausePenaltyFL[j] * fRho + aClauseWeight[j] * (1-fRho);
-    fDiff = aClausePenaltyFL[j] - fOld;
-
-    if (aNumTrueLit[j]==0) {
-      pLit = pClauseLits[j];
-      for (k=0;k<aClauseLen[j];k++) {
-        aMakePenaltyFL[GetVarFromLit(*pLit)] += fDiff;
-        pLit++;
-      }
-    }
-    if (aNumTrueLit[j]==1) {
-      aBreakPenaltyFL[aCritSat[j]] += fDiff;
-    }
-    fTotalPenaltyFL += aClausePenaltyFL[j];
-    if (aClausePenaltyFL[j] > fMaxPenaltyFL) {
-      fMaxPenaltyFL = aClausePenaltyFL[j];
-    }
-  }
-
-}
-
-void PostFlipSAPSWSmooth() {
-  if (iFlipCandidate) {
-    return;
-  }
-
-  if (RandomProb(iPs)) {
-    SmoothSAPSWSmooth();
-  }
-
-  /* no call to AdjustPenalties() for WSmooth variant*/
-  
-  ScaleSAPS();
-
-}
-
 void InitRSAPS() {
   iLastAdaptStep=0;
   iLastAdaptNumFalse=iNumFalse;
@@ -483,4 +407,7 @@ void PickSAPSNR() {
   }
 }
 
+#ifdef __cplusplus
 
+}
+#endif

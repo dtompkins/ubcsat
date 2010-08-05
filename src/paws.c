@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void PickPAWS();
 void PostFlipPAWS();
 
@@ -93,7 +97,7 @@ void PickPAWS() {
 
     /* use cached value of breakcount - makecount */
 
-    iScore = aBreakPenaltyINT[iVar] - aMakePenaltyINT[iVar];
+    iScore = (SINT32) aBreakPenaltyINT[iVar] - (SINT32) aMakePenaltyINT[iVar];
 
     /* build candidate list of best vars */
 
@@ -262,3 +266,7 @@ void PostFlipPAWS() {
 
 }
 
+#ifdef __cplusplus
+
+}
+#endif

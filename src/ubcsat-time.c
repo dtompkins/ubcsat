@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 /*  
     This file contains the code for timestamping.
     Hopefully you won't have any problems compiling in your environment
@@ -116,8 +120,12 @@ void StopTotalClock() {
   fTotalTime = TotalTimeElapsed();
 }
 
-
 void StopRunClock() {
   fRunTime = RunTimeElapsed();
 }
+
+#ifdef __cplusplus
+
+}
+#endif
 

@@ -22,6 +22,10 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 REPORT *pRepHelp;
 REPORT *pRepErr;
 
@@ -185,11 +189,11 @@ void AddReports() {
     ,&bSolutionFound,"",ColTypeFinal);
 
 
-  AddColumnUInt("steps","Total Number of Search Steps",
-    "     Total",
-    "    Search",
-    "     Steps",
-    "%10u",
+  AddColumnUBigInt("steps","Total Number of Search Steps",
+    "               Total",
+    "              Search",
+    "               Steps",
+    "%20llu",
     &iStep,"",ColTypeFinal);
 
   AddStatCol("steps","Steps","mean+cv+median",TRUE);
@@ -281,20 +285,20 @@ void AddReports() {
   AddStatCol("start_w","StartWeightedSolution","mean",FALSE);
 
 
-  AddColumnUInt("beststep","Step of Best (Lowest) # of False Clauses Found",
-    "      Step",
-    "        of",
-    "      Best",
-    "%10u",
+  AddColumnUBigInt("beststep","Step of Best (Lowest) # of False Clauses Found",
+    "                Step",
+    "                  of",
+    "                Best",
+    "%20llu",
     &iBestStepNumFalse,"BestFalse",ColTypeFinal);
 
   AddStatCol("beststep","BestStep","mean",FALSE);
   
-  AddColumnUInt("beststep_w","Step of Best Weighted Solution Quality Found",
-    "      Step",
-    "        of",
-    "    W Best",
-    "%10u",
+  AddColumnUBigInt("beststep_w","Step of Best Weighted Solution Quality Found",
+    "                Step",
+    "                  of",
+    "              W Best",
+    "%20llu",
     &iBestStepSumFalseW,"BestFalse",ColTypeFinal);
 
   AddStatCol("beststep_w","BestWeightedStep","mean",FALSE);
@@ -338,20 +342,20 @@ void AddReports() {
   AddStatCol("firstlm_w","FirstWeightedLocalMin","mean",FALSE);
 
 
-  AddColumnUInt("firstlmstep","Step of the First Local Minimum Encountered",
+  AddColumnUBigInt("firstlmstep","Step of the First Local Minimum Encountered",
     " Step",
     "of1st",
     "L.Min",
-    "%5u",
+    "%5llu",
     &iFirstLMStep,"FirstLM",ColTypeFinal);
 
   AddStatCol("firstlmstep","FirstLocalMinStep","mean",FALSE);
 
-  AddColumnUInt("firstlmstep_w","Step of the First Weighted Local Minimum Encountered",
+  AddColumnUBigInt("firstlmstep_w","Step of the First Weighted Local Minimum Encountered",
     " Step",
     "of1st",
     "WLMin",
-    "%5u",
+    "%5llu",
     &iFirstLMStepW,"FirstLM",ColTypeFinal);
 
   AddStatCol("firstlmstep_w","FirstWeightedLocalMinStep","mean",FALSE);
@@ -476,16 +480,16 @@ void AddReports() {
     &iStartSeed,"StartSeed",ColTypeFinal);
 
   
-  AddColumnUInt("nullflips","Number of Null Flips",
-    "    Number",
-    "   of Null",
-    "     Flips",
-    "%10u",
+  AddColumnUBigInt("nullflips","Number of Null Flips",
+    "              Number",
+    "             of Null",
+    "               Flips",
+    "%20llu",
     &iNumNullFlips,"NullFlips",ColTypeFinal);
 
   AddStatCol("nullflips","NullFlips","mean",FALSE);
   
-  AddColumnUInt("percentnull","Percent of Null Flips",
+  AddColumnUBigInt("percentnull","Percent of Null Flips",
     "Percent",
     "   Null",
     "  Flips",
@@ -505,16 +509,16 @@ void AddReports() {
   AddStatCol("restarts","NumRestarts","mean",FALSE);
 
 
-  AddColumnUInt("rand","Number of Random Decisions",
-    "    Number",
-    " of Random",
-    " Decisions",
-    "%10u",
+  AddColumnUBigInt("rand","Number of Random Decisions",
+    "              Number",
+    "           of Random",
+    "           Decisions",
+    "%20llu",
     &iNumRandomCalls,"CountRandom",ColTypeFinal);
 
   AddStatCol("rand","NumRandomDecisions","mean",FALSE);
 
-  AddColumnUInt("randstep","Mean Number of Random Decisions Per Step",
+  AddColumnUBigInt("randstep","Mean Number of Random Decisions Per Step",
     "Avg. Rand",
     "Decisions",
     " per step",
@@ -534,16 +538,16 @@ void AddReports() {
   AddStatCol("candidates","FlipCandidatesMean","mean",FALSE);
 
 
-  AddColumnUInt("localmins","Number of Local Minima Encountered",
-    "    Number",
-    "  of Local",
-    "    Minima",
-    "%10u",
+  AddColumnUBigInt("localmins","Number of Local Minima Encountered",
+    "              Number",
+    "            of Local",
+    "              Minima",
+    "%20llu",
     &iNumLocalMins,"LocalMins",ColTypeFinal);
 
   AddStatCol("localmins","LocalMins","mean",FALSE);
 
-  AddColumnUInt("percentlocal","Percent of Steps in Local Minima",
+  AddColumnUBigInt("percentlocal","Percent of Steps in Local Minima",
     "Percent",
     "  Local",
     " Minima",
@@ -718,21 +722,21 @@ void AddReports() {
   AddStatCol("mobxcv","MobilitySizeXMean","mean",FALSE);
 
 
-  AddColumnUInt("upsteps","Number of Up (Backward) Steps",
-    "    Number",
-    "     of Up",
-    "     Steps",
-    "%10u",
+  AddColumnUBigInt("upsteps","Number of Up (Backward) Steps",
+    "              Number",
+    "               of Up",
+    "               Steps",
+    "%20llu",
     &iNumUpSteps,"StepsUpDownSide",ColTypeFinal);
 
-  AddColumnUInt("upsteps_w","Number of Up (Backward) Weighted Steps",
-    "    Number",
-    "     of Up",
-    "  W. Steps",
-    "%10u",
+  AddColumnUBigInt("upsteps_w","Number of Up (Backward) Weighted Steps",
+    "              Number",
+    "               of Up",
+    "            W. Steps",
+    "%20llu",
     &iNumUpStepsW,"StepsUpDownSide",ColTypeFinal);
 
-  AddColumnUInt("percentup","Percent of Up (Backward) Steps",
+  AddColumnUBigInt("percentup","Percent of Up (Backward) Steps",
     "Percent",
     "  of Up",
     "  Steps",
@@ -741,7 +745,7 @@ void AddReports() {
 
   AddStatCol("percentup","PercentUpSteps","mean",FALSE);
 
-  AddColumnUInt("percentup_w","Percent of Up (Backward) Weighted Steps",
+  AddColumnUBigInt("percentup_w","Percent of Up (Backward) Weighted Steps",
     "Percent",
     "  of Up",
     "W.Steps",
@@ -751,21 +755,21 @@ void AddReports() {
   AddStatCol("percentup_w","PercentWeightedUpSteps","mean",FALSE);
 
 
-  AddColumnUInt("downsteps","Number of Down (Improving) Steps",
-    "    Number",
-    "   of Down",
-    "     Steps",
-    "%10u",
+  AddColumnUBigInt("downsteps","Number of Down (Improving) Steps",
+    "              Number",
+    "             of Down",
+    "               Steps",
+    "%20llu",
     &iNumDownSteps,"StepsUpDownSide",ColTypeFinal);
 
-  AddColumnUInt("downsteps_w","Number of Down (Improving) Weighted Steps",
-    "    Number",
-    "   of Down",
-    "   W.Steps",
-    "%10u",
+  AddColumnUBigInt("downsteps_w","Number of Down (Improving) Weighted Steps",
+    "              Number",
+    "             of Down",
+    "             W.Steps",
+    "%20llu",
     &iNumDownStepsW,"StepsUpDownSide",ColTypeFinal);
 
-  AddColumnUInt("percentdown","Percent of Down (Improving) Steps",
+  AddColumnUBigInt("percentdown","Percent of Down (Improving) Steps",
     "Percent",
     "of Down",
     "  Steps",
@@ -774,7 +778,7 @@ void AddReports() {
 
   AddStatCol("percentdown","PercentUpSteps","mean",FALSE);
   
-  AddColumnUInt("percentdown_w","Percent of Down (Improving) Weighted Steps",
+  AddColumnUBigInt("percentdown_w","Percent of Down (Improving) Weighted Steps",
     "Percent",
     "of Down",
     "W.Steps",
@@ -784,21 +788,21 @@ void AddReports() {
   AddStatCol("percentdown_w","PercentWeightedUpSteps","mean",FALSE);
 
 
-  AddColumnUInt("sidesteps","Number of Sideways (Plateau) Steps",
-    " Number of",
-    "  Sideways",
-    "     Steps",
-    "%10u",
+  AddColumnUBigInt("sidesteps","Number of Sideways (Plateau) Steps",
+    "           Number of",
+    "            Sideways",
+    "               Steps",
+    "%20llu",
     &iNumSideSteps,"StepsUpDownSide",ColTypeFinal);
 
-  AddColumnUInt("sidesteps_w","Number of Sideways (Plateau) Weighted Steps",
-    " Number of",
-    "  Sideways",
-    "  W. Steps",
-    "%10u",
+  AddColumnUBigInt("sidesteps_w","Number of Sideways (Plateau) Weighted Steps",
+    "           Number of",
+    "            Sideways",
+    "            W. Steps",
+    "%20llu",
     &iNumSideStepsW,"StepsUpDownSide",ColTypeFinal);
 
-  AddColumnUInt("percentside","Percent of Sideways (Plateau) Steps",
+  AddColumnUBigInt("percentside","Percent of Sideways (Plateau) Steps",
     "Percent",
     "Sideway",
     "  Steps",
@@ -807,7 +811,7 @@ void AddReports() {
 
   AddStatCol("percentside","PercentSideSteps","mean",FALSE);
 
-  AddColumnUInt("percentside_w","Percent of Sideways (Plateau) Weighted Steps",
+  AddColumnUBigInt("percentside_w","Percent of Sideways (Plateau) Weighted Steps",
     "Percent",
     "Sideway",
     "W.Steps",
@@ -893,3 +897,7 @@ void AddReports() {
 
 }
 
+#ifdef __cplusplus
+
+}
+#endif
