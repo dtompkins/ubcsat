@@ -2013,7 +2013,7 @@ void ReportMultiAlgSwitch() {
     ReportHdrPrint(pRepMultiAlgSwitch," Run ID | Steps # | Algorithm #\n");
   }
   if (iMultiAlgCurrent != iMultiAlgPrevious) {
-    ReportPrint3(pRepMultiAlgSwitch,"%lu %lu %d\n",iRun,iStep,iMultiAlgCurrent); //todo llu
+    ReportPrint3(pRepMultiAlgSwitch,"%lu %lu %lu\n",iRun,iStep,iMultiAlgCurrent); //todo llu
   }
   iMultiAlgPrevious = iMultiAlgCurrent;
 }
