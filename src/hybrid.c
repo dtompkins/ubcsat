@@ -22,13 +22,18 @@
 
 #include "ubcsat.h"
 
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 void InitHybridInfo();
 void UpdateHybridInfo();
+void PickHybrid();
 
-void PickHybrid1();
+void InitNoVWSmoothing();
+
 void InitHybrid1();
-
-void PickHybrid2();
+void InitHybrid2();
 
 FLOAT fHybridGamma;
 FLOAT fVW2WeightMax;
@@ -40,14 +45,20 @@ void AddHybrid() {
   pCurAlg = CreateAlgorithm("hybrid","",FALSE,
    "Hybrid: Switch between VW and adaptG2WSAT+ (paper version)",
     "Wei, Li, Zhang  [JSAT 08]",
-    "PickHybrid2,InitHybridInfo,UpdateHybridInfo,InitHybrid1",
+    "PickHybrid,InitHybridInfo,UpdateHybridInfo,InitNoVWSmoothing,ConfigureG2WSatGeneral",
     "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange,LookAhead,AdaptG2WSatNoise,VW2Weights",
     "default","default");
 
   AddParmFloat(&pCurAlg->parmList,"-gamma","Hybrid switching criteria [default %s]","paramater to adjust selecting VW over AdaptG2WSAT*~use VW if max.vw2w > gamma * avg.vw2w","",&fHybridGamma,10);
 
+  AddParmUInt(&pCurAlg->parmList,"-sub","G2WSAT sub-algortihm [default %s]","0: Novelty+~1:Novelty++~2:Novelty+p~3:Novelty++p~4:Novelty++0~5:Novelty++1~6:Novelty++2","",&iG2WsatSubAlgID,0);
+  AddParmBool(&pCurAlg->parmList,"-psel","decreasing promising variable selection [default %s]","0: best~1:oldest~2:random","",&iG2WsatPromSelectID,1);
+  // todo add auto-smoothing
+
+  CreateTrigger("PickHybrid",ChooseCandidate,PickHybrid,"","");
   CreateTrigger("InitHybridInfo",InitStateInfo,InitHybridInfo,"","");
   CreateTrigger("UpdateHybridInfo",UpdateStateInfo,UpdateHybridInfo,"","UpdateVW2Weights");
+  CreateTrigger("InitNoVWSmoothing",InitStateInfo,InitNoVWSmoothing,"","");
 
 
   pCurAlg = CreateAlgorithm("hybrid","2007",FALSE,
@@ -59,18 +70,17 @@ void AddHybrid() {
 
   AddParmFloat(&pCurAlg->parmList,"-gamma","Hybrid1 switching criteria [default %s]","paramater to adjust selecting VW over AdaptG2WSAT*~use VW if max.vw2w > gamma * avg.vw2w","",&fHybridGamma,15);
 
-  CreateTrigger("PickHybrid1",ChooseCandidate,PickHybrid1,"","");
   CreateTrigger("InitHybrid1",InitStateInfo,InitHybrid1,"","");
-
 
   pCurAlg = CreateAlgorithm("hybrid","2009",FALSE,
    "Hybrid2: Switch between VW and adaptG2WSAT+ (Sat09 version)",
     "Wei, Li, Zhang  [JSAT 08]",
-    "PickHybrid2,InitHybridInfo,UpdateHybridInfo,InitVW2Auto,UpdateVW2Auto",
+    "PickHybrid,InitHybridInfo,UpdateHybridInfo,InitVW2Auto,UpdateVW2Auto,InitHybrid2",
     "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange,LookAhead,AdaptG2WSatNoise,VW2Weights",
     "default","default");
   AddParmFloat(&pCurAlg->parmList,"-gamma","Hybrid2 switching criteria [default %s]","paramater to adjust selecting VW over AdaptG2WSAT*~use VW if max.vw2w > gamma * avg.vw2w","",&fHybridGamma,1.025);
-  CreateTrigger("PickHybrid2",ChooseCandidate,PickHybrid2,"","");
+
+  CreateTrigger("InitHybrid2",InitStateInfo,InitHybrid2,"","");
 
 }
 
@@ -90,25 +100,33 @@ void UpdateHybridInfo() {
   }
 }
 
-void PickHybrid1() {
+void PickHybrid() {
   if (fVW2WeightMax >= fHybridGamma * fVW2WeightMean) {
     iMultiAlgCurrent = 3;
     PickVW2Auto();
   } else {
-    PickG2WSatP();
+    PickG2WSatGeneral();
   }
 }
 
-void InitHybrid1() {
+void InitNoVWSmoothing() {
   iMaxExpProbability=2;
   fVW2Smooth = 0.0f;
 }
 
-void PickHybrid2() {
-  if (fVW2WeightMax > fHybridGamma * fVW2WeightMean) {
-    iMultiAlgCurrent = 3;
-    PickVW2Auto();
-  } else {
-    PickG2WSatNoveltyPlusOldest();
-  }
+void InitHybrid1() {
+  iG2WsatSubAlgID = 2;
+  iG2WsatPromSelectID = 1;
+  ConfigureG2WSatGeneral();
+  InitNoVWSmoothing();
 }
+
+void InitHybrid2() {
+  iG2WsatSubAlgID = 0;
+  iG2WsatPromSelectID = 1;
+  ConfigureG2WSatGeneral();
+}
+
+#ifdef __cplusplus 
+}
+#endif

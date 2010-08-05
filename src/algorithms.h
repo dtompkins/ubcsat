@@ -131,6 +131,8 @@ void AddDDFW();
 
 void AddG2WSat();
 void AdaptG2WSatNoise();
+void PickG2WSatGeneral();
+void ConfigureG2WSatGeneral();
 extern UINT32 iG2WsatSubAlgID;
 extern UINT32 iG2WsatPromSelectID;
 extern FXNPTR fxnG2WsatNovelty;
