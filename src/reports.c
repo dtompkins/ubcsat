@@ -821,30 +821,30 @@ void AddReports() {
   AddStatCol("percentside_w","PercentWeightedSideSteps","mean",FALSE);
 
 
-  AddColumnUInt("percentalg1","Percent of Algorithm 1 Steps",
+  AddColumnUBigInt("percentalg1","Percent of Algorithm 1 Steps",
     "      ",
-    "     %%",
+    " Prcnt",
     " Alg 1",
     "%6.2f",
     &aMultiAlgCounts[1],"MultiAlgCounts",ColTypeFinalDivStep100);
 
-  AddColumnUInt("percentalg2","Percent of Algorithm 2 Steps",
+  AddColumnUBigInt("percentalg2","Percent of Algorithm 2 Steps",
     "      ",
-    "     %%",
+    " Prcnt",
     " Alg 2",
     "%6.2f",
     &aMultiAlgCounts[2],"MultiAlgCounts",ColTypeFinalDivStep100);
 
-  AddColumnUInt("percentalg3","Percent of Algorithm 3 Steps",
+  AddColumnUBigInt("percentalg3","Percent of Algorithm 3 Steps",
     "      ",
-    "     %%",
+    " Prcnt",
     " Alg 3",
     "%6.2f",
     &aMultiAlgCounts[3],"MultiAlgCounts",ColTypeFinalDivStep100);
 
-  AddColumnUInt("percentalg4","Percent of Algorithm 4 Steps",
+  AddColumnUBigInt("percentalg4","Percent of Algorithm 4 Steps",
     "      ",
-    "     %%",
+    " Prcnt",
     " Alg 4",
     "%6.2f",
     &aMultiAlgCounts[4],"MultiAlgCounts",ColTypeFinalDivStep100);

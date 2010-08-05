@@ -2019,7 +2019,7 @@ void ReportMultiAlgCounts() {
   }
   ReportPrint1(pRepMultiAlgCounts,"%lu",iRun);
   for (j=1;j<(iNumMultiAlgs+1);j++) {
-    ReportPrint1(pRepMultiAlgCounts," %lu",aMultiAlgCounts[j]); // todo UBIGINT
+    ReportPrint1(pRepMultiAlgCounts," %llu",aMultiAlgCounts[j]);
   }
   ReportPrint(pRepBiasCounts,"\n");
 }
@@ -2035,7 +2035,7 @@ void ReportMultiAlgSwitch() {
     ReportHdrPrint(pRepMultiAlgSwitch," Run ID | Steps # | Algorithm #\n");
   }
   if (iMultiAlgCurrent != iMultiAlgPrevious) {
-    ReportPrint3(pRepMultiAlgSwitch,"%lu %lu %lu\n",iRun,iStep,iMultiAlgCurrent); //todo llu
+    ReportPrint3(pRepMultiAlgSwitch,"%lu %llu %lu\n",iRun,iStep,iMultiAlgCurrent); //todo llu
   }
   iMultiAlgPrevious = iMultiAlgCurrent;
 }

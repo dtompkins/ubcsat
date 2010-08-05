@@ -697,7 +697,7 @@ void CreateVarsShareClauses();
 
 /***** Trigger MultiAlgCounts *****/
 
-UINT32 aMultiAlgCounts[MAXMULTIALGS+1];
+UBIGINT aMultiAlgCounts[MAXMULTIALGS+1];
 UINT32 iNumMultiAlgs;
 UINT32 iMultiAlgCurrent;
 
@@ -5064,14 +5064,14 @@ void CreateVarsShareClauses() {
 }
 
 void CreateMultiAlgCounts() {
-  //aMultiAlgCounts = (UINT32 *) AllocateRAM((MAXMULTIALGS+1)*sizeof(UINT32));
+  //aMultiAlgCounts = (UBIGINT *) AllocateRAM((MAXMULTIALGS+1)*sizeof(UBIGINT));
   iNumMultiAlgs = 1;
 }
 
 void InitMultiAlgCounts() {
   if (iStep == 1) {
     iMultiAlgCurrent = 0;
-    memset(aMultiAlgCounts,0,(MAXMULTIALGS+1)*sizeof(UINT32));
+    memset(aMultiAlgCounts,0,(MAXMULTIALGS+1)*sizeof(UBIGINT));
   }
 }
 

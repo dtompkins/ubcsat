@@ -677,6 +677,6 @@ extern UINT32 iLastUnique;
     iMultiAlgCurrent         algorithm # for the current step
 */
 
-extern UINT32 aMultiAlgCounts[];
+extern UBIGINT aMultiAlgCounts[];
 extern UINT32 iNumMultiAlgs;
 extern UINT32 iMultiAlgCurrent;
