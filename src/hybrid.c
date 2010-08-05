@@ -37,6 +37,19 @@ void AddHybrid() {
 
   ALGORITHM *pCurAlg;
 
+  pCurAlg = CreateAlgorithm("hybrid","",FALSE,
+   "Hybrid: Switch between VW and adaptG2WSAT+ (paper version)",
+    "Wei, Li, Zhang  [JSAT 08]",
+    "PickHybrid2,InitHybridInfo,UpdateHybridInfo,InitHybrid1",
+    "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange,LookAhead,AdaptG2WSatNoise,VW2Weights",
+    "default","default");
+
+  AddParmFloat(&pCurAlg->parmList,"-gamma","Hybrid switching criteria [default %s]","paramater to adjust selecting VW over AdaptG2WSAT*~use VW if max.vw2w > gamma * avg.vw2w","",&fHybridGamma,10);
+
+  CreateTrigger("InitHybridInfo",InitStateInfo,InitHybridInfo,"","");
+  CreateTrigger("UpdateHybridInfo",UpdateStateInfo,UpdateHybridInfo,"","UpdateVW2Weights");
+
+
   pCurAlg = CreateAlgorithm("hybrid","2007",FALSE,
    "Hybrid1: Switch between VW and adaptG2WSATp (Sat07 version)",
     "Wei, Li, Zhang  [JSAT 08]",
@@ -44,10 +57,7 @@ void AddHybrid() {
     "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange,LookAhead,AdaptG2WSatNoise,VW2Weights",
     "default","default");
 
-  AddParmFloat(&pCurAlg->parmList,"-gamma","Hybrid1 switching criteria [default %s]","paramater to adjust selecting VW over AdaptG2WSATp~use VW if max.vw2w > gamma * avg.vw2w","",&fHybridGamma,15);
-
-  CreateTrigger("InitHybridInfo",InitStateInfo,InitHybridInfo,"","");
-  CreateTrigger("UpdateHybridInfo",UpdateStateInfo,UpdateHybridInfo,"","UpdateVW2Weights");
+  AddParmFloat(&pCurAlg->parmList,"-gamma","Hybrid1 switching criteria [default %s]","paramater to adjust selecting VW over AdaptG2WSAT*~use VW if max.vw2w > gamma * avg.vw2w","",&fHybridGamma,15);
 
   CreateTrigger("PickHybrid1",ChooseCandidate,PickHybrid1,"","");
   CreateTrigger("InitHybrid1",InitStateInfo,InitHybrid1,"","");
@@ -59,7 +69,7 @@ void AddHybrid() {
     "PickHybrid2,InitHybridInfo,UpdateHybridInfo,InitVW2Auto,UpdateVW2Auto",
     "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange,LookAhead,AdaptG2WSatNoise,VW2Weights",
     "default","default");
-  AddParmFloat(&pCurAlg->parmList,"-gamma","Hybrid2 switching criteria [default %s]","paramater to adjust selecting VW over AdaptG2WSAT+~use VW if max.vw2w > gamma * avg.vw2w","",&fHybridGamma,1.025);
+  AddParmFloat(&pCurAlg->parmList,"-gamma","Hybrid2 switching criteria [default %s]","paramater to adjust selecting VW over AdaptG2WSAT*~use VW if max.vw2w > gamma * avg.vw2w","",&fHybridGamma,1.025);
   CreateTrigger("PickHybrid2",ChooseCandidate,PickHybrid2,"","");
 
 }
