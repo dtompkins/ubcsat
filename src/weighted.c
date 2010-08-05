@@ -216,10 +216,30 @@ void AdaptG2WSatNoiseW() {
 }
 
 void ConfigureG2WSatGeneralW() {
-  if (bG2WsatNovPlusPlus) {
-    fxnG2WsatNovelty = PickNoveltyPlusPlusW;
-  } else {
-    fxnG2WsatNovelty = PickNoveltyPlusW;
+  switch (iG2WsatSubAlgID) {
+    case 0: // Novelty+
+      fxnG2WsatNovelty = PickNoveltyPlusW;
+      break;
+    case 1: // Novelty++
+      fxnG2WsatNovelty = PickNoveltyPlusPlusW;
+      break;
+    case 2: // Novelty+p
+    case 3: // Novelty++p
+    case 4:
+    case 5:
+    case 6:
+      ReportPrint1(pRepErr,"Not Supported Yet: -sub %lu\n",iG2WsatSubAlgID);
+      AbnormalExit();
+      exit(1);
+    default:
+      ReportPrint1(pRepErr,"Unexpected Error: unknown -sub %lu\n",iG2WsatSubAlgID);
+      AbnormalExit();
+      exit(1);
+  }
+  if (iG2WsatPromSelectID > 2) {
+      ReportPrint1(pRepErr,"Unexpected Error: unknown -psel %lu\n",iG2WsatPromSelectID);
+      AbnormalExit();
+      exit(1);
   }
 }
 
@@ -232,15 +252,7 @@ void PickG2WSatGeneralW() {
   FLOAT fScore;
 
   if (iNumDecPromVarsW > 0 ) {
-    if (bG2WsatSelectOldest) {
-      iFlipCandidate = aDecPromVarsList[0];
-      for (j=1;j<iNumDecPromVars;j++) {
-        iVar = aDecPromVarsList[j];
-        if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
-          iFlipCandidate = iVar;
-        }
-      }
-    } else {
+    if (iG2WsatPromSelectID==0) { //best
       iFlipCandidate = aDecPromVarsListW[0];
       fBestScore = aVarScoreW[iFlipCandidate];
       for (j=1;j<iNumDecPromVarsW;j++) {
@@ -257,6 +269,16 @@ void PickG2WSatGeneralW() {
           }
         }
       }
+    } else if (iG2WsatPromSelectID==1) { //oldest
+      iFlipCandidate = aDecPromVarsListW[0];
+      for (j=1;j<iNumDecPromVarsW;j++) {
+        iVar = aDecPromVarsListW[j];
+        if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
+          iFlipCandidate = iVar;
+        }
+      }
+    } else { // random or first ???
+      iFlipCandidate = aDecPromVarsListW[0];
     }
   } else {
     fxnG2WsatNovelty();
@@ -765,38 +787,29 @@ void AddWeighted() {
   CreateTrigger("AdaptNoveltyNoiseW",PostFlip,AdaptNoveltyNoiseW,"InitAdaptNoveltyNoise","");
 
   pCurAlg = CreateAlgorithm("g2wsat","",TRUE,
-   "G2WSAT: Gradient-based Greedy WalkSAT (weighted)",
-    "Li, Huang  [SAT 05] and Li, Wei, Zhang [SAT 07] (-lookahead)",
+    "G2WSAT: Gradient-based Greedy WalkSAT (generalized) (weighted)",
+    "Li, Huang  [SAT 05] and Li, Wei, Zhang [SAT 07]",
     "PickG2WSatGeneralW,ConfigureG2WSatGeneralW",
     "DefaultProceduresW,Flip+TrackChanges+FCL+W,DecPromVarsW,FalseClauseList,VarLastChange",
     "default","default");
   
   AddParmProbability(&pCurAlg->parmList,"-novnoise","novelty noise [default %s]","","",&iNovNoise,0.50);
   AddParmProbability(&pCurAlg->parmList,"-wpdp","walk / diversification probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iNovWpDp,0.05);
-  AddParmBool(&pCurAlg->parmList,"-nov++","use Novelty++ instead of Novelty+","if true, use Novelty++~if false, use Novelty+","",&bG2WsatNovPlusPlus,TRUE);
-  /* 
-    for now, no lookahead 
-    AddParmBool(&pCurAlg->parmList,"-lookahead","use lookahead (Novelty+p or Novelty++p)","if true, use Novelty+p or Novelty++p (see -nov++)~if false, use Novelty+ or Novelty++","",&bG2WsatNovLookAhead,TRUE);
-  */
-  AddParmBool(&pCurAlg->parmList,"-oldest","select oldest or best promising variable","if true, select oldest promising variable~if false, select best promising variable","",&bG2WsatSelectOldest,FALSE);
+  AddParmUInt(&pCurAlg->parmList,"-sub","G2WSAT sub-algortihm [default %s]","0: Novelty+~1:Novelty++~2:Novelty+p~3:Novelty++p~4:Novelty++0~5:Novelty++1~6:Novelty++2","",&iG2WsatSubAlgID,1);
+  AddParmBool(&pCurAlg->parmList,"-psel","decreasing promising variable selection [default %s]","0: best~1:oldest~2:random","",&iG2WsatPromSelectID,0);
 
   CreateTrigger("PickG2WSatGeneralW",ChooseCandidate,PickG2WSatGeneralW,"","");
   CreateTrigger("ConfigureG2WSatGeneralW",PostParameters,ConfigureG2WSatGeneralW,"","");
 
   pCurAlg = CreateAlgorithm("adaptg2wsat","",TRUE,
-   "Adaptive G2WSat",
+    "Adaptive G2WSat (generalized) (weighted)",
     "Li, Wei, Zhang  [SAT 07]",
     "PickG2WSatGeneralW,ConfigureG2WSatGeneralW,InitAdaptG2WSatNoise,AdaptG2WSatNoiseW",
     "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange",
     "default","default");
 
-  AddParmBool(&pCurAlg->parmList,"-nov++","use Novelty++ instead of Novelty+","if true, use Novelty++~if false, use Novelty+","",&bG2WsatNovPlusPlus,FALSE);
-  /* 
-    for now, no lookahead 
-    AddParmBool(&pCurAlg->parmList,"-lookahead","use lookahead (Novelty+p or Novelty++p)","if true, use Novelty+p or Novelty++p (see -nov++)~if false, use Novelty+ or Novelty++","",&bG2WsatNovLookAhead,TRUE);
-  */
-  AddParmBool(&pCurAlg->parmList,"-oldest","select oldest or best promising variable","if true, select oldest promising variable~if false, select best promising variable","",&bG2WsatSelectOldest,TRUE);
-
+  AddParmUInt(&pCurAlg->parmList,"-sub","G2WSAT sub-algortihm [default %s]","0: Novelty+~1:Novelty++~2:Novelty+p~3:Novelty++p~4:Novelty++0~5:Novelty++1~6:Novelty++2","",&iG2WsatSubAlgID,1);
+  AddParmBool(&pCurAlg->parmList,"-psel","decreasing promising variable selection [default %s]","0: best~1:oldest~2:random","",&iG2WsatPromSelectID,0);
   CreateTrigger("AdaptG2WSatNoiseW",PostFlip,AdaptG2WSatNoiseW,"InitAdaptG2WSatNoise","");
 
   pCurAlg = CreateAlgorithm("gsat-tabu","",TRUE,

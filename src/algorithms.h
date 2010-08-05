@@ -117,9 +117,8 @@ void AddDDFW();
 /* g2wsat.c */
 
 void AddG2WSat();
-extern BOOL bG2WsatNovPlusPlus;
-extern BOOL bG2WsatNovLookAhead;
-extern BOOL bG2WsatSelectOldest;
+extern UINT32 iG2WsatSubAlgID;
+extern UINT32 iG2WsatPromSelectID;
 extern FXNPTR fxnG2WsatNovelty;
 
 /* vw.c */
