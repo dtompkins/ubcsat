@@ -83,9 +83,11 @@ void ConfigureG2WSatGeneral() {
       break;
     case 2: // Novelty+p
       fxnG2WsatNovelty = PickNoveltyPlusP;
+      ActivateTriggers("LookAhead");
       break;
     case 3: // Novelty++p
       fxnG2WsatNovelty = PickNoveltyPlusPlusP;
+      ActivateTriggers("LookAhead");
       break;
     case 4:
     case 5:

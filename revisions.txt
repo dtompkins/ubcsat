@@ -33,7 +33,7 @@ INTRO | FIXED | DESCRIPTION
 
 * new algorithm: VW2/2005 (-alg vw2 -v 2005) -- vw2 variant from the SAT 2005 Competition
 
-* changed algorithms: G2WSAT (and adaptG2WSAT) is now more general, with -nov++, -lookahead and -oldest controlling behaviour
+* changed algorithms: G2WSAT (and adaptG2WSAT) are now more generaland with parameters to control behaviour
 
 * new report: vw2weights
 * new report: ParamILS (-r paramils) see http://www.cs.ubc.ca/labs/beta/Projects/ParamILS/
