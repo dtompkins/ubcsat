@@ -74,6 +74,7 @@ extern PROBABILITY iNovWpDp;
 /* novelty+p.c */
 
 void AddNoveltyPlusP();
+void PickNoveltyP();
 void PickNoveltyPlusP();
 void PickNoveltyPlusPlusP();
 
@@ -117,9 +118,16 @@ void AddDDFW();
 /* g2wsat.c */
 
 void AddG2WSat();
-extern UINT32 iG2WsatSubAlgID;
-extern UINT32 iG2WsatPromSelectID;
-extern FXNPTR fxnG2WsatNovelty;
+FXNPTR fxnG2WsatPromisingSelect;
+FXNPTR fxnG2WsatDiversificationSelect;
+FXNPTR fxnG2WsatBaseAlgSelect;
+UINT32 iG2WsatPromisingSelectID;
+UINT32 iG2WsatDiversificationSelectID;
+UINT32 iG2WsatBaseAlgSelectID;
+void PromisingSelectOldest();
+void DiversificationRandom();
+void DiversificationOldest();
+void DiversificationMinusOne();
 
 /* vw.c */
 

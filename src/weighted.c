@@ -216,72 +216,64 @@ void AdaptG2WSatNoiseW() {
 }
 
 void ConfigureG2WSatGeneralW() {
-  switch (iG2WsatSubAlgID) {
-    case 0: // Novelty+
-      fxnG2WsatNovelty = PickNoveltyPlusW;
+  switch (iG2WsatPromisingSelectID) {
+    case 1: // Oldest
+      fxnG2WsatPromisingSelect = PromisingSelectOldest;
       break;
-    case 1: // Novelty++
-      fxnG2WsatNovelty = PickNoveltyPlusPlusW;
-      break;
-    case 2: // Novelty+p
-    case 3: // Novelty++p
-    case 4:
-    case 5:
-    case 6:
-      ReportPrint1(pRepErr,"Not Supported Yet: -sub %lu\n",iG2WsatSubAlgID);
-      AbnormalExit();
-      exit(1);
+    case 0: // Best
+      //fxnG2WsatPromisingSelect = PromisingSelectBestW;
+    case 2: // Longest
+      // fxnG2WsatPromisingSelect = PromisingSelectOldest;
     default:
-      ReportPrint1(pRepErr,"Unexpected Error: unknown -sub %lu\n",iG2WsatSubAlgID);
+      ReportPrint1(pRepErr,"Unexpected Error: unknown -prom %lu\n",iG2WsatPromisingSelectID);
       AbnormalExit();
       exit(1);
   }
-  if (iG2WsatPromSelectID > 2) {
-      ReportPrint1(pRepErr,"Unexpected Error: unknown -psel %lu\n",iG2WsatPromSelectID);
+  switch (iG2WsatDiversificationSelectID) {
+    case 0: // Random
+      fxnG2WsatDiversificationSelect = DiversificationRandom;
+      break;
+    case 1: // Oldest
+      fxnG2WsatDiversificationSelect = DiversificationOldest;
+      break;
+    case 2: // MinusOne
+      fxnG2WsatDiversificationSelect = DiversificationMinusOne;
+      break;
+    case 3: // MinusTwo
+      // fxnG2WsatDiversificationSelect = DiversificationMinusTwo;
+    default:
+      ReportPrint1(pRepErr,"Unexpected Error: unknown -div %lu\n",iG2WsatDiversificationSelectID);
+      AbnormalExit();
+      exit(1);
+  }
+  switch (iG2WsatBaseAlgSelectID) {
+    case 0: // Novelty
+      fxnG2WsatBaseAlgSelect = PickNoveltyW;
+      break;
+    case 1: // Novelty+p
+      //fxnG2WsatBaseAlgSelect = PickNoveltyPW;
+    case 2: // Top2
+      //fxnG2WsatBaseAlgSelect = Top2W;
+      break;
+    default:
+      ReportPrint1(pRepErr,"Unexpected Error: unknown -base %lu\n",iG2WsatBaseAlgSelectID);
       AbnormalExit();
       exit(1);
   }
 }
 
 void PickG2WSatGeneralW() {
-
-  /* weighted varaint -- see regular algorithm for comments */
- 
-  UINT32 j;
-  UINT32 iVar;
-  FLOAT fScore;
-
-  if (iNumDecPromVarsW > 0 ) {
-    if (iG2WsatPromSelectID==0) { //best
-      iFlipCandidate = aDecPromVarsListW[0];
-      fBestScore = aVarScoreW[iFlipCandidate];
-      for (j=1;j<iNumDecPromVarsW;j++) {
-        iVar = aDecPromVarsListW[j];
-        fScore = aVarScoreW[iVar];
-        if (fScore < fBestScore) {
-          iFlipCandidate = iVar;
-          fBestScore = aVarScoreW[iVar];
-        } else {
-          if (fScore == fBestScore) {
-            if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
-              iFlipCandidate = iVar;
-            }
-          }
-        }
+  iFlipCandidate = 0;
+  if (iNumFalse) {
+    if (iNumDecPromVarsW > 0 ) {
+      fxnG2WsatPromisingSelect();
+    } else {
+      if (RandomProb(iNovWpDp)) {
+        fxnG2WsatDiversificationSelect();
+      } else {
+        fxnG2WsatBaseAlgSelect();
       }
-    } else if (iG2WsatPromSelectID==1) { //oldest
-      iFlipCandidate = aDecPromVarsListW[0];
-      for (j=1;j<iNumDecPromVarsW;j++) {
-        iVar = aDecPromVarsListW[j];
-        if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
-          iFlipCandidate = iVar;
-        }
-      }
-    } else { // random or first ???
-      iFlipCandidate = aDecPromVarsListW[0];
     }
-  } else {
-    fxnG2WsatNovelty();
   }
 }
 
@@ -795,8 +787,10 @@ void AddWeighted() {
   
   AddParmProbability(&pCurAlg->parmList,"-novnoise","novelty noise [default %s]","","",&iNovNoise,0.50);
   AddParmProbability(&pCurAlg->parmList,"-wpdp","walk / diversification probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iNovWpDp,0.05);
-  AddParmUInt(&pCurAlg->parmList,"-sub","G2WSAT sub-algortihm [default %s]","0: Novelty+~1:Novelty++~2:Novelty+p~3:Novelty++p~4:Novelty++0~5:Novelty++1~6:Novelty++2","",&iG2WsatSubAlgID,1);
-  AddParmBool(&pCurAlg->parmList,"-psel","decreasing promising variable selection [default %s]","0: best~1:oldest~2:random","",&iG2WsatPromSelectID,0);
+
+  AddParmUInt(&pCurAlg->parmList,"-prom","G2WSAT Decreasing Promising Variable ID [default %s]","0: best~1: oldest variable~2: longest promising","",&iG2WsatPromisingSelectID,0);
+  AddParmUInt(&pCurAlg->parmList,"-div","G2WSAT Diversification ID [default %s]","0: random (Novelty+)~1: oldest (Novelty++)~2: random[n-1] excl. youngest (Novelty-1)~3: random[n-2] excl. best 2  (Novelty-2)","",&iG2WsatDiversificationSelectID,1);
+  AddParmUInt(&pCurAlg->parmList,"-base","G2WSAT Base Algorithm ID [default %s]","0: Novelty~2: Novelty+p~3: Top2","",&iG2WsatBaseAlgSelectID,0);
 
   CreateTrigger("PickG2WSatGeneralW",ChooseCandidate,PickG2WSatGeneralW,"","");
   CreateTrigger("ConfigureG2WSatGeneralW",PostParameters,ConfigureG2WSatGeneralW,"","");
@@ -808,8 +802,9 @@ void AddWeighted() {
     "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange",
     "default","default");
 
-  AddParmUInt(&pCurAlg->parmList,"-sub","G2WSAT sub-algortihm [default %s]","0: Novelty+~1:Novelty++~2:Novelty+p~3:Novelty++p~4:Novelty++0~5:Novelty++1~6:Novelty++2","",&iG2WsatSubAlgID,1);
-  AddParmBool(&pCurAlg->parmList,"-psel","decreasing promising variable selection [default %s]","0: best~1:oldest~2:random","",&iG2WsatPromSelectID,0);
+  AddParmUInt(&pCurAlg->parmList,"-prom","G2WSAT Decreasing Promising Variable ID [default %s]","0: best~1: oldest variable~2: longest promising","",&iG2WsatPromisingSelectID,0);
+  AddParmUInt(&pCurAlg->parmList,"-div","G2WSAT Diversification ID [default %s]","0: random (Novelty+)~1: oldest (Novelty++)~2: random[n-1] excl. youngest (Novelty-1)~3: random[n-2] excl. best 2  (Novelty-2)","",&iG2WsatDiversificationSelectID,1);
+  AddParmUInt(&pCurAlg->parmList,"-base","G2WSAT Base Algorithm ID [default %s]","0: Novelty~2: Novelty+p~3: Top2","",&iG2WsatBaseAlgSelectID,0);
   CreateTrigger("AdaptG2WSatNoiseW",PostFlip,AdaptG2WSatNoiseW,"InitAdaptG2WSatNoise","");
 
   pCurAlg = CreateAlgorithm("gsat-tabu","",TRUE,
