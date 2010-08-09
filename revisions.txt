@@ -35,6 +35,9 @@ INTRO | FIXED | DESCRIPTION
 
 * changed algorithms: G2WSAT (and adaptG2WSAT) are now more generaland with parameters to control behaviour
 
+* new option: -rcsv: prints reports in a .csv compatible mode
+* new option: -q turns off the default reports (-r out) and (-r stats)
+
 * new report: vw2weights
 * new report: ParamILS (-r paramils) see http://www.cs.ubc.ca/labs/beta/Projects/ParamILS/
 

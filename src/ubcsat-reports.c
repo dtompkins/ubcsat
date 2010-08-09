@@ -1493,20 +1493,27 @@ void ReportStatePrint() {
   }
 
   if (bPrint) {
-    ReportPrint1(pRepState,"%lu ",iRun);
-    ReportPrint1(pRepState,"%llu ",iStep);
+    ReportPrint1(pRepState,"%lu",iRun);
+    ReportPrint1(pRepState,"%s",sColSepString);
+    ReportPrint1(pRepState,"%llu",iStep);
+    ReportPrint1(pRepState,"%s",sColSepString);
 
     if (bWeighted) {
-      ReportPrint1(pRepState,"%.12g ",fSumFalseW);
+      ReportPrint1(pRepState,"%.12g",fSumFalseW);
+      ReportPrint1(pRepState,"%s",sColSepString);
     } else {
-      ReportPrint1(pRepState,"%lu ",iNumFalse);
+      ReportPrint1(pRepState,"%lu",iNumFalse);
+      ReportPrint1(pRepState,"%s",sColSepString);
     }
 
-    ReportPrint1(pRepState,"%lu ",iFlipCandidate);
+    ReportPrint1(pRepState,"%lu",iFlipCandidate);
+    ReportPrint1(pRepState,"%s",sColSepString);
     if (bReportStateLMOnly) {
-      ReportPrint1(pRepState,"%lu ",bLocalMin);
+      ReportPrint1(pRepState,"%lu",bLocalMin);
+      ReportPrint1(pRepState,"%s",sColSepString);
     } else {
-      ReportPrint1(pRepState,"%lu ",IsLocalMinimum(bWeighted));
+      ReportPrint1(pRepState,"%lu",IsLocalMinimum(bWeighted));
+      ReportPrint1(pRepState,"%s",sColSepString);
     }
     for (j=1;j<=iNumVars;j++) {
       if (aVarValue[j]) {
@@ -1529,11 +1536,16 @@ void ReportBestSolPrint() {
     ReportHdrPrefix(pRepBestSol);
     ReportHdrPrint(pRepBestSol," Run ID | Solution Found? | Best # false (or weighted best) | vararray\n");
   }
-  ReportPrint2(pRepBestSol,"%lu %lu ",iRun, bSolutionFound);
+  ReportPrint1(pRepBestSol,"%lu",iRun);
+  ReportPrint1(pRepBestSol,"%s",sColSepString);
+  ReportPrint1(pRepBestSol,"%lu",bSolutionFound);
+  ReportPrint1(pRepBestSol,"%s",sColSepString);
   if (bWeighted) {
-    ReportPrint1(pRepBestSol,"%.12g ",fBestSumFalseW);
+    ReportPrint1(pRepBestSol,"%.12g",fBestSumFalseW);
+    ReportPrint1(pRepBestSol,"%s",sColSepString);
   } else {
-    ReportPrint1(pRepBestSol,"%lu ",iBestNumFalse);
+    ReportPrint1(pRepBestSol,"%lu",iBestNumFalse);
+    ReportPrint1(pRepBestSol,"%s",sColSepString);
   }
   for (j=1;j<=iNumVars;j++) {
     if (GetVarStateBit(vsBest,j-1)) {
@@ -1564,8 +1576,13 @@ void ReportBestStepPrint() {
 
   if (bWeighted) {
     if (iBestStepSumFalseW == iStep) {
-      ReportPrint3(pRepBestStep,"%lu %llu %.12g ",iRun, iStep, fBestSumFalseW);
+      ReportPrint1(pRepBestStep,"%lu",iRun);
+      ReportPrint1(pRepBestStep,"%s",sColSepString);
+      ReportPrint1(pRepBestStep,"%llu",iStep);
+      ReportPrint1(pRepBestStep,"%s",sColSepString);
+      ReportPrint1(pRepBestStep,"%.12g ",fBestSumFalseW);
       if (bReportBestStepVars) {
+        ReportPrint1(pRepBestStep,"%s",sColSepString);
         for (j=1;j<=iNumVars;j++) {
           if (aVarValue[j]) {
             ReportPrint(pRepBestStep,"1");
@@ -1578,8 +1595,13 @@ void ReportBestStepPrint() {
     }
   } else {
     if (iBestStepNumFalse == iStep) {
-      ReportPrint3(pRepBestStep,"%lu %llu %lu ",iRun, iStep, iBestNumFalse);
+      ReportPrint1(pRepBestStep,"%lu",iRun);
+      ReportPrint1(pRepBestStep,"%s",sColSepString);
+      ReportPrint1(pRepBestStep,"%llu",iStep);
+      ReportPrint1(pRepBestStep,"%s",sColSepString);
+      ReportPrint1(pRepBestStep,"%lu",iBestNumFalse);
       if (bReportBestStepVars) {
+        ReportPrint1(pRepBestStep,"%s",sColSepString);
         for (j=1;j<=iNumVars;j++) {
           if (aVarValue[j]) {
             ReportPrint(pRepBestStep,"1");
@@ -1606,12 +1628,19 @@ void ReportTrajBestLMPostStep() {
   if (iStep > 1) {
     if (bWeighted) {
       if (iBestStepSumFalseW==(iStep-1)) {
-        ReportPrint3(pRepTrajBestLM,"%lu %llu %.12g\n",iRun, iStep-1, fBestSumFalseW);
-
+        ReportPrint1(pRepTrajBestLM,"%lu",iRun);
+        ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
+        ReportPrint1(pRepTrajBestLM,"%llu",iStep-1);
+        ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
+        ReportPrint1(pRepTrajBestLM,"%.12g\n",fBestSumFalseW);
       }
     } else {
       if (iBestStepNumFalse==(iStep-1)) {
-        ReportPrint3(pRepTrajBestLM,"%lu %llu %lu\n",iRun, iStep-1, iBestNumFalse);
+        ReportPrint1(pRepTrajBestLM,"%lu",iRun);
+        ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
+        ReportPrint1(pRepTrajBestLM,"%llu",iStep-1);
+        ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
+        ReportPrint1(pRepTrajBestLM,"%lu\n",iBestNumFalse);
       }
     }
   }
@@ -1622,12 +1651,19 @@ void ReportTrajBestLMPostRun() {
 
   if (bWeighted) {
     if (iBestStepSumFalseW==(iStep)) {
-      ReportPrint3(pRepTrajBestLM,"%lu %llu %.12g\n",iRun, iStep, fBestSumFalseW);
-
+        ReportPrint1(pRepTrajBestLM,"%lu",iRun);
+        ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
+        ReportPrint1(pRepTrajBestLM,"%llu",iStep);
+        ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
+        ReportPrint1(pRepTrajBestLM,"%.12g\n",fBestSumFalseW);
     }
   } else {
     if (iBestStepNumFalse==(iStep)) {
-      ReportPrint3(pRepTrajBestLM,"%lu %llu %lu\n",iRun, iStep, iBestNumFalse);
+        ReportPrint1(pRepTrajBestLM,"%lu",iRun);
+        ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
+        ReportPrint1(pRepTrajBestLM,"%llu",iStep);
+        ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
+        ReportPrint1(pRepTrajBestLM,"%lu\n",iBestNumFalse);
     }
   }
 }
@@ -1642,7 +1678,8 @@ void ReportSolutionPrint() {
     ReportHdrPrint(pRepSolution," Run ID | vararray\n");
   }
   if (bSolutionFound) {
-    ReportPrint1(pRepSolution,"%lu ",iRun);
+    ReportPrint1(pRepSolution,"%lu",iRun);
+    ReportPrint1(pRepSolution,"%s",sColSepString);
     for (j=1;j<=iNumVars;j++) {
       if (aVarValue[j]) {
         ReportPrint(pRepSolution,"1");
@@ -1690,7 +1727,8 @@ void ReportUnsatClausesPrint() {
     ReportHdrPrint(pRepOptClauses," Run ID | clauses at end of search (1=satisfied) ...\n");
   }
   if ((bSolutionFound)||(bReportOptClausesSol==FALSE)) {
-    ReportPrint1(pRepOptClauses,"%lu ",iRun);
+    ReportPrint1(pRepOptClauses,"%lu",iRun);
+    ReportPrint1(pRepOptClauses,"%s",sColSepString);
     for (j=0;j<iNumClauses;j++) {
       if (aNumTrueLit[j]==0) {
         ReportPrint(pRepOptClauses,"0");
@@ -1716,9 +1754,10 @@ void ReportFalseHistPrint() {
       ReportHdrPrint1(pRepFalseHist,"Note: For the last %lu steps of the search\n",iReportFalseHistCount);
     }
   }
-  ReportPrint1(pRepFalseHist,"%lu ",iRun);
+  ReportPrint1(pRepFalseHist,"%lu",iRun);
   for (j=0;j<(iNumClauses+1);j++) {
-    ReportPrint1(pRepFalseHist,"%llu ",aNumFalseCounts[j]);
+    ReportPrint1(pRepFalseHist,"%s",sColSepString);
+    ReportPrint1(pRepFalseHist,"%llu",aNumFalseCounts[j]);
   }
   ReportPrint(pRepFalseHist,"\n");
 }
@@ -1744,15 +1783,18 @@ void ReportDistancePrint() {
   }
 
   if (bPrint) {
-    ReportPrint1(pRepDistance,"%lu ",iRun);
-    ReportPrint1(pRepDistance,"%llu ",iStep);
+    ReportPrint1(pRepDistance,"%lu",iRun);
+    ReportPrint1(pRepDistance,"%s",sColSepString);
+    ReportPrint1(pRepDistance,"%llu",iStep);
+    ReportPrint1(pRepDistance,"%s",sColSepString);
 
-    ReportPrint1(pRepDistance,"%lu ",iSolutionDistance);
+    ReportPrint1(pRepDistance,"%lu",iSolutionDistance);
+    ReportPrint1(pRepDistance,"%s",sColSepString);
 
     if (bWeighted) {
-      ReportPrint1(pRepDistance,"%.12g ",fSumFalseW);
+      ReportPrint1(pRepDistance,"%.12g",fSumFalseW);
     } else {
-      ReportPrint1(pRepDistance,"%lu ",iNumFalse);
+      ReportPrint1(pRepDistance,"%lu",iNumFalse);
     }
   }
   ReportPrint(pRepDistance,"\n");
@@ -1772,9 +1814,10 @@ void ReportDistHistPrint() {
       ReportHdrPrint1(pRepDistHist,"For the last %lu steps of the search\n",iReportDistHistCount);
     }
   }
-  ReportPrint1(pRepDistHist,"%lu ",iRun);
+  ReportPrint1(pRepDistHist,"%lu",iRun);
   for (j=0;j<(iNumVars+1);j++) {
-    ReportPrint1(pRepDistHist,"%llu ",aDistanceCounts[j]);
+    ReportPrint1(pRepDistHist,"%s",sColSepString);
+    ReportPrint1(pRepDistHist,"%llu",aDistanceCounts[j]);
   }
   ReportPrint(pRepDistHist,"\n");
 }
@@ -1791,7 +1834,8 @@ void ReportFlipCountsPrint() {
   }
   ReportPrint1(pRepFlipCounts,"%lu",iRun);
   for (j=0;j<=iNumVars;j++) {
-    ReportPrint1(pRepFlipCounts," %llu",aFlipCounts[j]);
+    ReportPrint1(pRepFlipCounts,"%s",sColSepString);
+    ReportPrint1(pRepFlipCounts,"%llu",aFlipCounts[j]);
   }
   ReportPrint(pRepFlipCounts,"\n");
 }
@@ -1808,15 +1852,19 @@ void ReportBiasCountsPrint() {
   }
   ReportPrint1(pRepBiasCounts,"%lu",iRun);
   for (j=1;j<(iNumVars+1);j++) {
-    ReportPrint2(pRepBiasCounts," %llu %llu",aBiasFalseCounts[j], aBiasTrueCounts[j]);
+    ReportPrint1(pRepBiasCounts,"%s",sColSepString);
+    ReportPrint1(pRepBiasCounts,"%llu",aBiasFalseCounts[j]);
+    ReportPrint1(pRepBiasCounts,"%s",sColSepString);
+    ReportPrint1(pRepBiasCounts,"%llu",aBiasTrueCounts[j]);
+    ReportPrint1(pRepBiasCounts,"%s",sColSepString);
     if (aBiasFalseCounts[j]+aBiasTrueCounts[j]>0) {
       if (aVarValue[j]) {
-        ReportPrint1(pRepBiasCounts," %5.4f",((FLOAT)aBiasTrueCounts[j])/((FLOAT)(aBiasTrueCounts[j]+aBiasFalseCounts[j])));
+        ReportPrint1(pRepBiasCounts,"%5.4f",((FLOAT)aBiasTrueCounts[j])/((FLOAT)(aBiasTrueCounts[j]+aBiasFalseCounts[j])));
       } else {
-        ReportPrint1(pRepBiasCounts," %5.4f",((FLOAT)aBiasFalseCounts[j])/((FLOAT)(aBiasTrueCounts[j]+aBiasFalseCounts[j])));
+        ReportPrint1(pRepBiasCounts,"%5.4f",((FLOAT)aBiasFalseCounts[j])/((FLOAT)(aBiasTrueCounts[j]+aBiasFalseCounts[j])));
       }
     } else {
-        ReportPrint1(pRepBiasCounts," %5.4f",FLOATZERO);
+        ReportPrint1(pRepBiasCounts,"%5.4f",FLOATZERO);
     }
   }
   ReportPrint(pRepBiasCounts,"\n");
@@ -1840,7 +1888,8 @@ void ReportUnsatCountsPrint() {
   }
   ReportPrint1(pRepUnsatCounts,"%lu",iRun);
   for (j=0;j<iNumClauses;j++) {
-    ReportPrint1(pRepUnsatCounts," %llu",aUnsatCounts[j]);
+    ReportPrint1(pRepUnsatCounts,"%s",sColSepString);
+    ReportPrint1(pRepUnsatCounts,"%llu",aUnsatCounts[j]);
   }
   ReportPrint(pRepUnsatCounts,"\n");
 }
@@ -1858,7 +1907,8 @@ void ReportVarLastPrint() {
 
   ReportPrint1(pRepVarLast,"%lu",iRun);
   for (j=1;j<=iNumVars;j++) {
-    ReportPrint1(pRepVarLast," %llu",aVarLastChange[j]);
+    ReportPrint1(pRepUnsatCounts,"%s",sColSepString);
+    ReportPrint1(pRepVarLast,"%llu",aVarLastChange[j]);
   }
   ReportPrint(pRepVarLast,"\n");
 }
@@ -1875,7 +1925,8 @@ void ReportClauseLastPrint() {
   }
   ReportPrint1(pRepClauseLast,"%lu",iRun);
   for (j=0;j<iNumClauses;j++) {
-    ReportPrint1(pRepClauseLast," %llu",aClauseLast[j]);
+    ReportPrint1(pRepClauseLast,"%s",sColSepString);
+    ReportPrint1(pRepClauseLast,"%llu",aClauseLast[j]);
   }
   ReportPrint(pRepClauseLast,"\n");
 }
@@ -1902,11 +1953,13 @@ void ReportSQGridPrint() {
 
     if (bWeighted) {
       for (j=0;j<iNumLogDistValues;j++) {
-        ReportPrint1(pRepSQGrid," %.12g",aSQGridW[iNumLogDistValues * (iRun-1) + j]);
+        ReportPrint1(pRepSQGrid,"%s",sColSepString);
+        ReportPrint1(pRepSQGrid,"%.12g",aSQGridW[iNumLogDistValues * (iRun-1) + j]);
       }
     } else {
       for (j=0;j<iNumLogDistValues;j++) {
-        ReportPrint1(pRepSQGrid," %lu",aSQGrid[iNumLogDistValues * (iRun-1) + j]);
+        ReportPrint1(pRepSQGrid,"%s",sColSepString);
+        ReportPrint1(pRepSQGrid,"%lu",aSQGrid[iNumLogDistValues * (iRun-1) + j]);
       }
     }
     ReportPrint(pRepSQGrid,"\n");
@@ -1949,36 +2002,46 @@ void ReportPenaltyPrintStep() {
     }
 
     if (bClausePenaltyCreated) {
-      ReportPrint3(pRepPenalty,"%lu %llu %llu",iRun,iStep,iNumNullFlips);
+      ReportPrint1(pRepPenalty,"%lu",iRun);
+      ReportPrint1(pRepPenalty,"%s",sColSepString);
+      ReportPrint1(pRepPenalty,"%llu",iStep);
+      ReportPrint1(pRepPenalty,"%s",sColSepString);
+      ReportPrint1(pRepPenalty,"%llu",iNumNullFlips);
       if (bClausePenaltyFLOAT) {
         if (bReportPenaltyReNormFraction) {
           for (j=0;j<iNumClauses;j++) {
-            ReportPrint1(pRepPenalty," %.12g",aClausePenaltyFL[j] / fTotalPenaltyFL);
+            ReportPrint1(pRepPenalty,"%s",sColSepString);
+            ReportPrint1(pRepPenalty,"%.12g",aClausePenaltyFL[j] / fTotalPenaltyFL);
           }
         } else {
           if (bReportPenaltyReNormBase) {
             for (j=0;j<iNumClauses;j++) {
-              ReportPrint1(pRepPenalty," %.12g",aClausePenaltyFL[j] / fBasePenaltyFL);
+              ReportPrint1(pRepPenalty,"%s",sColSepString);
+              ReportPrint1(pRepPenalty,"%.12g",aClausePenaltyFL[j] / fBasePenaltyFL);
             }
           } else {
             for (j=0;j<iNumClauses;j++) {
-              ReportPrint1(pRepPenalty," %.12g",aClausePenaltyFL[j]);
+              ReportPrint1(pRepPenalty,"%s",sColSepString);
+              ReportPrint1(pRepPenalty,"%.12g",aClausePenaltyFL[j]);
             }
           }
         }
       } else {
         if (bReportPenaltyReNormFraction) {
           for (j=0;j<iNumClauses;j++) {
-            ReportPrint1(pRepPenalty," %.12g",((FLOAT) aClausePenaltyINT[j]) / (FLOAT) iTotalPenaltyINT);
+            ReportPrint1(pRepPenalty,"%s",sColSepString);
+            ReportPrint1(pRepPenalty,"%.12g",((FLOAT) aClausePenaltyINT[j]) / (FLOAT) iTotalPenaltyINT);
           }
         } else {
           if (bReportPenaltyReNormBase) {
             for (j=0;j<iNumClauses;j++) {
-              ReportPrint1(pRepPenalty," %.12g",((FLOAT) aClausePenaltyINT[j]) / (FLOAT) iBasePenaltyINT);
+              ReportPrint1(pRepPenalty,"%s",sColSepString);
+              ReportPrint1(pRepPenalty,"%.12g",((FLOAT) aClausePenaltyINT[j]) / (FLOAT) iBasePenaltyINT);
             }
           } else {
             for (j=0;j<iNumClauses;j++) {
-              ReportPrint1(pRepPenalty," %lu",aClausePenaltyINT[j]);
+              ReportPrint1(pRepPenalty,"%s",sColSepString);
+              ReportPrint1(pRepPenalty,"%lu",aClausePenaltyINT[j]);
             }
           }
         }
@@ -2010,7 +2073,12 @@ void ReportPenaltyPrintRun() {
 
     if (bClausePenaltyCreated) {
 
-      ReportPrint3(pRepPenalty,"%lu %llu %lu ",iRun, iStep, bSolutionFound);
+      ReportPrint1(pRepPenalty,"%lu",iRun);
+      ReportPrint1(pRepPenalty,"%s",sColSepString);
+      ReportPrint1(pRepPenalty,"%llu",iStep);
+      ReportPrint1(pRepPenalty,"%s",sColSepString);
+      ReportPrint1(pRepPenalty,"%lu",bSolutionFound);
+      ReportPrint1(pRepPenalty,"%s",sColSepString);
       if (bWeighted) {
         ReportPrint1(pRepPenalty,"%.12g",fBestSumFalseW);
       } else {
@@ -2020,18 +2088,21 @@ void ReportPenaltyPrintRun() {
         if (bReportPenaltyReNormFraction) {
           for (j=0;j<iNumClauses;j++) {
             aPenaltyStatsFinal[j] = aClausePenaltyFL[j] / fTotalPenaltyFL;
-            ReportPrint1(pRepPenalty," %.12g",aPenaltyStatsFinal[j]);
+            ReportPrint1(pRepPenalty,"%s",sColSepString);
+            ReportPrint1(pRepPenalty,"%.12g",aPenaltyStatsFinal[j]);
           }
         } else {
           if (bReportPenaltyReNormBase) {
             for (j=0;j<iNumClauses;j++) {
               aPenaltyStatsFinal[j] = aClausePenaltyFL[j] / fBasePenaltyFL;
-              ReportPrint1(pRepPenalty," %.12g",aPenaltyStatsFinal[j]);
+              ReportPrint1(pRepPenalty,"%s",sColSepString);
+              ReportPrint1(pRepPenalty,"%.12g",aPenaltyStatsFinal[j]);
             }
           } else {
             for (j=0;j<iNumClauses;j++) {
               aPenaltyStatsFinal[j] = aClausePenaltyFL[j];
-              ReportPrint1(pRepPenalty," %.12g",aPenaltyStatsFinal[j]);
+              ReportPrint1(pRepPenalty,"%s",sColSepString);
+              ReportPrint1(pRepPenalty,"%.12g",aPenaltyStatsFinal[j]);
             }
           }
         }
@@ -2039,18 +2110,21 @@ void ReportPenaltyPrintRun() {
         if (bReportPenaltyReNormFraction) {
           for (j=0;j<iNumClauses;j++) {
             aPenaltyStatsFinal[j] = ((FLOAT) aClausePenaltyINT[j]) / (FLOAT) iTotalPenaltyINT;
-            ReportPrint1(pRepPenalty," %.12g",aPenaltyStatsFinal[j]);
+            ReportPrint1(pRepPenalty,"%s",sColSepString);
+            ReportPrint1(pRepPenalty,"%.12g",aPenaltyStatsFinal[j]);
           }
         } else {
           if (bReportPenaltyReNormBase) {
             for (j=0;j<iNumClauses;j++) {
               aPenaltyStatsFinal[j] = ((FLOAT) aClausePenaltyINT[j]) / (FLOAT) iBasePenaltyINT;
-              ReportPrint1(pRepPenalty," %.12g",aPenaltyStatsFinal[j]);
+              ReportPrint1(pRepPenalty,"%s",sColSepString);
+              ReportPrint1(pRepPenalty,"%.12g",aPenaltyStatsFinal[j]);
             }
           } else {
             for (j=0;j<iNumClauses;j++) {
               aPenaltyStatsFinal[j] = (FLOAT) aClausePenaltyINT[j];
-              ReportPrint1(pRepPenalty," %lu",aClausePenaltyINT[j]);
+              ReportPrint1(pRepPenalty,"%s",sColSepString);
+              ReportPrint1(pRepPenalty,"%lu",aClausePenaltyINT[j]);
             }
           }
         }
@@ -2067,11 +2141,8 @@ void ReportPenaltyPrintRun() {
         ReportHdrPrint(pRepPenalty,"Mean");
         for (j=0;j<iNumClauses;j++) {
           CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsFinalSum[j],aPenaltyStatsFinalSum2[j],iRun);
-          if (bReportPenaltyReNormFraction) {
-            ReportPrint1(pRepPenalty," %.12g",fMean);
-          } else {
-            ReportPrint1(pRepPenalty," %.12g",fMean);
-          }
+          ReportPrint1(pRepPenalty,"%s",sColSepString);
+          ReportPrint1(pRepPenalty,"%.12g",fMean);
         }
         ReportPrint(pRepPenalty,"\n");
 
@@ -2079,12 +2150,8 @@ void ReportPenaltyPrintRun() {
         ReportHdrPrint(pRepPenalty,"Stddev");
         for (j=0;j<iNumClauses;j++) {
           CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsFinalSum[j],aPenaltyStatsFinalSum2[j],iRun);
-          if (bReportPenaltyReNormFraction) {
-            ReportPrint1(pRepPenalty," %.12g",fStddev);
-          } else {
-            ReportPrint1(pRepPenalty," %.12g",fStddev);
-          }
-          ReportPrint1(pRepPenalty," %.12g",fStddev);
+          ReportPrint1(pRepPenalty,"%s",sColSepString);
+          ReportPrint1(pRepPenalty,"%.12g",fStddev);
         }
         ReportPrint(pRepPenalty,"\n");
 
@@ -2092,7 +2159,8 @@ void ReportPenaltyPrintRun() {
         ReportHdrPrint(pRepPenalty,"CV");
         for (j=0;j<iNumClauses;j++) {
           CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsFinalSum[j],aPenaltyStatsFinalSum2[j],iRun);
-          ReportPrint1(pRepPenalty," %.12g",fCV);
+          ReportPrint1(pRepPenalty,"%s",sColSepString);
+          ReportPrint1(pRepPenalty,"%.12g",fCV);
         }
         ReportPrint(pRepPenalty,"\n");
       }
@@ -2124,7 +2192,8 @@ void ReportPenMeanPrint() {
   if (bClausePenaltyCreated) {
     ReportPrint1(pRepPenMean,"%lu",iRun);
     for (j=0;j<iNumClauses;j++) {
-      ReportPrint1(pRepPenMean," %.12g",aPenaltyStatsMean[j]);
+      ReportPrint1(pRepPenMean,"%s",sColSepString);
+      ReportPrint1(pRepPenMean,"%.12g",aPenaltyStatsMean[j]);
     }
     ReportPrint(pRepPenMean,"\n");
 
@@ -2133,7 +2202,8 @@ void ReportPenMeanPrint() {
       ReportHdrPrint(pRepPenMean,"Mean");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsMeanSum[j],aPenaltyStatsMeanSum2[j],iRun);
-        ReportPrint1(pRepPenMean," %.12g",fMean);
+        ReportPrint1(pRepPenMean,"%s",sColSepString);
+        ReportPrint1(pRepPenMean,"%.12g",fMean);
       }
       ReportPrint(pRepPenMean,"\n");
 
@@ -2141,7 +2211,8 @@ void ReportPenMeanPrint() {
       ReportHdrPrint(pRepPenMean,"Stddev");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsMeanSum[j],aPenaltyStatsMeanSum2[j],iRun);
-        ReportPrint1(pRepPenMean," %.12g",fStddev);
+        ReportPrint1(pRepPenMean,"%s",sColSepString);
+        ReportPrint1(pRepPenMean,"%.12g",fStddev);
       }
       ReportPrint(pRepPenMean,"\n");
 
@@ -2149,7 +2220,8 @@ void ReportPenMeanPrint() {
       ReportHdrPrint(pRepPenMean,"CV");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsMeanSum[j],aPenaltyStatsMeanSum2[j],iRun);
-        ReportPrint1(pRepPenMean," %.12g",fCV);
+        ReportPrint1(pRepPenMean,"%s",sColSepString);
+        ReportPrint1(pRepPenMean,"%.12g",fCV);
       }
       ReportPrint(pRepPenMean,"\n");
     }
@@ -2179,7 +2251,8 @@ void ReportPenStddevPrint() {
   if (bClausePenaltyCreated) {
     ReportPrint1(pRepPenStddev,"%lu",iRun);
     for (j=0;j<iNumClauses;j++) {
-      ReportPrint1(pRepPenStddev," %.12g",aPenaltyStatsStddev[j]);
+      ReportPrint1(pRepPenStddev,"%s",sColSepString);
+      ReportPrint1(pRepPenStddev,"%.12g",aPenaltyStatsStddev[j]);
     }
     ReportPrint(pRepPenStddev,"\n");
 
@@ -2188,7 +2261,8 @@ void ReportPenStddevPrint() {
       ReportHdrPrint(pRepPenStddev,"Mean");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsStddevSum[j],aPenaltyStatsStddevSum2[j],iRun);
-        ReportPrint1(pRepPenStddev," %.12g",fMean);
+        ReportPrint1(pRepPenStddev,"%s",sColSepString);
+        ReportPrint1(pRepPenStddev,"%.12g",fMean);
       }
       ReportPrint(pRepPenStddev,"\n");
 
@@ -2196,7 +2270,8 @@ void ReportPenStddevPrint() {
       ReportHdrPrint(pRepPenStddev,"Stddev");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsStddevSum[j],aPenaltyStatsStddevSum2[j],iRun);
-        ReportPrint1(pRepPenStddev," %.12g",fStddev);
+        ReportPrint1(pRepPenStddev,"%s",sColSepString);
+        ReportPrint1(pRepPenStddev,"%.12g",fStddev);
       }
       ReportPrint(pRepPenStddev,"\n");
 
@@ -2204,7 +2279,8 @@ void ReportPenStddevPrint() {
       ReportHdrPrint(pRepPenStddev,"CV");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsStddevSum[j],aPenaltyStatsStddevSum2[j],iRun);
-        ReportPrint1(pRepPenStddev," %.12g",fCV);
+        ReportPrint1(pRepPenStddev,"%s",sColSepString);
+        ReportPrint1(pRepPenStddev,"%.12g",fCV);
       }
       ReportPrint(pRepPenStddev,"\n");
     }
@@ -2234,7 +2310,8 @@ void ReportPenCVPrint() {
   if (bClausePenaltyCreated) {
     ReportPrint1(pRepPenCV,"%lu",iRun);
     for (j=0;j<iNumClauses;j++) {
-      ReportPrint1(pRepPenCV," %.12g",aPenaltyStatsCV[j]);
+      ReportPrint1(pRepPenCV,"%s",sColSepString);
+      ReportPrint1(pRepPenCV,"%.12g",aPenaltyStatsCV[j]);
     }
     ReportPrint(pRepPenCV,"\n");
 
@@ -2243,7 +2320,8 @@ void ReportPenCVPrint() {
       ReportHdrPrint(pRepPenCV,"Mean");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsCVSum[j],aPenaltyStatsCVSum2[j],iRun);
-        ReportPrint1(pRepPenCV," %.12g",fMean);
+        ReportPrint1(pRepPenCV,"%s",sColSepString);
+        ReportPrint1(pRepPenCV,"%.12g",fMean);
       }
       ReportPrint(pRepPenCV,"\n");
 
@@ -2251,7 +2329,8 @@ void ReportPenCVPrint() {
       ReportHdrPrint(pRepPenCV,"Stddev");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsCVSum[j],aPenaltyStatsCVSum2[j],iRun);
-        ReportPrint1(pRepPenCV," %.12g",fStddev);
+        ReportPrint1(pRepPenCV,"%s",sColSepString);
+        ReportPrint1(pRepPenCV,"%.12g",fStddev);
       }
       ReportPrint(pRepPenCV,"\n");
 
@@ -2259,7 +2338,8 @@ void ReportPenCVPrint() {
       ReportHdrPrint(pRepPenCV,"CV");
       for (j=0;j<iNumClauses;j++) {
         CalculateStats(&fMean,&fStddev,&fCV,aPenaltyStatsCVSum[j],aPenaltyStatsCVSum2[j],iRun);
-        ReportPrint1(pRepPenCV," %.12g",fCV);
+        ReportPrint1(pRepPenCV,"%s",sColSepString);
+        ReportPrint1(pRepPenCV,"%.12g",fCV);
       }
       ReportPrint(pRepPenCV,"\n");
     }
@@ -2275,9 +2355,14 @@ void ReportVW2WeightsPrint() {
   if (iRun==1) {
     ReportHdrPrint(pRepVW2Weights,"Run ID | Step # | Mean | VW2Weight[1] VW2Weight[2] ...\n");
   }
-  ReportPrint3(pRepVW2Weights,"%lu %llu %g",iRun,iStep,fVW2WeightMean);
+  ReportPrint1(pRepVW2Weights,"%lu",iRun);
+  ReportPrint1(pRepVW2Weights,"%s",sColSepString);
+  ReportPrint1(pRepVW2Weights,"%llu",iStep);
+  ReportPrint1(pRepVW2Weights,"%s",sColSepString);
+  ReportPrint1(pRepVW2Weights,"%g",fVW2WeightMean);
   for (j=1;j<=iNumVars;j++) {
-    ReportPrint1(pRepVW2Weights," %g",aVW2Weights[j]);
+    ReportPrint1(pRepVW2Weights,"%s",sColSepString);
+    ReportPrint1(pRepVW2Weights,"%g",aVW2Weights[j]);
   }
   ReportPrint(pRepVW2Weights,"\n");
 }
@@ -2304,7 +2389,8 @@ void ReportMobilityPrint() {
         fMean /= (FLOAT) iNumVars;
       }
     }
-    ReportPrint1(pRepMobility," %.12g",fMean);
+    ReportPrint1(pRepMobility,"%s",sColSepString);
+    ReportPrint1(pRepMobility,"%.12g",fMean);
   }
   ReportPrint(pRepMobility,"\n");
 }
@@ -2322,10 +2408,18 @@ void ReportMobFixedPrint() {
 
   if (iStep <= iMobFixedWindow) {
     if (bMobilityFixedIncludeStart) {
-      ReportPrint3(pRepMobFixed,"%lu %llu %lu\n",iRun,iStep,aMobilityWindow[iStep-1]);
+      ReportPrint1(pRepMobFixed,"%lu\n",iRun);
+      ReportPrint1(pRepMobFixed,"%s",sColSepString);
+      ReportPrint1(pRepMobFixed,"%llu\n",iStep);
+      ReportPrint1(pRepMobFixed,"%s",sColSepString);
+      ReportPrint1(pRepMobFixed,"%lu\n",aMobilityWindow[iStep-1]);
     }
   } else {
-    ReportPrint3(pRepMobFixed,"%lu %llu %lu\n",iRun,iStep,aMobilityWindow[iMobFixedWindow]);
+    ReportPrint1(pRepMobFixed,"%lu\n",iRun);
+    ReportPrint1(pRepMobFixed,"%s",sColSepString);
+    ReportPrint1(pRepMobFixed,"%llu\n",iStep);
+    ReportPrint1(pRepMobFixed,"%s",sColSepString);
+    ReportPrint1(pRepMobFixed,"%lu\n",aMobilityWindow[iMobFixedWindow]);
   }
 }
 
@@ -2355,10 +2449,15 @@ void ReportMobFixedFreqPrint() {
         fCurrent = ((FLOAT)aMobilityFixedFrequencies[j]) * iStepDiv;
         fCumulative += fCurrent;
 
-        ReportPrint2(pRepMobFixedFreq,"%lu %lu",iRun,j);
-        ReportPrint1(pRepMobFixedFreq," %lu",aMobilityFixedFrequencies[j]);
-        ReportPrint1(pRepMobFixedFreq," %.12g",fCurrent);
-        ReportPrint1(pRepMobFixedFreq," %.12g\n",fCumulative);
+        ReportPrint1(pRepMobFixedFreq,"%lu",iRun);
+        ReportPrint1(pRepMobFixedFreq,"%s",sColSepString);
+        ReportPrint1(pRepMobFixedFreq,"%lu",j);
+        ReportPrint1(pRepMobFixedFreq,"%s",sColSepString);
+        ReportPrint1(pRepMobFixedFreq,"%lu",aMobilityFixedFrequencies[j]);
+        ReportPrint1(pRepMobFixedFreq,"%s",sColSepString);
+        ReportPrint1(pRepMobFixedFreq,"%.12g",fCurrent);
+        ReportPrint1(pRepMobFixedFreq,"%s",sColSepString);
+        ReportPrint1(pRepMobFixedFreq,"%.12g\n",fCumulative);
       }
     }
   } else {
@@ -2378,10 +2477,15 @@ void ReportMobFixedFreqPrint() {
       fCurrent = ((FLOAT)aMobilityFixedFrequencies[j]) * iStepDiv;
       fCumulative += fCurrent;
 
-      ReportPrint2(pRepMobFixedFreq,"%lu %lu",iRun,j);
-      ReportPrint1(pRepMobFixedFreq," %lu",aMobilityFixedFrequencies[j]);
-      ReportPrint1(pRepMobFixedFreq," %.12g",fCurrent);
-      ReportPrint1(pRepMobFixedFreq," %.12g\n",fCumulative);
+      ReportPrint1(pRepMobFixedFreq,"%lu",iRun);
+      ReportPrint1(pRepMobFixedFreq,"%s",sColSepString);
+      ReportPrint1(pRepMobFixedFreq,"%lu",j);
+      ReportPrint1(pRepMobFixedFreq,"%s",sColSepString);
+      ReportPrint1(pRepMobFixedFreq,"%lu",aMobilityFixedFrequencies[j]);
+      ReportPrint1(pRepMobFixedFreq,"%s",sColSepString);
+      ReportPrint1(pRepMobFixedFreq,"%.12g",fCurrent);
+      ReportPrint1(pRepMobFixedFreq,"%s",sColSepString);
+      ReportPrint1(pRepMobFixedFreq,"%.12g\n",fCumulative);
     }
   }
 }
@@ -2397,39 +2501,17 @@ void ReportAutoCorrPrint() {
   }
 
   ReportPrint1(pRepAutoCorr,"%lu",iRun);
-  ReportPrint1(pRepAutoCorr," %lu",iAutoCorrLen);
+  ReportPrint1(pRepAutoCorr,"%s",sColSepString);
+  ReportPrint1(pRepAutoCorr,"%lu",iAutoCorrLen);
   for (j=1;j<iAutoCorrMaxLen;j++) {
-    ReportPrint1(pRepAutoCorr," %.12g",aAutoCorrValues[j]);
+    ReportPrint1(pRepAutoCorr,"%s",sColSepString);
+    ReportPrint1(pRepAutoCorr,"%.12g",aAutoCorrValues[j]);
   }
   ReportPrint(pRepAutoCorr,"\n");
 }
 
 /***** report -r triggers *****/
-/*
-typedef struct typeITEM {
-  char *sID;
-  BOOL bContainer;
-  char *sContainerList;
-} ITEM;
 
-typedef struct typeITEMLIST {
-  UINT32 iNumItems;
-  ITEM aItems[MAXITEMLIST];
-} ITEMLIST;
-
-typedef struct typeTRIGGER {
-  
-  enum EVENTPOINT eEventPoint;
-  FXNPTR pProcedure;
-  
-  BOOL bActive;
-  BOOL bDisabled;
-
-  char *sDependencyList;
-  char *sDeactivateList;
-
-} TRIGGER;
-*/
 void ReportTriggersPrint() {
 
   UINT32 j,k,l;
@@ -2450,15 +2532,29 @@ void ReportTriggersPrint() {
           bFoundPos = FALSE;
           for (l=0;l<aNumActiveProcedures[j];l++) {
             if (aActiveProcedures[j][l] == pTrig->pProcedure) {
-              ReportPrint2(pRepTriggers,"%2lu %lu",j,l+1);
-              ReportPrint3(pRepTriggers," %lu %lu %s\n",pTrig->bActive,pTrig->bDisabled,pItem->sID);
+              ReportPrint1(pRepTriggers,"%2lu",j);
+              ReportPrint1(pRepTriggers,"%s",sColSepString);
+              ReportPrint1(pRepTriggers,"%lu",l+1);
+              ReportPrint1(pRepTriggers,"%s",sColSepString);
+              ReportPrint1(pRepTriggers,"%lu",pTrig->bActive);
+              ReportPrint1(pRepTriggers,"%s",sColSepString);
+              ReportPrint1(pRepTriggers,"%lu",pTrig->bDisabled);
+              ReportPrint1(pRepTriggers,"%s",sColSepString);
+              ReportPrint1(pRepTriggers,"%s\n",pItem->sID);
               bFoundPos = TRUE;
               break;
             }
           }
           if (!bFoundPos) {
-            ReportPrint1(pRepTriggers,"%2lu -",j);
-            ReportPrint3(pRepTriggers," %lu %lu %s\n",pTrig->bActive,pTrig->bDisabled,pItem->sID);
+            ReportPrint1(pRepTriggers,"%2lu",j);
+            ReportPrint1(pRepTriggers,"%s",sColSepString);
+            ReportPrint(pRepTriggers,"-");
+            ReportPrint1(pRepTriggers,"%s",sColSepString);
+            ReportPrint1(pRepTriggers,"%lu",pTrig->bActive);
+            ReportPrint1(pRepTriggers,"%s",sColSepString);
+            ReportPrint1(pRepTriggers,"%lu",pTrig->bDisabled);
+            ReportPrint1(pRepTriggers,"%s",sColSepString);
+            ReportPrint1(pRepTriggers,"%s\n",pItem->sID);
           }
         }
       }
@@ -2470,8 +2566,15 @@ void ReportTriggersPrint() {
           pTrig = &aTriggers[k];
           pItem = &listTriggers.aItems[k];
           if ((pTrig->eEventPoint== (enum EVENTPOINT) j)&&(aActiveProcedures[j][l] == pTrig->pProcedure)) {
-            ReportPrint2(pRepTriggers,"%2lu %lu",j,l+1);
-            ReportPrint3(pRepTriggers," %lu %lu %s\n",pTrig->bActive,pTrig->bDisabled,pItem->sID);
+            ReportPrint1(pRepTriggers,"%2lu",j);
+            ReportPrint1(pRepTriggers,"%s",sColSepString);
+            ReportPrint1(pRepTriggers,"%lu",l+1);
+            ReportPrint1(pRepTriggers,"%s",sColSepString);
+            ReportPrint1(pRepTriggers,"%lu",pTrig->bActive);
+            ReportPrint1(pRepTriggers,"%s",sColSepString);
+            ReportPrint1(pRepTriggers,"%lu",pTrig->bDisabled);
+            ReportPrint1(pRepTriggers,"%s",sColSepString);
+            ReportPrint1(pRepTriggers,"%s\n",pItem->sID);
           }
         }
       }
