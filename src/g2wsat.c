@@ -48,7 +48,7 @@ void AddG2WSat() {
     "G2WSAT: Gradient-based Greedy WalkSAT (generalized)",
     "Li, Huang  [SAT 05] and Li, Wei, Zhang [SAT 07]",
     "PickG2WSatGeneral,ConfigureG2WSatGeneral",
-    "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange",
+    "DefaultProcedures,Flip+DecPromVars+FCL,DecPromVars,FalseClauseList,VarLastChange",
     "default","default");
   
   AddParmProbability(&pCurAlg->parmList,"-novnoise","novelty noise [default %s]","","",&iNovNoise,0.50);

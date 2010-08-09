@@ -226,6 +226,9 @@ UINT32 iNumDecPromVars;
 UINT32 *aDecPromVarsListW;
 UINT32 iNumDecPromVarsW;
 
+/***** Trigger Flip+DecPromVars+FCL *****/
+void FlipDecPromVarsFCL();
+
 
 /***** Trigger BestScoreList *****/
 
@@ -781,6 +784,8 @@ void AddDataTriggers() {
   CreateTrigger("InitDecPromVars",InitStateInfo,InitDecPromVars,"InitTrackChanges","");
   CreateTrigger("UpdateDecPromVars",UpdateStateInfo,UpdateDecPromVars,"UpdateTrackChanges","");
   CreateContainerTrigger("DecPromVars","CreateDecPromVars,InitDecPromVars,UpdateDecPromVars");
+
+  CreateTrigger("Flip+DecPromVars+FCL",FlipCandidate,FlipDecPromVarsFCL,"DecPromVars,FalseClauseList","DefaultFlip,UpdateTrackChanges,UpdateVarScore,UpdateFalseClauseList,CreateTrackChanges,InitTrackChanges,UpdateTrackChanges");
 
   CreateTrigger("CreateDecPromVarsW",CreateStateInfo,CreateDecPromVarsW,"CreateTrackChangesW","");
   CreateTrigger("InitDecPromVarsW",InitStateInfo,InitDecPromVarsW,"InitTrackChangesW","");
@@ -2802,6 +2807,115 @@ void FlipTrackChangesFCL() {
     pClause++;
   }
 }
+
+void FlipDecPromVarsFCL() {
+
+  UINT32 j;
+  UINT32 k;
+  UINT32 *pClause;
+  UINT32 iVar;
+  LITTYPE litWasTrue;
+  LITTYPE litWasFalse;
+  LITTYPE *pLit;
+
+  if (iFlipCandidate == 0) {
+    return;
+  }
+
+  iNumChanges = 0;
+
+  litWasTrue = GetTrueLit(iFlipCandidate);
+  litWasFalse = GetFalseLit(iFlipCandidate);
+
+  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+
+  pClause = pLitClause[litWasTrue];
+  for (j=0;j<aNumLitOcc[litWasTrue];j++) {
+    if (aNumTrueLit[*pClause]==1) { 
+      
+      aFalseList[iNumFalse] = *pClause;
+      aFalseListPos[*pClause] = iNumFalse++;
+      
+      aVarScore[iFlipCandidate]--;
+
+      pLit = pClauseLits[*pClause];
+      for (k=0;k<aClauseLen[*pClause];k++) {
+        iVar = GetVarFromLit(*pLit);
+        aVarScore[iVar]--;
+        if (aVarScore[iVar] == -1) {
+          aDecPromVarsList[iNumDecPromVars++] = iVar;
+        }
+        pLit++;
+      }
+    }
+    pClause++;
+  }
+
+  pClause = pLitClause[litWasFalse];
+  for (j=0;j<aNumLitOcc[litWasFalse];j++) {
+    if (aNumTrueLit[*pClause]==1) {
+      iVar = aCritSat[*pClause];
+      aVarScore[iVar]--;
+      if (aVarScore[iVar] == -1) {
+        aDecPromVarsList[iNumDecPromVars++] = iVar;
+      }
+    }
+    pClause++;
+  }
+
+  // 2nd pass
+
+  pClause = pLitClause[litWasTrue];
+  for (j=0;j<aNumLitOcc[litWasTrue];j++) {
+    aNumTrueLit[*pClause]--;
+    if (aNumTrueLit[*pClause]==1) {
+      pLit = pClauseLits[*pClause];
+      for (k=0;k<aClauseLen[*pClause];k++) {
+        if (IsLitTrue(*pLit)) {
+          iVar = GetVarFromLit(*pLit);
+          aVarScore[iVar]++;
+          aCritSat[*pClause] = iVar;
+          break;
+        }
+        pLit++;
+      }
+    }
+    pClause++;
+  }
+
+  pClause = pLitClause[litWasFalse];
+  for (j=0;j<aNumLitOcc[litWasFalse];j++) {
+    aNumTrueLit[*pClause]++;
+    if (aNumTrueLit[*pClause]==1) {
+
+      aFalseList[aFalseListPos[*pClause]] = aFalseList[--iNumFalse];
+      aFalseListPos[aFalseList[iNumFalse]] = aFalseListPos[*pClause];
+
+      pLit = pClauseLits[*pClause];
+      for (k=0;k<aClauseLen[*pClause];k++) {
+        iVar = GetVarFromLit(*pLit);
+        aVarScore[iVar]++;
+        pLit++;
+      }
+      aVarScore[iFlipCandidate]++;
+      aCritSat[*pClause] = iFlipCandidate;
+    }
+    pClause++;
+  }
+
+  j=0;
+  k=0;
+  while (j < iNumDecPromVars) {
+    iVar = aDecPromVarsList[k];
+    if ((aVarScore[iVar] >= 0)||(iVar == iFlipCandidate)) {
+      iNumDecPromVars--;
+    } else {
+      aDecPromVarsList[j++]=aDecPromVarsList[k];
+    }
+    k++;
+  }
+}
+
 
 #define UpdateChangeW(var) {if(aChangeLastStepW[var]!=iStep) {aChangeOldScoreW[var] = aVarScoreW[var]; aChangeLastStepW[var]=iStep; aChangeListW[iNumChangesW++]=var;}}
 
