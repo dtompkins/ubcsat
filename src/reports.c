@@ -68,11 +68,11 @@ void AddReports() {
   pRepOut = CreateReport("out", "Standard Output with Columns","Prints an array of data, with each row representing an independent run~you can customize the report to include a variety of columns","stdout","ReportOut");
   AddReportParmString(pRepOut,"Columns to Display (ubcsat -hc for info)","default");
   AddReportParmUInt(pRepOut,"Delay: Set to 1 to print after all runs are complete",&bReportOutputSuppress,0);
-  pRepOut->bActive = TRUE;
+  pRepOut->bDefaultActivate = TRUE;
 
   pRepStats = CreateReport("stats","Statistics Report","Shows summary statistics from all runs~you can customize the report to include a variety of statistics","stdout","ReportStats");
-  pRepStats->bActive = TRUE;
   AddReportParmString(pRepStats,"Statistics to Display (ubcsat -hs for info)","default");
+  pRepStats->bDefaultActivate = TRUE;
 
   pRepRTD = CreateReport("rtd","Run-Length and Run-Time Distribution","Similar to (-r out), except results are sorted by search steps,~and include successful runs~you can customize the report to include a variety of columns", "stdout","ReportRTD,SortByStepPerformance");
   AddReportParmString(pRepRTD,"Columns to Display (ubcsat -hc for info)","rtd");

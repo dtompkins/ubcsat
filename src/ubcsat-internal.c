@@ -51,6 +51,8 @@ BOOL aParmValid[MAXTOTALPARMS];
 BOOL bReportClean;
 BOOL bReportFlush;
 BOOL bReportEcho;
+BOOL bReportQuiet;
+BOOL bReportCSV;
 BOOL bRestart;
 BOOL bSolutionFound;
 BOOL bSolveMode;
@@ -98,6 +100,7 @@ ALGPARMLIST parmUBCSAT;
 char *pVersion;
 char *sAlgName;
 char *sCommentString;
+char *sColSepString;
 char *sFilenameIn;
 char *sFilenameParms;
 char *sFilenameVarInit;
@@ -1053,6 +1056,8 @@ REPORT *CreateReport(const char *sID, const char *sDescription, const char *sVer
 
   SetString(&pRep->sID,sID);
   pRep->bActive = FALSE;
+  pRep->bUserActivated = FALSE;
+  pRep->bDefaultActivate = FALSE;
   pRep->bSpecialFileIO = FALSE;
   pRep->fileOut = stdout;
   SetString(&pRep->sOutputFile,sOutputFile);
@@ -1590,7 +1595,7 @@ void ParseParameters(ALGPARMLIST *pParmList) {
           }
           pRep = &aReports[iCurReport];
           
-          pRep->bActive = TRUE;
+          pRep->bUserActivated = TRUE;
           aParmValid[iCurParm++] = TRUE;
 
           if (iCurParm < iNumTotalParms) {
@@ -1824,6 +1829,8 @@ void SetupUBCSAT() {
   /* initialize reports */
 
   SetString(&sCommentString,"#");
+
+  SetString(&sColSepString," ");
 
   pRepHelp = CreateReport("help","Help Report"," All help messages that are displayed (Defaults to stdout)","stdout","");
   pRepHelp->bActive = TRUE;

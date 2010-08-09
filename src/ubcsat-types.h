@@ -247,6 +247,8 @@ typedef struct typeREPORT {
   char *sDescription;
   char *sVerboseDescription;
   BOOL bActive;
+  BOOL bUserActivated;
+  BOOL bDefaultActivate;
   BOOL bSpecialFileIO;
   char *sOutputFile;
   char *sTriggers;

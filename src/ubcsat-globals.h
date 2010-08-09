@@ -115,6 +115,8 @@ extern char *sFilenameVarInit;
 extern BOOL bReportEcho;
 extern BOOL bReportClean;
 extern BOOL bReportFlush;
+extern BOOL bReportQuiet;
+extern BOOL bReportCSV;
 
 extern SINT32 iBestScore;
 extern FLOAT fBestScore;

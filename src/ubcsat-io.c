@@ -142,6 +142,10 @@ void ActivateReportTriggers() {
     if (strcmp(aReports[j].sOutputFile,"null")==0) {
       aReports[j].bActive = FALSE;
       aReports[j].fileOut = 0;
+    } else if (aReports[j].bUserActivated) {
+      aReports[j].bActive = TRUE;
+    } else if ((aReports[j].bDefaultActivate)&&(!bReportQuiet)) {
+      aReports[j].bActive = TRUE;
     }
     if (aReports[j].bActive) {
       if (strcmp(aReports[j].sOutputFile,"stdout")==0) {

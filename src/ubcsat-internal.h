@@ -52,6 +52,7 @@ extern BOOL bHelpHeaderShown;
 extern const char sVersion[];
 extern char *pVersion;
 extern char *sCommentString;
+extern char *sColSepString;
 extern FXNPTR aActiveProcedures[][MAXFXNLIST];
 
 extern BOOL bReportOutputSuppress;

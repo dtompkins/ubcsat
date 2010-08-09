@@ -74,6 +74,9 @@ void AddParameters() {
   AddParmBool(&parmIO, "-recho","all reports directed to files will also be echoed to stdout","","",&bReportEcho,FALSE);
   AddParmBool(&parmIO, "-rflush","all report buffers are flushed before each run","","FlushBuffers",&bReportFlush,FALSE);
   AddParmBool(&parmIO, "-rclean","suppress all report header output","","",&bReportClean,FALSE);
+  AddParmBool(&parmIO, "-rcsv","use alternate CSV format for (most) reports","","SetupCSV",&bReportCSV,FALSE);
+
+  AddParmBool(&parmIO, "-q","quiet mode (turn (-r out) and (-r stats) off by default)","","",&bReportQuiet,FALSE);
 
   AddParmString(&parmIO, "-rcomment","specify comment character for report headers (# is default)","","",&sCommentString,"#");
 
