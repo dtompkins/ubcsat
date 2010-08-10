@@ -33,14 +33,14 @@ void AddRNovelty() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("rnovelty","",FALSE,
+  pCurAlg = CreateAlgorithm("rnovelty","",0,
     "RNovelty",
     "McAllester, Selman, Kautz [AAAI 97]",
     "PickRNovelty",
     "DefaultProcedures,Flip+FalseClauseList,VarLastChange",
     "default","default");
   
-  CopyParameters(pCurAlg,"novelty","",FALSE);
+  CopyParameters(pCurAlg,"novelty","",0);
 
   CreateTrigger("PickRNovelty",ChooseCandidate,PickRNovelty,"","");
 
@@ -50,14 +50,14 @@ void AddRNoveltyPlus() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("rnovelty+","",FALSE,
+  pCurAlg = CreateAlgorithm("rnovelty+","",0,
     "RNovelty+: RNovelty with random walk",
     "Hoos [AAAI 99]",
     "PickRNoveltyPlus",
     "DefaultProcedures,Flip+FalseClauseList,VarLastChange",
     "default","default");
     
-  CopyParameters(pCurAlg,"novelty+","",FALSE);
+  CopyParameters(pCurAlg,"novelty+","",0);
 
   CreateTrigger("PickRNoveltyPlus",ChooseCandidate,PickRNoveltyPlus,"","");
 

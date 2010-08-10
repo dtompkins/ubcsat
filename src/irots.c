@@ -67,7 +67,7 @@ void AddIRoTS() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("irots","",FALSE,
+  pCurAlg = CreateAlgorithm("irots","",0,
     "IRoTS: Iterated Robust TABU Search",
     "Smyth, Hoos, Stuetzle [AI 2003]",
     "PickRoTS,PostStepIRoTS",
@@ -129,9 +129,9 @@ void InitIRoTS() {
 
 void PostStepIRoTS() {
 
-  BOOL bSwitchMode = FALSE;
-  BOOL bSave = FALSE;
-  BOOL bRestore = FALSE;
+  BOOL bSwitchMode = 0;
+  BOOL bSave = 0;
+  BOOL bRestore = 0;
 
   /* after a regular IRoTS step, the process depends on what
      'mode' the solver is in */
@@ -162,9 +162,9 @@ void PostStepIRoTS() {
 
       /* because this is the initial phase, we must 'save' the candidate solution */
 
-      bSave = TRUE;
+      bSave = 1;
       iIrotsMode++;
-      bSwitchMode = TRUE;
+      bSwitchMode = 1;
     }
     
     break;
@@ -176,7 +176,7 @@ void PostStepIRoTS() {
     /* stay in this phase for exactly 'psteps' steps */
 
     if (iStep == iVarLastChangeReset + iIrotsPerturbSteps + 1) {
-      bSwitchMode = TRUE;
+      bSwitchMode = 1;
       iIrotsMode++;
       iIrotsLSBestValue = iNumFalse;
       fIrotsLSBestValueW = fSumFalseW;
@@ -207,7 +207,7 @@ void PostStepIRoTS() {
 
     if (iStep == iIrotsLSBestStep + iIrotsEscapeSteps + 1) {
       iIrotsMode--;
-      bSwitchMode = TRUE;
+      bSwitchMode = 1;
 
       /* compare current candidate solution against the last 'saved' candidate solution
       choose the worst solution with probability (iWp)
@@ -217,29 +217,29 @@ void PostStepIRoTS() {
       if (bWeighted) {
         if (fSumFalseW <= fIrotsSavedValueW) {
           if (RandomProb(iIrotsNoise)) {
-            bRestore = TRUE;
+            bRestore = 1;
           } else {
-            bSave = TRUE;
+            bSave = 1;
           }
         } else {
           if (RandomProb(iIrotsNoise)) {
-            bSave = TRUE;
+            bSave = 1;
           } else {
-            bRestore = TRUE;
+            bRestore = 1;
           }
         }
       } else {
         if (iNumFalse <= iIrotsSavedValue) {
           if (RandomProb(iIrotsNoise)) {
-            bRestore = TRUE;
+            bRestore = 1;
           } else {
-            bSave = TRUE;
+            bSave = 1;
           }
         } else {
           if (RandomProb(iIrotsNoise)) {
-            bSave = TRUE;
+            bSave = 1;
           } else {
-            bRestore = TRUE;
+            bRestore = 1;
           }
         }
       }

@@ -33,7 +33,7 @@ void AddWalkSatTabu() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("walksat-tabu","",FALSE,
+  pCurAlg = CreateAlgorithm("walksat-tabu","",0,
     "WALKSAT-TABU: WalkSAT with TABU search",
     "McAllester, Selman, Kautz [AAAI 97]",
     "PickWalkSatTabu",

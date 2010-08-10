@@ -50,7 +50,7 @@ void AddSAPS() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("saps","",FALSE,
+  pCurAlg = CreateAlgorithm("saps","",0,
     "SAPS: Scaling And Probabilistic Smoothing",
     "Hutter, Tompkins, Hoos [CP 02]",
     "PickSAPS,PostFlipSAPS",
@@ -67,20 +67,20 @@ void AddSAPS() {
   CreateTrigger("PostFlipSAPS",PostFlip,PostFlipSAPS,"","");
 
 
-  pCurAlg = CreateAlgorithm("rsaps","",FALSE,
+  pCurAlg = CreateAlgorithm("rsaps","",0,
     "RSAPS: Reactive Scaling And Probabilistic Smoothing",
     "Hutter, Tompkins, Hoos [CP 02]",
     "PickSAPS,InitRSAPS,PostFlipRSAPS",
     "DefaultProcedures,Flip+MBPFL+FCL+VIF",
     "default","default");
 
-  CopyParameters(pCurAlg,"saps","",FALSE);
+  CopyParameters(pCurAlg,"saps","",0);
 
   CreateTrigger("PostFlipRSAPS",PostFlip,PostFlipRSAPS,"","");
   CreateTrigger("InitRSAPS",PostInit,InitRSAPS,"","");
 
 
-  pCurAlg = CreateAlgorithm("sapsnr","",FALSE,
+  pCurAlg = CreateAlgorithm("sapsnr","",0,
   "SAPS/NR: De-randomized version of SAPS",
   "Tompkins, Hoos [SAIM 04]",
   "PickSAPSNR,PostFlipSAPSNR",
@@ -183,7 +183,7 @@ void AdjustPenalties() {
   
   UINT32 j;
   UINT32 k;
-  BOOL bReScale = FALSE;
+  BOOL bReScale = 0;
   FLOAT fDiff;
   FLOAT fOld;
   LITTYPE *pLit;
@@ -193,7 +193,7 @@ void AdjustPenalties() {
 
   for(j=0;j<iNumFalse;j++) {
     if (aClausePenaltyFL[aFalseList[j]] > fMaxClausePenalty) {
-      bReScale = TRUE;
+      bReScale = 1;
       break;
     }
   }

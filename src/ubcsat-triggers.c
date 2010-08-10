@@ -1000,7 +1000,7 @@ void ReadCNF() {
 
   FILE *filInput;
 
-  bIsWCNF = FALSE;
+  bIsWCNF = 0;
 
   iNumClauses = 0;
 
@@ -1015,7 +1015,7 @@ void ReadCNF() {
     }
 
     if (strncmp(sLine,"p wcnf",6)==0) {
-      bIsWCNF = TRUE;
+      bIsWCNF = 1;
     }
 
     if (sLine[0] =='p') {
@@ -1360,12 +1360,12 @@ void DefaultInitVars() {
 
     for (j=0;j<iInitVarFlip;j++) {
       do {
-        bAdded = TRUE;
+        bAdded = 1;
         iVar = RandomInt(iNumVars) + 1;
         if (j > 0) {
           for (k=0;k<j;k++) {
             if (aCandidateList[k] == iVar) {
-              bAdded = FALSE;
+              bAdded = 0;
               break;
             }
           }
@@ -1448,11 +1448,11 @@ void DefaultFlipW() {
 
 void CheckTermination() {
   if (iNumFalse <= iTarget) {
-    bSolutionFound = TRUE;
+    bSolutionFound = 1;
   }
   if (bWeighted) {
     if (fSumFalseW <= fTargetW) {
-      bSolutionFound = TRUE;
+      bSolutionFound = 1;
     }
   }
 }
@@ -3333,8 +3333,8 @@ void UpdateBestScoreList() {
 
 void CreateClausePenaltyFL() {
   aClausePenaltyFL = (FLOAT *) AllocateRAM(iNumClauses * sizeof(FLOAT));
-  bClausePenaltyCreated = TRUE;
-  bClausePenaltyFLOAT = TRUE;
+  bClausePenaltyCreated = 1;
+  bClausePenaltyFLOAT = 1;
 }
 
 void InitClausePenaltyFL() {
@@ -3679,8 +3679,8 @@ void FlipMBPFLandFCLandVIFandW() {
 
 void CreateClausePenaltyINT() {
   aClausePenaltyINT = (UINT32 *) AllocateRAM(iNumClauses * sizeof(UINT32));
-  bClausePenaltyCreated = TRUE;
-  bClausePenaltyFLOAT = FALSE;
+  bClausePenaltyCreated = 1;
+  bClausePenaltyFLOAT = 0;
   iInitPenaltyINT = 1;
 }
 
@@ -4093,15 +4093,15 @@ void CreateSaveBest() {
 }
 
 void UpdateSaveBest() {
-  BOOL bSave = FALSE;
+  BOOL bSave = 0;
 
   if (bWeighted) {
     if (iBestStepSumFalseW == iStep) {
-      bSave = TRUE;
+      bSave = 1;
     }
   } else {
     if (iBestStepNumFalse == iStep) {
-      bSave = TRUE;
+      bSave = 1;
     }
   }
   if (bSave) {
@@ -4145,13 +4145,13 @@ void InitFirstLM() {
 
 void UpdateFirstLM() {
   if (iFirstLMStep==0) {
-    if (IsLocalMinimum(FALSE)) {
+    if (IsLocalMinimum(0)) {
       iFirstLM = iNumFalse;
       iFirstLMStep = iStep;
     }
   }
   if ((bWeighted)&&(iFirstLMStepW==FLOATZERO)) {
-    if (IsLocalMinimum(TRUE)) {
+    if (IsLocalMinimum(1)) {
       fFirstLMW = fSumFalseW;
       iFirstLMStepW = iStep;
     }
@@ -4225,11 +4225,11 @@ void CalcTrajBestLM() {
 void CheckNoImprove() {
   if (iNoImprove) {
     if (iStep > (iBestStepNumFalse + iNoImprove)) {
-      bTerminateRun = TRUE;
+      bTerminateRun = 1;
     }
     if (bWeighted) {
       if (iStep > (iBestStepSumFalseW + iNoImprove)) {
-        bTerminateRun = TRUE;
+        bTerminateRun = 1;
       }
     }
   }
@@ -4250,14 +4250,14 @@ void CheckTimeout() {
   if (fTimeOut > FLOATZERO) {
     fTimeElapsed = RunTimeElapsed();
     if (fTimeElapsed > (double) fTimeOut) {
-      bTerminateRun = TRUE;
+      bTerminateRun = 1;
     }
   }
   if (fGlobalTimeOut > FLOATZERO) {
     fTimeElapsed = TotalTimeElapsed();
     if (fTimeElapsed > (double) fGlobalTimeOut) {
-      bTerminateRun = TRUE;
-      bTerminateAllRuns = TRUE;
+      bTerminateRun = 1;
+      bTerminateAllRuns = 1;
     }
   }
 }
@@ -4265,22 +4265,22 @@ void CheckTimeout() {
 void CheckForRestarts() {
   if (iPeriodicRestart) {
     if ((iStep % iPeriodicRestart) == 0) {
-      bRestart = TRUE;
+      bRestart = 1;
     }
   }
   if (iProbRestart) {
     if (RandomProb(iProbRestart)) {
-      bRestart = TRUE;
+      bRestart = 1;
     }
   }
   if (iStagnateRestart) {
     if (iStep > (iBestStepNumFalse + iStagnateRestart)) {
-      bRestart = TRUE;
+      bRestart = 1;
       InitBestFalse();
     }
     if (bWeighted) {
       if (iStep > (iBestStepSumFalseW + iStagnateRestart)) {
-        bRestart = TRUE;
+        bRestart = 1;
         InitBestFalse();
       }
     }
@@ -4993,7 +4993,7 @@ void LoadKnownSolutions() {
         if ((*sKnownLine)&&(*sKnownLine != '#')) {
           if (SetCurVarStateString(vsKnownNew, sKnownLine)) {
             AddToVarStateList(&vslKnownSoln,vsKnownNew);
-            bKnownSolutions = TRUE;
+            bKnownSolutions = 1;
           }
         }
       }
@@ -5065,7 +5065,7 @@ void FlushBuffers() {
 }
 
 void CheckWeighted() {
-  if (bWeighted==FALSE) {
+  if (!bWeighted) {
     ReportPrint(pRepErr,"Unexpected Error: some weighted features unavailable for current (unweighted) algorithm\n");
     AbnormalExit();
     exit(1);
@@ -5083,7 +5083,7 @@ void UpdateUniqueSolutions() {
     if (AddUniqueToVarStateList(&vslUnique,vsCheckUnique)) {
       iNumUniqueSolutions++;
       if (iNumUniqueSolutions == iFindUnique) {
-        bTerminateAllRuns = TRUE;
+        bTerminateAllRuns = 1;
       }
       iLastUnique = iRun;
     }
@@ -5136,10 +5136,10 @@ void CreateVarsShareClauses() {
       for (l=0;l<aClauseLen[j];l++) {
         iVar2 = GetVarFromLit(*pLit2);
         if ((l != k)&&(iVar != iVar2)) {
-          bAlreadyShareClause = FALSE;
+          bAlreadyShareClause = 0;
           for (m=0;m<aNumVarsShareClause[iVar];m++) {
             if (pVarsShareClause[iVar][m] == iVar2) {
-              bAlreadyShareClause = TRUE;
+              bAlreadyShareClause = 1;
               break;
             }
           }

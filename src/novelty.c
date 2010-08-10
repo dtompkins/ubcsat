@@ -41,7 +41,7 @@ void AddNovelty() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("novelty","",FALSE,
+  pCurAlg = CreateAlgorithm("novelty","",0,
     "Novelty",
     "McAllester, Selman, Kautz [AAAI 97]",
     "PickNovelty",
@@ -58,14 +58,14 @@ void AddNoveltyPlus() {
   
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("novelty+","",FALSE,
+  pCurAlg = CreateAlgorithm("novelty+","",0,
     "Novelty+: Novelty with random walk",
     "Hoos [AAAI 99]",
     "PickNoveltyPlus",
     "DefaultProcedures,Flip+FalseClauseList,VarLastChange",
     "default","default");
   
-  CopyParameters(pCurAlg,"novelty","",FALSE);
+  CopyParameters(pCurAlg,"novelty","",0);
 
   AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iNovWpDp,0.01);
 
@@ -76,14 +76,14 @@ void AddNoveltyPlusPlus() {
   
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("novelty++","",FALSE,
+  pCurAlg = CreateAlgorithm("novelty++","",0,
     "Novelty++: Novelty+ with a modified diversification mechanism",
     "Li, Huang  [SAT 05]",
     "PickNoveltyPlusPlus",
     "DefaultProcedures,Flip+FalseClauseList,VarLastChange",
     "default","default");
   
-  CopyParameters(pCurAlg,"novelty","",FALSE);
+  CopyParameters(pCurAlg,"novelty","",0);
 
   AddParmProbability(&pCurAlg->parmList,"-dp","diversification probability [default %s]","with probability PR, select the least recently flipped~variable from a randomly selected unsat clause","",&iNovWpDp,0.05);
 

@@ -32,7 +32,7 @@ void AddHSat() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("hsat","",FALSE,
+  pCurAlg = CreateAlgorithm("hsat","",0,
     "HSAT",
     "Gent, Walsh [AAAI 93]",
     "PickHSat",

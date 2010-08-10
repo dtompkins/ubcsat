@@ -53,11 +53,11 @@ void *AllocateRAM( size_t size ) {
 
   iLastRequestSize = size;
   
-  bFound = FALSE;
+  bFound = 0;
 
   for (j=0;j<iNumHeap;j++) {
     if (aHeap[j].iBytesFree >= size) {
-      bFound = TRUE;
+      bFound = 1;
       iHeapID = j;
       break;
     }

@@ -44,7 +44,7 @@ void AddG2WSat() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("g2wsat","",FALSE,
+  pCurAlg = CreateAlgorithm("g2wsat","",0,
     "G2WSAT: Gradient-based Greedy WalkSAT (generalized)",
     "Li, Huang  [SAT 05] and Li, Wei, Zhang [SAT 07]",
     "PickG2WSatGeneral,ConfigureG2WSatGeneral",
@@ -61,7 +61,7 @@ void AddG2WSat() {
   CreateTrigger("PickG2WSatGeneral",ChooseCandidate,PickG2WSatGeneral,"","");
   CreateTrigger("ConfigureG2WSatGeneral",PostParameters,ConfigureG2WSatGeneral,"","");
 
-  pCurAlg = CreateAlgorithm("adaptg2wsat","",FALSE,
+  pCurAlg = CreateAlgorithm("adaptg2wsat","",0,
     "Adaptive G2WSat (generalized)",
     "Li, Wei, Zhang  [SAT 07]",
     "PickG2WSatGeneral,ConfigureG2WSatGeneral,InitAdaptG2WSatNoise,AdaptG2WSatNoise",

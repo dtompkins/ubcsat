@@ -58,7 +58,7 @@ int ubcsatmain(int argc, char *argv[]) {
 
   iRun = 0;
   iNumSolutionsFound = 0;
-  bTerminateAllRuns = FALSE;
+  bTerminateAllRuns = 0;
 
   RunProcedures(PreStart);
 
@@ -69,9 +69,9 @@ int ubcsatmain(int argc, char *argv[]) {
     iRun++;
 
     iStep = 0;
-    bSolutionFound = FALSE;
-    bTerminateRun = FALSE;
-    bRestart = TRUE;
+    bSolutionFound = 0;
+    bTerminateRun = 0;
+    bRestart = 1;
 
     RunProcedures(PreRun);
 
@@ -90,7 +90,7 @@ int ubcsatmain(int argc, char *argv[]) {
         RunProcedures(InitData);
         RunProcedures(InitStateInfo);
         RunProcedures(PostInit);
-        bRestart = FALSE;
+        bRestart = 0;
       } else {
         RunProcedures(ChooseCandidate);
         RunProcedures(PreFlip);
@@ -115,7 +115,7 @@ int ubcsatmain(int argc, char *argv[]) {
     if (bSolutionFound) {
       iNumSolutionsFound++;
       if (iNumSolutionsFound == iFind) {
-        bTerminateAllRuns = TRUE;
+        bTerminateAllRuns = 1;
       }
     }
   }

@@ -53,7 +53,7 @@ void AddVW() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("vw1","",FALSE,
+  pCurAlg = CreateAlgorithm("vw1","",0,
     "VW1: Variable Weighting Scheme One",
     "Prestwich [SAT 05]",
     "PickVW1",
@@ -65,14 +65,14 @@ void AddVW() {
   CreateTrigger("PickVW1",ChooseCandidate,PickVW1,"","");
 
 
-  pCurAlg = CreateAlgorithm("vw2","",FALSE,
+  pCurAlg = CreateAlgorithm("vw2","",0,
     "VW2: Variable Weighting Scheme Two",
     "Prestwich [SAT 05]",
     "PickVW2",
     "DefaultProcedures,Flip+FalseClauseList,VW2Weights",
     "default","default");
   
-  CopyParameters(pCurAlg,"vw1","",FALSE);
+  CopyParameters(pCurAlg,"vw1","",0);
   AddParmFloat(&pCurAlg->parmList,"-s","VW2 smoothing factor [default %s]","paramater to adjust variable weight smoothing~s = 0 is equivalent to VW1~s = 1 is more HWSAT-like","",&fVW2Smooth,0.01);
   AddParmFloat(&pCurAlg->parmList,"-c","VW2 weighting factor [default %s]","paramater to adjust variable weight scoring~c = 0 is equivalent to WalkSAT/SKC","",&fVW2WeightFactor,0.01);
 
@@ -83,7 +83,7 @@ void AddVW() {
   CreateTrigger("UpdateVW2Weights",UpdateStateInfo,UpdateVW2Weights,"","");
   CreateContainerTrigger("VW2Weights","InitVW2Weights,CreateVW2Weights,UpdateVW2Weights");
 
-  pCurAlg = CreateAlgorithm("vw2","2005",FALSE,
+  pCurAlg = CreateAlgorithm("vw2","2005",0,
     "VW2/2005: VW2 with randomized parameter settings",
     "Prestwich [SAT 05], modified for 2005 competition",
     "PickVW2Auto,InitVW2Auto,UpdateVW2Auto",
@@ -318,15 +318,15 @@ void UpdateVW2Auto() {
 
 BOOL BoundedExpProbability (SINT32 iExpProbability) {
   if (iExpProbability < 0) {
-    return TRUE;
+    return 1;
   }
   if (iExpProbability > iMaxExpProbability) {
     iExpProbability = iMaxExpProbability;
   }
   if (RandomInt((UINT32) (1 << iExpProbability))==0) {
-    return TRUE;
+    return 1;
   }
-  return FALSE;
+  return 0;
 }
 
 void PickVW2Auto() {

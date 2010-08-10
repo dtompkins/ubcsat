@@ -68,11 +68,11 @@ void AddReports() {
   pRepOut = CreateReport("out", "Standard Output with Columns","Prints an array of data, with each row representing an independent run~you can customize the report to include a variety of columns","stdout","ReportOut");
   AddReportParmString(pRepOut,"Columns to Display (ubcsat -hc for info)","default");
   AddReportParmBool(pRepOut,"Delay: Set to 1 to print after all runs are complete",&bReportOutputSuppress,0);
-  pRepOut->bDefaultActivate = TRUE;
+  pRepOut->bDefaultActivate = 1;
 
   pRepStats = CreateReport("stats","Statistics Report","Shows summary statistics from all runs~you can customize the report to include a variety of statistics","stdout","ReportStats");
   AddReportParmString(pRepStats,"Statistics to Display (ubcsat -hs for info)","default");
-  pRepStats->bDefaultActivate = TRUE;
+  pRepStats->bDefaultActivate = 1;
 
   pRepRTD = CreateReport("rtd","Run-Length and Run-Time Distribution","Similar to (-r out), except results are sorted by search steps,~and include successful runs~you can customize the report to include a variety of columns", "stdout","ReportRTD,SortByStepPerformance");
   AddReportParmString(pRepRTD,"Columns to Display (ubcsat -hc for info)","rtd");
@@ -190,7 +190,7 @@ void AddReports() {
     "%20llu",
     &iStep,"",ColTypeFinal);
 
-  AddStatCol("steps","Steps","mean+cv+median",TRUE);
+  AddStatCol("steps","Steps","mean+cv+median",1);
 
   
   AddColumnFloat("time","Time in seconds, measured (not accurate for short runs)",
@@ -200,7 +200,7 @@ void AddReports() {
     "%10.6f",
     &fRunTime,"",ColTypeFinal);
 
-  AddStatCol("time","MeasuredCPUTime","mean",FALSE);
+  AddStatCol("time","MeasuredCPUTime","mean",0);
 
 
   AddColumnUInt("best","Best (Lowest) # of False Clauses Found",
@@ -210,7 +210,7 @@ void AddReports() {
     "%5u",
     &iNumFalse,"",ColTypeMin);
 
-  AddStatCol("best","BestSolution","mean",FALSE);
+  AddStatCol("best","BestSolution","mean",0);
 
   AddColumnFloat("best_w","Best Weighted Solution Quality Found",
     "        Best",
@@ -219,7 +219,7 @@ void AddReports() {
     "%12.8f",
     &fBestSumFalseW,"",ColTypeMin);
 
-  AddStatCol("best_w","BestWeightedSolution","mean",FALSE);
+  AddStatCol("best_w","BestWeightedSolution","mean",0);
 
 
   AddColumnUInt("worst","Worst (Highest) # of False Clauses Found",
@@ -229,7 +229,7 @@ void AddReports() {
     "%5u",
     &iNumFalse,"",ColTypeMax);
 
-  AddStatCol("worst","WorstSolution","mean",FALSE);
+  AddStatCol("worst","WorstSolution","mean",0);
 
   AddColumnFloat("worst_w","Worst Weighted Solution Quality Found",
     "       Worst",
@@ -238,7 +238,7 @@ void AddReports() {
     "%12.8f",
     &fSumFalseW,"",ColTypeMax);
 
-  AddStatCol("worst_w","WorstWeightedSolution","mean",FALSE);
+  AddStatCol("worst_w","WorstWeightedSolution","mean",0);
 
 
   AddColumnUInt("last","Last (on final step) # of False Clauses",
@@ -248,7 +248,7 @@ void AddReports() {
     "%5u",
     &iNumFalse,"",ColTypeFinal);
 
-  AddStatCol("last","LastSolution","mean",FALSE);
+  AddStatCol("last","LastSolution","mean",0);
 
   AddColumnFloat("last_w","Last (on final step) Weighted Solution Quality",
     "        Last",
@@ -257,7 +257,7 @@ void AddReports() {
     "%12.8f",
     &fSumFalseW,"",ColTypeFinal);
 
-  AddStatCol("last_w","LastWeightedSolution","mean",FALSE);
+  AddStatCol("last_w","LastWeightedSolution","mean",0);
 
 
   AddColumnUInt("start","Start (on first step) # of False Clauses",
@@ -267,7 +267,7 @@ void AddReports() {
     "%5u",
     &iStartNumFalse,"StartFalse",ColTypeFinal);
 
-  AddStatCol("start","StartSolution","mean",FALSE);
+  AddStatCol("start","StartSolution","mean",0);
 
   AddColumnFloat("start_w","Start (on first step) Weighted Solution Quality",
     "       Start",
@@ -276,7 +276,7 @@ void AddReports() {
     "%12.8f",
     &fStartSumFalseW,"StartFalse",ColTypeFinal);
 
-  AddStatCol("start_w","StartWeightedSolution","mean",FALSE);
+  AddStatCol("start_w","StartWeightedSolution","mean",0);
 
 
   AddColumnUBigInt("beststep","Step of Best (Lowest) # of False Clauses Found",
@@ -286,7 +286,7 @@ void AddReports() {
     "%20llu",
     &iBestStepNumFalse,"BestFalse",ColTypeFinal);
 
-  AddStatCol("beststep","BestStep","mean",FALSE);
+  AddStatCol("beststep","BestStep","mean",0);
   
   AddColumnUBigInt("beststep_w","Step of Best Weighted Solution Quality Found",
     "                Step",
@@ -295,7 +295,7 @@ void AddReports() {
     "%20llu",
     &iBestStepSumFalseW,"BestFalse",ColTypeFinal);
 
-  AddStatCol("beststep_w","BestWeightedStep","mean",FALSE);
+  AddStatCol("beststep_w","BestWeightedStep","mean",0);
 
 
   AddColumnFloat("bestavgimpr","Mean Improvement per Step to Best Solution",
@@ -305,7 +305,7 @@ void AddReports() {
     "%9.7f",
     &fImproveMean,"ImproveMean",ColTypeFinal);
 
-  AddStatCol("bestavgimpr","BestAvgImprovement","mean",FALSE);
+  AddStatCol("bestavgimpr","BestAvgImprovement","mean",0);
   
   AddColumnFloat("bestavgimpr_w","Mean Improvement per Step to Best Solution Quality",
     "  Average",
@@ -314,7 +314,7 @@ void AddReports() {
     "%9.7f",
     &fImproveMeanW,"ImproveMean",ColTypeFinal);
 
-  AddStatCol("bestavgimpr_w","BestWeightedAvgImprovement","mean",FALSE);
+  AddStatCol("bestavgimpr_w","BestWeightedAvgImprovement","mean",0);
 
 
   AddColumnUInt("firstlm","First Local Minimum # of False Clauses",
@@ -324,7 +324,7 @@ void AddReports() {
     "%5u",
     &iFirstLM,"FirstLM",ColTypeFinal);
 
-  AddStatCol("firstlm","FirstLocalMin","mean",FALSE);
+  AddStatCol("firstlm","FirstLocalMin","mean",0);
 
   AddColumnFloat("firstlm_w","First Weighted Local Minimum Solution Quality",
     "    Solution",
@@ -333,7 +333,7 @@ void AddReports() {
     "%12.8f",
     &fFirstLMW,"FirstLM",ColTypeFinal);
 
-  AddStatCol("firstlm_w","FirstWeightedLocalMin","mean",FALSE);
+  AddStatCol("firstlm_w","FirstWeightedLocalMin","mean",0);
 
 
   AddColumnUBigInt("firstlmstep","Step of the First Local Minimum Encountered",
@@ -343,7 +343,7 @@ void AddReports() {
     "%5llu",
     &iFirstLMStep,"FirstLM",ColTypeFinal);
 
-  AddStatCol("firstlmstep","FirstLocalMinStep","mean",FALSE);
+  AddStatCol("firstlmstep","FirstLocalMinStep","mean",0);
 
   AddColumnUBigInt("firstlmstep_w","Step of the First Weighted Local Minimum Encountered",
     " Step",
@@ -352,7 +352,7 @@ void AddReports() {
     "%5llu",
     &iFirstLMStepW,"FirstLM",ColTypeFinal);
 
-  AddStatCol("firstlmstep_w","FirstWeightedLocalMinStep","mean",FALSE);
+  AddStatCol("firstlmstep_w","FirstWeightedLocalMinStep","mean",0);
 
 
   AddColumnFloat("firstlmratio","Improvement from 1st LM: (start-firstlm)/(start-best)",
@@ -362,7 +362,7 @@ void AddReports() {
     "%9.7f",
     &fFirstLMRatio,"FirstLMRatio",ColTypeFinal);
 
-  AddStatCol("firstlmratio","FirstLocalMinRatio","mean",FALSE);
+  AddStatCol("firstlmratio","FirstLocalMinRatio","mean",0);
 
   AddColumnFloat("firstlmratio_w","Improve from 1st WLM: (startw - firstlmw)/(startw-bestw)",
     " First W.",
@@ -371,7 +371,7 @@ void AddReports() {
     "%9.6f",
     &fFirstLMRatioW,"FirstLMRatio",ColTypeFinal);
 
-  AddStatCol("firstlmratio_w","FirstWeightedLocalMinRatio","mean",FALSE);
+  AddStatCol("firstlmratio_w","FirstWeightedLocalMinRatio","mean",0);
 
 
   AddColumnFloat("tbestlmmean","Mean of the Trajectory Best LM (# False)",
@@ -381,7 +381,7 @@ void AddReports() {
     "%7.3f",
     &fTrajBestLMMean,"TrajBestLM",ColTypeFinal);
 
-  AddStatCol("tbestlmmean","TrajBestLocalMinMean","mean",FALSE);
+  AddStatCol("tbestlmmean","TrajBestLocalMinMean","mean",0);
 
   AddColumnFloat("tbestlmmean_w","Mean of the Trajectory Best LM (W.Sol'n Quality)",
     "  Traj.",
@@ -390,7 +390,7 @@ void AddReports() {
     "%7.3f",
     &fTrajBestLMMeanW,"TrajBestLM",ColTypeFinal);
 
-  AddStatCol("tbestlmmean_w","TrajBestLocalMinWeightedMean","mean",FALSE);
+  AddStatCol("tbestlmmean_w","TrajBestLocalMinWeightedMean","mean",0);
 
   AddColumnFloat("tbestlmcv","C.V. of the Trajectory Best LM  (# False)",
     "  Traj.",
@@ -399,7 +399,7 @@ void AddReports() {
     "%7.5f",
     &fTrajBestLMCV,"TrajBestLM",ColTypeFinal);
 
-  AddStatCol("tbestlmcv","TrajBestLocalMinCV","mean",FALSE);
+  AddStatCol("tbestlmcv","TrajBestLocalMinCV","mean",0);
   
   AddColumnFloat("tbestlmcv_w","C.V. of the Trajectory Best LM (W.Sol'n Quality)",
     "  Traj.",
@@ -408,7 +408,7 @@ void AddReports() {
     "%7.5f",
     &fTrajBestLMCVW,"TrajBestLM",ColTypeFinal);
 
-  AddStatCol("tbestlmcv_w","TrajBestLocalMinWeightedCV","mean",FALSE);
+  AddStatCol("tbestlmcv_w","TrajBestLocalMinWeightedCV","mean",0);
 
   AddColumnUInt("qualmean","Average (Mean) # of False Clauses",
     "Average",
@@ -417,7 +417,7 @@ void AddReports() {
     "%7.3f",
     &iNumFalse,"",ColTypeMean);
 
-  AddStatCol("qualmean","SolutionQualityMean","mean",FALSE);
+  AddStatCol("qualmean","SolutionQualityMean","mean",0);
   
   AddColumnFloat("qualmean_w","Average (Mean) of Weighted Solution Quality",
     "Average",
@@ -426,7 +426,7 @@ void AddReports() {
     "%7.3f",
     &fSumFalseW,"",ColTypeMean);
 
-  AddStatCol("qualmean_w","WeightedSolutionQualityMean","mean",FALSE);
+  AddStatCol("qualmean_w","WeightedSolutionQualityMean","mean",0);
   
   
   AddColumnUInt("qualstddev","Std.Dev. # of False Clauses",
@@ -436,7 +436,7 @@ void AddReports() {
     "%7.3f",
     &iNumFalse,"",ColTypeStddev);
 
-  AddStatCol("qualstddev","SolutionQualityStdDev","mean",FALSE);
+  AddStatCol("qualstddev","SolutionQualityStdDev","mean",0);
   
   AddColumnFloat("qualstddev_w","Std.Dev. of Weighted Solution Quality",
     "Std.Dev",
@@ -445,7 +445,7 @@ void AddReports() {
     "%7.3f",
     &fSumFalseW,"",ColTypeStddev);
 
-  AddStatCol("qualstddev_w","WeightedSolutionQualityStdDev","mean",FALSE);
+  AddStatCol("qualstddev_w","WeightedSolutionQualityStdDev","mean",0);
 
   AddColumnUInt("qualcv","Coeff. of Var. # of False Clauses",
     "   C.V.",
@@ -454,7 +454,7 @@ void AddReports() {
     "%7.3f",
     &iNumFalse,"",ColTypeCV);
 
-  AddStatCol("qualcv","SolutionQualityCV","mean",FALSE);
+  AddStatCol("qualcv","SolutionQualityCV","mean",0);
   
   AddColumnFloat("qualcv_w","Coeff. of Var. of Weighted Solution Quality",
     "   C.V.",
@@ -463,7 +463,7 @@ void AddReports() {
     "%7.3f",
     &fSumFalseW,"",ColTypeCV);
 
-  AddStatCol("qualcv_w","WeightedSolutionQualityCV","mean",FALSE);
+  AddStatCol("qualcv_w","WeightedSolutionQualityCV","mean",0);
 
   
   AddColumnUInt("seed","Starting Seed For the Run",
@@ -481,7 +481,7 @@ void AddReports() {
     "%20llu",
     &iNumNullFlips,"NullFlips",ColTypeFinal);
 
-  AddStatCol("nullflips","NullFlips","mean",FALSE);
+  AddStatCol("nullflips","NullFlips","mean",0);
   
   AddColumnUBigInt("percentnull","Percent of Null Flips",
     "Percent",
@@ -490,7 +490,7 @@ void AddReports() {
     "%7.4f",
     &iNumNullFlips,"NullFlips",ColTypeFinalDivStep100);
 
-  AddStatCol("percentnull","PercentNull","mean",FALSE);
+  AddStatCol("percentnull","PercentNull","mean",0);
 
 
   AddColumnUInt("restarts","Number of Restarts",
@@ -500,7 +500,7 @@ void AddReports() {
     "%8u",
     &iNumRestarts,"NumRestarts",ColTypeFinal);
 
-  AddStatCol("restarts","NumRestarts","mean",FALSE);
+  AddStatCol("restarts","NumRestarts","mean",0);
 
 
   AddColumnUBigInt("rand","Number of Random Decisions",
@@ -510,7 +510,7 @@ void AddReports() {
     "%20llu",
     &iNumRandomCalls,"CountRandom",ColTypeFinal);
 
-  AddStatCol("rand","NumRandomDecisions","mean",FALSE);
+  AddStatCol("rand","NumRandomDecisions","mean",0);
 
   AddColumnUBigInt("randstep","Mean Number of Random Decisions Per Step",
     "Avg. Rand",
@@ -519,7 +519,7 @@ void AddReports() {
     "%9.3f",
     &iNumRandomCalls,"CountRandom",ColTypeFinalDivStep);
 
-  AddStatCol("randstep","RandomDecisionsPerStep","mean",FALSE);
+  AddStatCol("randstep","RandomDecisionsPerStep","mean",0);
 
 
   AddColumnUInt("candidates","Mean Number of Flip Candidates (not all algs support it)",
@@ -529,7 +529,7 @@ void AddReports() {
     "%7.4f",
     &iNumCandidates,"",ColTypeMean);
 
-  AddStatCol("candidates","FlipCandidatesMean","mean",FALSE);
+  AddStatCol("candidates","FlipCandidatesMean","mean",0);
 
 
   AddColumnUBigInt("localmins","Number of Local Minima Encountered",
@@ -539,7 +539,7 @@ void AddReports() {
     "%20llu",
     &iNumLocalMins,"LocalMins",ColTypeFinal);
 
-  AddStatCol("localmins","LocalMins","mean",FALSE);
+  AddStatCol("localmins","LocalMins","mean",0);
 
   AddColumnUBigInt("percentlocal","Percent of Steps in Local Minima",
     "Percent",
@@ -548,7 +548,7 @@ void AddReports() {
     "%7.4f",
     &iNumLocalMins,"LocalMins",ColTypeFinalDivStep100);
 
-  AddStatCol("percentlocal","PercentLocal","mean",FALSE);
+  AddStatCol("percentlocal","PercentLocal","mean",0);
 
   AddColumnFloat("flipcountcv","CV of the Variable Flip Count Distribution",
     "  CV of",
@@ -557,7 +557,7 @@ void AddReports() {
     "%7.5f",
     &fFlipCountsCV,"FlipCountStats",ColTypeFinal);
 
-  AddStatCol("flipcountcv","FlipCountCV","mean",FALSE);
+  AddStatCol("flipcountcv","FlipCountCV","mean",0);
 
   AddColumnFloat("biasmax","Mean Frac. # steps vars spent same state as their most freq.",
     "   Max",
@@ -566,7 +566,7 @@ void AddReports() {
     "%5.4f",
     &fMeanMaxBias,"BiasStats",ColTypeFinal);
 
-  AddStatCol("biasmax","BiasMaxMean","mean",FALSE);
+  AddStatCol("biasmax","BiasMaxMean","mean",0);
 
   AddColumnFloat("biasfinal","Mean Frac. # steps vars spent same as their final state",
     " Final",
@@ -575,7 +575,7 @@ void AddReports() {
     "%5.4f",
     &fMeanFinalBias,"BiasStats",ColTypeFinal);
 
-  AddStatCol("biasfinal","BiasFinalMean","mean",FALSE);
+  AddStatCol("biasfinal","BiasFinalMean","mean",0);
 
   AddColumnFloat("unsatcountcv","CV of the Clause Unsat Count Distribution",
     "  CV of",
@@ -584,7 +584,7 @@ void AddReports() {
     "%7.5f",
     &fUnsatCountsCV,"UnsatCountStats",ColTypeFinal);
 
-  AddStatCol("unsatcountcv","UnsatCountCV","mean",FALSE);
+  AddStatCol("unsatcountcv","UnsatCountCV","mean",0);
 
 
   AddColumnUInt("soldistance","Mean Hamming Distance from Closest Known Solution(s)",
@@ -594,7 +594,7 @@ void AddReports() {
     "%7.2f",
     &iSolutionDistance,"SolutionDistance",ColTypeMean);
 
-  AddStatCol("soldistance","SolutionDistanceMean","mean",FALSE);
+  AddStatCol("soldistance","SolutionDistanceMean","mean",0);
 
 
   AddColumnFloat("fdc","Fitness-Distance Correlation Factor (calc. in LM)",
@@ -604,7 +604,7 @@ void AddReports() {
     "%7.3f",
     &fFDCRun,"FDCRun",ColTypeFinal);
 
-  AddStatCol("fdc","FDC","mean",FALSE);
+  AddStatCol("fdc","FDC","mean",0);
 
   
   AddColumnUInt("acl","Auto-Correlation Length",
@@ -614,7 +614,7 @@ void AddReports() {
     "%4u",
     &iAutoCorrLen,"AutoCorr",ColTypeFinal);
 
-  AddStatCol("acl","ACL","mean",FALSE);
+  AddStatCol("acl","ACL","mean",0);
 
 
   AddColumnFloat("acone","Auto-Correlation of distance one",
@@ -624,7 +624,7 @@ void AddReports() {
     "%7.5f",
     &fAutoCorrOneVal,"AutoCorrOne",ColTypeFinal);
 
-  AddStatCol("acone","ACOne","mean",FALSE);
+  AddStatCol("acone","ACOne","mean",0);
 
 
   AddColumnFloat("estacl","Estimated Auto-Correlation Length from AC of 1",
@@ -634,7 +634,7 @@ void AddReports() {
     "%7.2f",
     &fAutoCorrOneEst,"AutoCorrOne",ColTypeFinal);
 
-  AddStatCol("estacl","EstACL","mean",FALSE);
+  AddStatCol("estacl","EstACL","mean",0);
 
 
   AddColumnFloat("branchfact","Mean Branching Factor (# possible sidesteps / #vars)",
@@ -644,7 +644,7 @@ void AddReports() {
     "%6.4f",
     &fBranchFactor, "BranchFactor", ColTypeMean);
 
-  AddStatCol("branchfact","BranchFactorMean","mean",FALSE);
+  AddStatCol("branchfact","BranchFactorMean","mean",0);
 
   AddColumnFloat("branchfact_w","Mean Weighted Branching Factor",
     "W.Mean",
@@ -653,7 +653,7 @@ void AddReports() {
     "%6.4f",
     &fBranchFactorW, "BranchFactorW", ColTypeMean);
 
-  AddStatCol("branchfact_w","WeightedBranchFactorMean","mean",FALSE);
+  AddStatCol("branchfact_w","WeightedBranchFactorMean","mean",0);
 
 
   AddColumnFloat("mobn","Mean Mobility for window size n (# of vars)",
@@ -663,7 +663,7 @@ void AddReports() {
     "%8.3f",
     &fMobilityColNMean,"MobilityColumn,InitMobilityColumnN",ColTypeFinal);
 
-  AddStatCol("mobn","MobilitySizeNMean","mean",FALSE);
+  AddStatCol("mobn","MobilitySizeNMean","mean",0);
 
 
   AddColumnFloat("mobx","Mean Mobility for window size x (see -r mobfixed)",
@@ -673,7 +673,7 @@ void AddReports() {
     "%8.3f",
     &fMobilityColXMean,"MobilityColumn,InitMobilityColumnX",ColTypeFinal);
 
-  AddStatCol("mobx","MobilitySizeXMean","mean",FALSE);
+  AddStatCol("mobx","MobilitySizeXMean","mean",0);
 
 
   AddColumnFloat("normmobn","Normalized Mean Mobility for window size n (# of vars) ",
@@ -683,7 +683,7 @@ void AddReports() {
     "%8.6f",
     &fMobilityColNMeanNorm,"MobilityColumn,InitMobilityColumnN",ColTypeFinal);
 
-  AddStatCol("normmobn","NormalizedMobilitySizeN","mean",FALSE);
+  AddStatCol("normmobn","NormalizedMobilitySizeN","mean",0);
 
 
   AddColumnFloat("normmobx","Normalized Mean Mobility for window size x (see -r mobfixed)",
@@ -693,7 +693,7 @@ void AddReports() {
     "%8.6f",
     &fMobilityColXMeanNorm,"MobilityColumn,InitMobilityColumnX",ColTypeFinal);
 
-  AddStatCol("normmobx","NormalizedMobilitySizeXMean","mean",FALSE);
+  AddStatCol("normmobx","NormalizedMobilitySizeXMean","mean",0);
 
   
   AddColumnFloat("mobncv","Mobility C.V. for window size n (# of vars)",
@@ -703,7 +703,7 @@ void AddReports() {
     "%8.6f",
     &fMobilityColNCV,"MobilityColumn,InitMobilityColumnN",ColTypeFinal);
 
-  AddStatCol("mobncv","MobilitySizeNMean","mean",FALSE);
+  AddStatCol("mobncv","MobilitySizeNMean","mean",0);
 
 
   AddColumnFloat("mobxcv","Mobility C.V. for window size x (see -r mobfixed)",
@@ -713,7 +713,7 @@ void AddReports() {
     "%8.5f",
     &fMobilityColXCV,"MobilityColumn,InitMobilityColumnX",ColTypeFinal);
 
-  AddStatCol("mobxcv","MobilitySizeXMean","mean",FALSE);
+  AddStatCol("mobxcv","MobilitySizeXMean","mean",0);
 
 
   AddColumnUBigInt("upsteps","Number of Up (Backward) Steps",
@@ -737,7 +737,7 @@ void AddReports() {
     "%7.4f",
     &iNumUpSteps,"StepsUpDownSide",ColTypeFinalDivStep100);
 
-  AddStatCol("percentup","PercentUpSteps","mean",FALSE);
+  AddStatCol("percentup","PercentUpSteps","mean",0);
 
   AddColumnUBigInt("percentup_w","Percent of Up (Backward) Weighted Steps",
     "Percent",
@@ -746,7 +746,7 @@ void AddReports() {
     "%7.4f",
     &iNumUpStepsW,"StepsUpDownSide",ColTypeFinalDivStep100);
 
-  AddStatCol("percentup_w","PercentWeightedUpSteps","mean",FALSE);
+  AddStatCol("percentup_w","PercentWeightedUpSteps","mean",0);
 
 
   AddColumnUBigInt("downsteps","Number of Down (Improving) Steps",
@@ -770,7 +770,7 @@ void AddReports() {
     "%7.4f",
     &iNumDownSteps,"StepsUpDownSide",ColTypeFinalDivStep100);
 
-  AddStatCol("percentdown","PercentUpSteps","mean",FALSE);
+  AddStatCol("percentdown","PercentUpSteps","mean",0);
   
   AddColumnUBigInt("percentdown_w","Percent of Down (Improving) Weighted Steps",
     "Percent",
@@ -779,7 +779,7 @@ void AddReports() {
     "%7.4f",
     &iNumDownStepsW,"StepsUpDownSide",ColTypeFinalDivStep100);
 
-  AddStatCol("percentdown_w","PercentWeightedUpSteps","mean",FALSE);
+  AddStatCol("percentdown_w","PercentWeightedUpSteps","mean",0);
 
 
   AddColumnUBigInt("sidesteps","Number of Sideways (Plateau) Steps",
@@ -803,7 +803,7 @@ void AddReports() {
     "%7.4f",
     &iNumSideSteps,"StepsUpDownSide",ColTypeFinalDivStep100);
 
-  AddStatCol("percentside","PercentSideSteps","mean",FALSE);
+  AddStatCol("percentside","PercentSideSteps","mean",0);
 
   AddColumnUBigInt("percentside_w","Percent of Sideways (Plateau) Weighted Steps",
     "Percent",
@@ -812,7 +812,7 @@ void AddReports() {
     "%7.4f",
     &iNumSideStepsW,"StepsUpDownSide",ColTypeFinalDivStep100);
 
-  AddStatCol("percentside_w","PercentWeightedSideSteps","mean",FALSE);
+  AddStatCol("percentside_w","PercentWeightedSideSteps","mean",0);
 
   
   
@@ -823,7 +823,7 @@ void AddReports() {
     "%10.6f",
     &fDummy,"UpdateTimes,ActivateStepsFoundColumns",ColTypeFinal);
 
-  AddStatCol("timesteps","CPUTime","mean+cv+median",TRUE);
+  AddStatCol("timesteps","CPUTime","mean+cv+median",1);
 
   AddColumnFloat("prob","Probability of Success (RTD Only)",
     "   Prob",

@@ -32,7 +32,7 @@ void AddWalkSat() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("walksat","",FALSE,
+  pCurAlg = CreateAlgorithm("walksat","",0,
     "WALKSAT: Original WalkSAT algorithm (SKC variant)",
     "Selman, Kautz, Cohen [AAAI 94]",
     "PickWalkSatSKC",

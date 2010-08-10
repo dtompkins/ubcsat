@@ -494,7 +494,7 @@ FLOAT GetRowElement(REPORTCOL *pCol,UINT32 iRowRequested, BOOL bSorted, BOOL bSo
 
   UINT32 iRow;
 
-  if (pCol->bAllocateColumnRAM == FALSE) {
+  if (!pCol->bAllocateColumnRAM) {
     ReportPrint1(pRepErr,"Unexpected Error: Column Data for [%s] was not allocated properly\n",pCol->sDescription);
     AbnormalExit();
     exit(1);
@@ -766,9 +766,9 @@ void ReportStatsPrintCSV() {
               }
 
               if (pStat->iStatFlags & STATCODE_median) {
-                fMedian = GetRowElement(pCol,(iRun-1)>>1,TRUE,pStat->bSortByStep);
+                fMedian = GetRowElement(pCol,(iRun-1)>>1,1,pStat->bSortByStep);
                 if (iRun % 2 == 0) {
-                  fMedian += GetRowElement(pCol,(iRun)>>1,TRUE,pStat->bSortByStep);
+                  fMedian += GetRowElement(pCol,(iRun)>>1,1,pStat->bSortByStep);
                   fMedian /= 2.0;
                 }
                 ReportPrint1(pRepStats,"%.12g",fMedian);
@@ -777,64 +777,64 @@ void ReportStatsPrintCSV() {
 
               if (pStat->iStatFlags & STATCODE_min) {
                 iPos = 0;
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
               }
 
               if (pStat->iStatFlags & STATCODE_max) {
                 iPos = iRun - 1;
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
               }
               if (pStat->iStatFlags & STATCODE_q05) {
                 iPos = (UINT32)(floor(0.05 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
               }
               if (pStat->iStatFlags & STATCODE_q10) {
                 iPos = (UINT32)(floor(0.10 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
               }
               if (pStat->iStatFlags & STATCODE_q25) {
                 iPos = (UINT32)(floor(0.25 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
               }
               if (pStat->iStatFlags & STATCODE_q75) {
                 iPos = (UINT32)(floor(0.75 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
               }
               if (pStat->iStatFlags & STATCODE_q90) {
                 iPos = (UINT32)(floor(0.90 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
               }
               if (pStat->iStatFlags & STATCODE_q95) {
                 iPos = (UINT32)(floor(0.95 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
               }
               if (pStat->iStatFlags & STATCODE_q98) {
                 iPos = (UINT32)(floor(0.98 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
               }
               if (pStat->iStatFlags & STATCODE_qr7525) {
                 iPos = (UINT32)(floor(0.75 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 iPos = (UINT32)(floor(0.25 * (FLOAT) (iRun-1)));
-                fVal2 = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal2 = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 if (fVal2 != FLOATZERO) {
                   fVal2 = fVal / fVal2;
                 }
@@ -844,9 +844,9 @@ void ReportStatsPrintCSV() {
               
               if (pStat->iStatFlags & STATCODE_qr9010) {
                 iPos = (UINT32)(floor(0.90 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 iPos = (UINT32)(floor(0.10 * (FLOAT) (iRun-1)));
-                fVal2 = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal2 = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 if (fVal2 != FLOATZERO) {
                   fVal2 = fVal / fVal2;
                 }
@@ -856,9 +856,9 @@ void ReportStatsPrintCSV() {
 
               if (pStat->iStatFlags & STATCODE_qr9505) {
                 iPos = (UINT32)(floor(0.95 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 iPos = (UINT32)(floor(0.05 * (FLOAT) (iRun-1)));
-                fVal2 = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal2 = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 if (fVal2 != FLOATZERO) {
                   fVal2 = fVal / fVal2;
                 }
@@ -874,7 +874,7 @@ void ReportStatsPrintCSV() {
                 pColSteps = &aColumns[FindItem(&listColumns,"steps")];
                 fVal = FLOATZERO;
                 for (l=0;l<iRun;l++) {
-                  fVal += (GetRowElement(pColSteps,l,FALSE,FALSE) * GetRowElement(pCol,l,FALSE,FALSE));
+                  fVal += (GetRowElement(pColSteps,l,0,0) * GetRowElement(pCol,l,0,0));
                 }
                 if (pColSteps->fColSum != FLOATZERO) {
                   fVal /= pColSteps->fColSum;
@@ -889,7 +889,7 @@ void ReportStatsPrintCSV() {
                 fVal = FLOATZERO;
                 if (iNumSolutionsFound != 0) {
                   for (l=0;l<iNumSolutionsFound;l++) {
-                    fVal += GetRowElement(pCol,l,TRUE,FALSE);
+                    fVal += GetRowElement(pCol,l,1,0);
                   }
                   fVal /= iNumSolutionsFound;
                 }
@@ -901,7 +901,7 @@ void ReportStatsPrintCSV() {
                 fVal = FLOATZERO;
                 if (iNumFail != 0) {
                   for (l=iNumSolutionsFound;l<iRun;l++) {
-                    fVal += GetRowElement(pCol,l,TRUE,FALSE);
+                    fVal += GetRowElement(pCol,l,1,0);
                   }
                   fVal /= iNumFail;
                 }
@@ -913,9 +913,9 @@ void ReportStatsPrintCSV() {
                 if (iNumSolutionsFound == 0) {
                   fVal = FLOATZERO;
                 } else {
-                  fVal = GetRowElement(pCol,(iNumSolutionsFound-1)>>1,TRUE,FALSE);
+                  fVal = GetRowElement(pCol,(iNumSolutionsFound-1)>>1,1,0);
                   if (iNumSolutionsFound % 2 == 0) {
-                    fVal += GetRowElement(pCol,(iNumSolutionsFound)>>1,TRUE,FALSE);
+                    fVal += GetRowElement(pCol,(iNumSolutionsFound)>>1,1,0);
                     fVal /= 2.0;
                   }
                 }
@@ -927,9 +927,9 @@ void ReportStatsPrintCSV() {
                 if (iNumFail == 0) {
                   fVal = FLOATZERO;
                 } else {
-                  fVal = GetRowElement(pCol,((iNumFail-1)>>1) + iNumSolutionsFound,TRUE,FALSE);
+                  fVal = GetRowElement(pCol,((iNumFail-1)>>1) + iNumSolutionsFound,1,0);
                   if (iNumFail % 2 == 0) {
-                    fVal += GetRowElement(pCol,((iNumFail)>>1) + iNumSolutionsFound,TRUE,FALSE);
+                    fVal += GetRowElement(pCol,((iNumFail)>>1) + iNumSolutionsFound,1,0);
                     fVal /= 2.0;
                   }
                 }
@@ -941,7 +941,7 @@ void ReportStatsPrintCSV() {
                 if (iNumSolutionsFound == 0) {
                   fVal = FLOATZERO;
                 } else {
-                  fVal = GetRowElement(pCol,0,TRUE,FALSE);
+                  fVal = GetRowElement(pCol,0,1,0);
                 }
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
@@ -951,7 +951,7 @@ void ReportStatsPrintCSV() {
                 if (iNumFail == 0) {
                   fVal = FLOATZERO;
                 } else {
-                  fVal = GetRowElement(pCol,iNumSolutionsFound,TRUE,FALSE);
+                  fVal = GetRowElement(pCol,iNumSolutionsFound,1,0);
                 }
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
@@ -961,7 +961,7 @@ void ReportStatsPrintCSV() {
                 if (iNumSolutionsFound == 0) {
                   fVal = FLOATZERO;
                 } else {
-                  fVal = GetRowElement(pCol,iNumSolutionsFound-1,TRUE,FALSE);
+                  fVal = GetRowElement(pCol,iNumSolutionsFound-1,1,0);
                 }
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
@@ -971,7 +971,7 @@ void ReportStatsPrintCSV() {
                 if (iNumFail == 0) {
                   fVal = FLOATZERO;
                 } else {
-                  fVal = GetRowElement(pCol,iRun-1,TRUE,FALSE);
+                  fVal = GetRowElement(pCol,iRun-1,1,0);
                 }
                 ReportPrint1(pRepStats,"%.12g",fVal);
                 ReportPrint1(pRepStats,"%s",sColSepString);
@@ -1101,9 +1101,9 @@ void ReportStatsPrint() {
               }
 
               if (pStat->iStatFlags & STATCODE_median) {
-                fMedian = GetRowElement(pCol,(iRun-1)>>1,TRUE,pStat->bSortByStep);
+                fMedian = GetRowElement(pCol,(iRun-1)>>1,1,pStat->bSortByStep);
                 if (iRun % 2 == 0) {
-                  fMedian += GetRowElement(pCol,(iRun)>>1,TRUE,pStat->bSortByStep);
+                  fMedian += GetRowElement(pCol,(iRun)>>1,1,pStat->bSortByStep);
                   fMedian /= 2.0;
                 }
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Median",fMedian);
@@ -1111,55 +1111,55 @@ void ReportStatsPrint() {
 
               if (pStat->iStatFlags & STATCODE_min) {
                 iPos = 0;
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Min",fVal);
               }
 
               if (pStat->iStatFlags & STATCODE_max) {
                 iPos = iRun - 1;
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Max",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q05) {
                 iPos = (UINT32)(floor(0.05 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.05",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q10) {
                 iPos = (UINT32)(floor(0.10 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.10",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q25) {
                 iPos = (UINT32)(floor(0.25 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.25",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q75) {
                 iPos = (UINT32)(floor(0.75 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.75",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q90) {
                 iPos = (UINT32)(floor(0.90 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.90",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q95) {
                 iPos = (UINT32)(floor(0.95 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.95",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q98) {
                 iPos = (UINT32)(floor(0.98 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.98",fVal);
               }
               if (pStat->iStatFlags & STATCODE_qr7525) {
                 iPos = (UINT32)(floor(0.75 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 iPos = (UINT32)(floor(0.25 * (FLOAT) (iRun-1)));
-                fVal2 = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal2 = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 if (fVal2 != FLOATZERO) {
                   fVal2 = fVal / fVal2;
                 }
@@ -1168,9 +1168,9 @@ void ReportStatsPrint() {
               
               if (pStat->iStatFlags & STATCODE_qr9010) {
                 iPos = (UINT32)(floor(0.90 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 iPos = (UINT32)(floor(0.10 * (FLOAT) (iRun-1)));
-                fVal2 = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal2 = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 if (fVal2 != FLOATZERO) {
                   fVal2 = fVal / fVal2;
                 }
@@ -1179,9 +1179,9 @@ void ReportStatsPrint() {
 
               if (pStat->iStatFlags & STATCODE_qr9505) {
                 iPos = (UINT32)(floor(0.95 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 iPos = (UINT32)(floor(0.05 * (FLOAT) (iRun-1)));
-                fVal2 = GetRowElement(pCol,iPos,TRUE,pStat->bSortByStep);
+                fVal2 = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
                 if (fVal2 != FLOATZERO) {
                   fVal2 = fVal / fVal2;
                 }
@@ -1196,7 +1196,7 @@ void ReportStatsPrint() {
                 pColSteps = &aColumns[FindItem(&listColumns,"steps")];
                 fVal = FLOATZERO;
                 for (l=0;l<iRun;l++) {
-                  fVal += (GetRowElement(pColSteps,l,FALSE,FALSE) * GetRowElement(pCol,l,FALSE,FALSE));
+                  fVal += (GetRowElement(pColSteps,l,0,0) * GetRowElement(pCol,l,0,0));
                 }
                 if (pColSteps->fColSum != FLOATZERO) {
                   fVal /= pColSteps->fColSum;
@@ -1210,7 +1210,7 @@ void ReportStatsPrint() {
                 fVal = FLOATZERO;
                 if (iNumSolutionsFound != 0) {
                   for (l=0;l<iNumSolutionsFound;l++) {
-                    fVal += GetRowElement(pCol,l,TRUE,FALSE);
+                    fVal += GetRowElement(pCol,l,1,0);
                   }
                   fVal /= iNumSolutionsFound;
                 }
@@ -1221,7 +1221,7 @@ void ReportStatsPrint() {
                 fVal = FLOATZERO;
                 if (iNumFail != 0) {
                   for (l=iNumSolutionsFound;l<iRun;l++) {
-                    fVal += GetRowElement(pCol,l,TRUE,FALSE);
+                    fVal += GetRowElement(pCol,l,1,0);
                   }
                   fVal /= iNumFail;
                 }
@@ -1232,9 +1232,9 @@ void ReportStatsPrint() {
                 if (iNumSolutionsFound == 0) {
                   fVal = FLOATZERO;
                 } else {
-                  fVal = GetRowElement(pCol,(iNumSolutionsFound-1)>>1,TRUE,FALSE);
+                  fVal = GetRowElement(pCol,(iNumSolutionsFound-1)>>1,1,0);
                   if (iNumSolutionsFound % 2 == 0) {
-                    fVal += GetRowElement(pCol,(iNumSolutionsFound)>>1,TRUE,FALSE);
+                    fVal += GetRowElement(pCol,(iNumSolutionsFound)>>1,1,0);
                     fVal /= 2.0;
                   }
                 }
@@ -1245,9 +1245,9 @@ void ReportStatsPrint() {
                 if (iNumFail == 0) {
                   fVal = FLOATZERO;
                 } else {
-                  fVal = GetRowElement(pCol,((iNumFail-1)>>1) + iNumSolutionsFound,TRUE,FALSE);
+                  fVal = GetRowElement(pCol,((iNumFail-1)>>1) + iNumSolutionsFound,1,0);
                   if (iNumFail % 2 == 0) {
-                    fVal += GetRowElement(pCol,((iNumFail)>>1) + iNumSolutionsFound,TRUE,FALSE);
+                    fVal += GetRowElement(pCol,((iNumFail)>>1) + iNumSolutionsFound,1,0);
                     fVal /= 2.0;
                   }
                 }
@@ -1258,7 +1258,7 @@ void ReportStatsPrint() {
                 if (iNumSolutionsFound == 0) {
                   fVal = FLOATZERO;
                 } else {
-                  fVal = GetRowElement(pCol,0,TRUE,FALSE);
+                  fVal = GetRowElement(pCol,0,1,0);
                 }
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"SuccessMin",fVal);
               }
@@ -1267,7 +1267,7 @@ void ReportStatsPrint() {
                 if (iNumFail == 0) {
                   fVal = FLOATZERO;
                 } else {
-                  fVal = GetRowElement(pCol,iNumSolutionsFound,TRUE,FALSE);
+                  fVal = GetRowElement(pCol,iNumSolutionsFound,1,0);
                 }
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"FailureMin",fVal);
               }
@@ -1276,7 +1276,7 @@ void ReportStatsPrint() {
                 if (iNumSolutionsFound == 0) {
                   fVal = FLOATZERO;
                 } else {
-                  fVal = GetRowElement(pCol,iNumSolutionsFound-1,TRUE,FALSE);
+                  fVal = GetRowElement(pCol,iNumSolutionsFound-1,1,0);
                 }
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"SuccessMax",fVal);
               }
@@ -1285,7 +1285,7 @@ void ReportStatsPrint() {
                 if (iNumFail == 0) {
                   fVal = FLOATZERO;
                 } else {
-                  fVal = GetRowElement(pCol,iRun-1,TRUE,FALSE);
+                  fVal = GetRowElement(pCol,iRun-1,1,0);
                 }
                 ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"FailureMax",fVal);
               }
@@ -1329,7 +1329,7 @@ void InitSolveMode() {
     if (iFind==0) {
       iFind = 1;
     }
-    pRepModel->bActive = TRUE;
+    pRepModel->bActive = 1;
   }
 }
 
@@ -1462,30 +1462,30 @@ void ReportCNFStatsPrint() {
 
 void ReportStatePrint() {
   UINT32 j;
-  BOOL bLocalMin = FALSE;
+  BOOL bLocalMin = 0;
   UINT32 bPrint;
   if ((iRun==1)&&(iStep==1)) {
     ReportHdrPrefix(pRepState);
     ReportHdrPrint(pRepState," Run ID | Step No. | Num False (or sum of false weights) | VarFlip | IsLocalMin | vararray\n");
     if (fReportStateQuality < 0) {
-      bReportStateQuality = FALSE;
+      bReportStateQuality = 0;
     } else {
-      bReportStateQuality = TRUE;
-      if (bWeighted==FALSE) {
+      bReportStateQuality = 1;
+      if (!bWeighted) {
         iReportStateQuality = (UINT32) fReportStateQuality;
       }
     }
   }
 
-  bPrint = TRUE;
+  bPrint = 1;
   if (bReportStateQuality) {
    if (bWeighted) {
      if (fSumFalseW != fReportStateQuality) {
-       bPrint = FALSE;
+       bPrint = 0;
      }
    } else {
      if (iNumFalse != iReportStateQuality) {
-       bPrint = FALSE;
+       bPrint = 0;
      }
    }
   }
@@ -1493,7 +1493,7 @@ void ReportStatePrint() {
   if ((bPrint) && (bReportStateLMOnly)) {
     bLocalMin = IsLocalMinimum(bWeighted);
     if (!bLocalMin) {
-      bPrint = FALSE;
+      bPrint = 0;
     }
   }
 
@@ -1731,7 +1731,7 @@ void ReportUnsatClausesPrint() {
     ReportHdrPrefix(pRepOptClauses);
     ReportHdrPrint(pRepOptClauses," Run ID | clauses at end of search (1=satisfied) ...\n");
   }
-  if ((bSolutionFound)||(bReportOptClausesSol==FALSE)) {
+  if ((bSolutionFound)||(!bReportOptClausesSol)) {
     ReportPrint1(pRepOptClauses,"%lu",iRun);
     ReportPrint1(pRepOptClauses,"%s",sColSepString);
     for (j=0;j<iNumClauses;j++) {
@@ -1772,18 +1772,18 @@ void ReportFalseHistPrint() {
 /***** Report -r distance *****/
 
 void ReportDistancePrint() {
-  BOOL bLocalMin = FALSE;
+  BOOL bLocalMin = 0;
   UINT32 bPrint;
   if ((iRun==1)&&(iStep==1)) {
     ReportHdrPrefix(pRepDistance);
     ReportHdrPrint(pRepDistance," Run ID | Step No. | Hamming Distance to Known Solution(s) | Num False (or sum of false weights)\n");
   }
 
-  bPrint = TRUE;
+  bPrint = 1;
   if (bReportDistanceLMOnly) {
     bLocalMin = IsLocalMinimum(bWeighted);
     if (!bLocalMin) {
-      bPrint = FALSE;
+      bPrint = 0;
     }
   }
 
@@ -2534,7 +2534,7 @@ void ReportTriggersPrint() {
         pTrig = &aTriggers[k];
         pItem = &listTriggers.aItems[k];
         if (pTrig->eEventPoint== (enum EVENTPOINT) j) {
-          bFoundPos = FALSE;
+          bFoundPos = 0;
           for (l=0;l<aNumActiveProcedures[j];l++) {
             if (aActiveProcedures[j][l] == pTrig->pProcedure) {
               ReportPrint1(pRepTriggers,"%2lu",j);
@@ -2546,7 +2546,7 @@ void ReportTriggersPrint() {
               ReportPrint1(pRepTriggers,"%lu",pTrig->bDisabled);
               ReportPrint1(pRepTriggers,"%s",sColSepString);
               ReportPrint1(pRepTriggers,"%s\n",pItem->sID);
-              bFoundPos = TRUE;
+              bFoundPos = 1;
               break;
             }
           }
@@ -3058,7 +3058,7 @@ void CalcFPS() {
   pCol = &aColumns[FindItem(&listColumns,"steps")];
   fFlipsPerSecond = FLOATZERO;
   for (j=0;j< iRun;j++) {
-    fFlipsPerSecond += GetRowElement(pCol,j,FALSE,FALSE);
+    fFlipsPerSecond += GetRowElement(pCol,j,0,0);
   }
   fFlipsPerSecond /= fTotalTime;
 }
@@ -3164,7 +3164,7 @@ void UpdateTimes() {
 
   pColTimes = &aColumns[FindItem(&listColumns,"timesteps")];
 
-  if (pColTimes->bAllocateColumnRAM == FALSE) {
+  if (!pColTimes->bAllocateColumnRAM) {
     return; /* may not be an error if column requested in -r out but not -r rtd */
   }
   
@@ -3190,13 +3190,13 @@ void UpdateTimes() {
 /***** Trigger InitMobilityColumnN *****/
 
 void InitMobilityColumnN() {
-  bMobilityColNActive = TRUE;
+  bMobilityColNActive = 1;
 }
 
 /***** Trigger InitMobilityColumnX *****/
 
 void InitMobilityColumnX() {
-  bMobilityColXActive = TRUE;
+  bMobilityColXActive = 1;
 }
 
 void UpdateMobilityColumn() {
@@ -3209,7 +3209,7 @@ void UpdateMobilityColumn() {
     if (iStep <= (UBIGINT) iNumVars) {
       iCount = iStep;
     } else {
-      if (bMobilityFixedIncludeStart==FALSE) {
+      if (!bMobilityFixedIncludeStart) {
         iCount = iStep - iNumVars;
       } 
     }
@@ -3224,7 +3224,7 @@ void UpdateMobilityColumn() {
     if (iStep <= iMobFixedWindow) {
       iCount = iStep;
     } else {
-      if (bMobilityFixedIncludeStart==FALSE) {
+      if (!bMobilityFixedIncludeStart) {
         iCount = iStep - iMobFixedWindow;
       } 
     }
@@ -3489,7 +3489,7 @@ void SortByStepPerformance() {
     aSortedByStepsAndFound[j] = aSortedByCurrent[j];
   }
 
-  bSortedByStepsValid = TRUE;
+  bSortedByStepsValid = 1;
 
 }
 

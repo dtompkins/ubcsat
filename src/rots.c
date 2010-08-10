@@ -37,7 +37,7 @@ void AddRoTS() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("rots","",FALSE,
+  pCurAlg = CreateAlgorithm("rots","",0,
     "RoTS: Robust TABU Search",
     "Taillard [Parallel Computing 1991], based on implementation by Stuetzle",
     "PickRoTS",

@@ -34,7 +34,7 @@ void AddGSatTabu() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("gsat-tabu","",FALSE,
+  pCurAlg = CreateAlgorithm("gsat-tabu","",0,
     "GSAT-TABU: GSAT with Tabu search",
     "Mazure, Sais, Gregoire [AAAI 97]",
     "PickGSatTabu",

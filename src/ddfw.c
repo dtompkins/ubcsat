@@ -36,7 +36,7 @@ void AddDDFW() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("ddfw","",FALSE,
+  pCurAlg = CreateAlgorithm("ddfw","",0,
     "DDFW: Divide and Distribute Fixed Weights",
     "Ishtaiwi, Thornton, Sattar, Pham [CP 05]",
     "PickPAWS,DistributeDDFW,SetupDDFW",
@@ -86,7 +86,7 @@ void DistributeDDFW() {
     
     iCurrentClause = aFalseList[j];
 
-    bFoundClause = FALSE;
+    bFoundClause = 0;
     iSourceClausePenalty = iDDFWInitWeight;
 
     /* for each literal in the current clause... */
@@ -108,7 +108,7 @@ void DistributeDDFW() {
           if (aClausePenaltyINT[*pNeighbourClause] >= iSourceClausePenalty) {
             iSourceClause = *pNeighbourClause;
             iSourceClausePenalty = aClausePenaltyINT[iSourceClause];
-            bFoundClause = TRUE;
+            bFoundClause = 1;
           }
         }
         pNeighbourClause++;
@@ -122,7 +122,7 @@ void DistributeDDFW() {
 
     if (bFoundClause) {
       if (!RandomProb(iDDFW_TL)) {
-        bFoundClause = FALSE;
+        bFoundClause = 0;
       }
     }
 
@@ -136,7 +136,7 @@ void DistributeDDFW() {
       if (aNumTrueLit[iSourceClause] > 0) {
         if (aClausePenaltyINT[iSourceClause] >= iDDFWInitWeight) {
           iSourceClausePenalty = aClausePenaltyINT[iSourceClause];
-          bFoundClause = TRUE;
+          bFoundClause = 1;
         }
       }
     }

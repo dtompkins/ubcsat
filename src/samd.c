@@ -32,14 +32,14 @@ void AddSAMD() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("samd","",FALSE,
+  pCurAlg = CreateAlgorithm("samd","",0,
     "SAMD: Steepest Ascent Mildest Descent",
     "Hansen and Jaumard [Computing 1990]",
     "PickGSatTabu,SAMDUpdateVarLastChange",
     "DefaultProcedures,Flip+VarScore",
     "default","default");
   
-  CopyParameters(pCurAlg,"gsat-tabu","",FALSE);
+  CopyParameters(pCurAlg,"gsat-tabu","",0);
 
   CreateTrigger("SAMDUpdateVarLastChange",UpdateStateInfo,SAMDUpdateVarLastChange,"VarLastChange","UpdateVarLastChange");
 

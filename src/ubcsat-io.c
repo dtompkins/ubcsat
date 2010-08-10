@@ -76,12 +76,12 @@ UINT32 RandomInt(UINT32 iMax) {
 
 BOOL RandomProb(PROBABILITY iProb) {
   if (iProb==0) {
-    return(FALSE);
+    return(0);
   }
   if (fxnRandUInt32() <= iProb) {
-    return(TRUE);
+    return(1);
   } else {
-    return(FALSE);
+    return(0);
   }
 }
 
@@ -140,12 +140,12 @@ void ActivateReportTriggers() {
 
   for (j=0;j<iNumReports;j++) {
     if (strcmp(aReports[j].sOutputFile,"null")==0) {
-      aReports[j].bActive = FALSE;
+      aReports[j].bActive = 0;
       aReports[j].fileOut = 0;
     } else if (aReports[j].bUserActivated) {
-      aReports[j].bActive = TRUE;
+      aReports[j].bActive = 1;
     } else if ((aReports[j].bDefaultActivate)&&(!bReportQuiet)) {
-      aReports[j].bActive = TRUE;
+      aReports[j].bActive = 1;
     }
     if (aReports[j].bActive) {
       if (strcmp(aReports[j].sOutputFile,"stdout")==0) {
@@ -153,7 +153,7 @@ void ActivateReportTriggers() {
       } else if (strcmp(aReports[j].sOutputFile,"stderr")==0) {
         aReports[j].fileOut = stderr;
       } else {
-        if (aReports[j].bSpecialFileIO == FALSE) {
+        if (!aReports[j].bSpecialFileIO) {
           aReports[j].fileOut = fopen(aReports[j].sOutputFile,"w");
           if (aReports[j].fileOut == 0) {
             printf("Fatal Error: Invalid filename [%s] specified \n",aReports[j].sOutputFile);
@@ -178,7 +178,7 @@ void CloseReports() {
   UINT32 j;
   for (j=0;j<iNumReports;j++) {
     if (aReports[j].bActive) {
-      if (aReports[j].bSpecialFileIO == FALSE) {
+      if (!aReports[j].bSpecialFileIO) {
         CloseSingleFile(aReports[j].fileOut);
       }
     }
@@ -227,7 +227,7 @@ UINT32 FileRandomUInt32() {
           iRandomBufferRemaining = fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);
           if (iRandomBufferRemaining==0) {
             CloseSingleFile(filRandomData);
-            SetupFile(&filRandomData,"rb",sFilenameRandomData,NULL,FALSE);
+            SetupFile(&filRandomData,"rb",sFilenameRandomData,NULL,0);
             iRandomBufferRemaining = fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);
           }
           pNextRandomData = pRandomDataBuffer;
@@ -244,7 +244,7 @@ void CreateFileRandom() {
 
   pRandomDataBuffer = (BYTE *) AllocateRAM(RANDOMFILEBUFFERSIZE);
   
-  SetupFile(&filRandomData,"rb",sFilenameRandomData,NULL,FALSE);
+  SetupFile(&filRandomData,"rb",sFilenameRandomData,NULL,0);
 
   if (filRandomData==NULL) {
     ReportPrint(pRepErr,"Error! Unable to read from random data file\n");
@@ -255,10 +255,10 @@ void CreateFileRandom() {
   iRandomBufferRemaining = fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);
 
   if ((iRandomBufferRemaining < RANDOMFILEBUFFERSIZE)||(feof(filRandomData))) {
-    bCycleData = TRUE;
+    bCycleData = 1;
     iCycleDataLen = iRandomBufferRemaining;
   } else {
-    bCycleData = FALSE;
+    bCycleData = 0;
   }
 
   pNextRandomData = pRandomDataBuffer;
@@ -277,7 +277,7 @@ void FileAbort() {
   fileAbort = fopen(sFilenameAbort,"r");
 
   if (fileAbort) {
-    bTerminateAllRuns = TRUE;
+    bTerminateAllRuns = 1;
     fclose(fileAbort);
   }
 }

@@ -35,14 +35,14 @@ void AddNoveltyPlusP() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("novelty+p","",FALSE,
+  pCurAlg = CreateAlgorithm("novelty+p","",0,
     "Novelty+p: Novelty with random walk and look-ahead",
     "Li, Wei, and Zhang [SAT 07]",
     "PickNoveltyPlusP",
     "DefaultProcedures,Flip+TrackChanges+FCL,DecPromVars,FalseClauseList,VarLastChange,LookAhead",
     "default","default");
   
-  CopyParameters(pCurAlg,"novelty+","",FALSE);
+  CopyParameters(pCurAlg,"novelty+","",0);
 
   CreateTrigger("PickNoveltyPlusP",ChooseCandidate,PickNoveltyPlusP,"","");
 
@@ -223,7 +223,7 @@ UINT32 *aIsLookAhead;
 UINT32 *aLookAheadList;
 SINT32 *aLookAheadScoreChange;
 
-#define UpdateLookAhead(var,diff) {if(aIsLookAhead[var]==FALSE) {aIsLookAhead[var]=TRUE; aLookAheadList[iNumLookAhead++] = var; aLookAheadScoreChange[var] = (diff);} else {aLookAheadScoreChange[var] += (diff);}};
+#define UpdateLookAhead(var,diff) {if(!aIsLookAhead[var]) {aIsLookAhead[var]=1; aLookAheadList[iNumLookAhead++] = var; aLookAheadScoreChange[var] = (diff);} else {aLookAheadScoreChange[var] += (diff);}};
 
 void CreateLookAhead() {
   aIsLookAhead = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
@@ -344,7 +344,7 @@ SINT32 BestLookAheadScore(UINT32 iLookVar) {
         }
       }
     }
-    aIsLookAhead[iVar] = FALSE;
+    aIsLookAhead[iVar] = 0;
   }
   
   /* only consider 'improving' look ahead scores */

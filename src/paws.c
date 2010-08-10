@@ -60,7 +60,7 @@ void AddPAWS() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("paws","",FALSE,
+  pCurAlg = CreateAlgorithm("paws","",0,
     "PAWS: Pure Additive Weighting Scheme",
     "Thornton, Pham, Bain, Ferreira [AAAI 04]",
     "PickPAWS,PostFlipPAWS",

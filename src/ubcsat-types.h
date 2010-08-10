@@ -82,14 +82,6 @@ typedef signed long SINT32;
 #define SINT32MAX 0x7FFFFFFF
 #define SINT32MIN 0x80000000
 
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
 #ifndef NULL
 #define NULL 0
 #endif

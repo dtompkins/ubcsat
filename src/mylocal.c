@@ -56,7 +56,7 @@ void AddWalkSatTabuNoNull() {
   ALGORITHM *pCurAlg;
 
   pCurAlg = CreateAlgorithm(
-    "walksat-tabu","nonull",FALSE,                          /* algorithm name, variant, non-weighted */
+    "walksat-tabu","nonull",0,                              /* algorithm name, variant, non-weighted */
     "WALKSAT-TABU-NoNull: WALKSAT-TABU without null flips", /* algorithm description */
     "McAllester, Selman, Kautz [AAAI 97] (modified)",       /* author information */
     "PickWalkSatTabuNoNull",                                /* Heuristic Triggers */
@@ -64,9 +64,9 @@ void AddWalkSatTabuNoNull() {
     "default,agemean",                                      /* default parameter (columns) for output (-r out) -- will demo example 2*/
     "default");                                             /* default parameter (stats) for statistics (-r stats) */
   
-  InheritDataTriggers(pCurAlg,"walksat-tabu","",FALSE);     /* Copy the data triggers from walksat-tabu */
+  InheritDataTriggers(pCurAlg,"walksat-tabu","",0);         /* Copy the data triggers from walksat-tabu */
   
-  CopyParameters(pCurAlg,"walksat-tabu","",FALSE);          /* Copy the command line parameters from walksat-tabu */
+  CopyParameters(pCurAlg,"walksat-tabu","",0);              /* Copy the command line parameters from walksat-tabu */
 
   CreateTrigger("PickWalkSatTabuNoNull",                    /* Add the new trigger for the heuristic */
     ChooseCandidate,                                        /* Occurs at the event point for choosing flip candidates */
@@ -116,7 +116,7 @@ void AddAgeStat() {
   AddStatCol("agemean",                                           /* column statistic for the -r stats report */
     "MeanAge",                                                    /* prefix for the report */
     "mean+cv+median+min+max",                                     /* default stats to show */
-    FALSE);                                                       /* specify TRUE to sort by the steps column (for median, etc.) instead of this column */
+    0);                                                           /* specify TRUE to sort by the steps column (for median, etc.) instead of this column */
 
 }
 

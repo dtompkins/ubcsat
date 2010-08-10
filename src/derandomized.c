@@ -51,7 +51,7 @@ void AddDerandomized() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("dcrwalk","",FALSE,
+  pCurAlg = CreateAlgorithm("dcrwalk","",0,
     "Deterministic Conflict-Directed Random Walk (For Academic Interest)",
     "Tompkins, Hoos [AI 2006]",
     "PickDCRWalk",
@@ -70,7 +70,7 @@ void AddDerandomized() {
   CreateTrigger("UpdateNextClauseLit",PreFlip,UpdateNextClauseLit,"","");
   CreateContainerTrigger("NextClauseLit","CreateNextClauseLit,InitNextClauseLit,UpdateNextClauseLit");
 
-  pCurAlg = CreateAlgorithm("danov+","",FALSE,
+  pCurAlg = CreateAlgorithm("danov+","",0,
     "Deterministic Adaptive Novelty Plus (For Academic Interest)",
     "Tompkins, Hoos [AI 2006]",
     "PickDANOVP",

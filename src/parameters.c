@@ -30,17 +30,17 @@ void AddParameters() {
 
   AddParmString(&parmAlg,"-alg","algorithm name","","",&sAlgName,"");
   AddParmString(&parmAlg,"-v","algorithm variant name (if any)","some algorithms have multiple variants and you can use~the -v parameter to specify which variant you wish to use","",&sVarName,"");
-  AddParmBool(&parmAlg,"-w","use the weighted variant of the algorithm (if it exists)","weighted algorithms solve weighted instances with static~clause weights (weights are specified in .wcnf files)","",&bWeighted,FALSE);
+  AddParmBool(&parmAlg,"-w","use the weighted variant of the algorithm (if it exists)","weighted algorithms solve weighted instances with static~clause weights (weights are specified in .wcnf files)","",&bWeighted,0);
 
-  AddParmBool(&parmHelp,"-help,--help,-h","general help","","",&bShowHelp,FALSE);
-  AddParmBool(&parmHelp,"-helpparam,-hp","list ubcsat parameters","","",&bShowHelpP,FALSE);
-  AddParmBool(&parmHelp,"-helpalg,-ha","list of available (unweighted) algorithms","","",&bShowHelpA,FALSE);
-  AddParmBool(&parmHelp,"-helpalg,-hw","list of available (weighted) algorithms","","",&bShowHelpW,FALSE);
-  AddParmBool(&parmHelp,"-helpreports,-hr","list all reports","","",&bShowHelpR,FALSE);
-  AddParmBool(&parmHelp,"-helpcolumns,-hc","help for reports with columns (-r out),(-r rtd)","","",&bShowHelpC,FALSE);
-  AddParmBool(&parmHelp,"-helpstats,-hs","help for the statistics report (-r stats)","","",&bShowHelpS,FALSE);
-  AddParmBool(&parmHelp,"-helpverbose,-hv","list all parameters and algorithms (verbose)","","",&bShowHelpV,FALSE);
-  AddParmBool(&parmHelp,"-helpterse,-ht","list all parameters and algorithms (terse)","","",&bShowHelpT,FALSE);
+  AddParmBool(&parmHelp,"-help,--help,-h","general help","","",&bShowHelp,0);
+  AddParmBool(&parmHelp,"-helpparam,-hp","list ubcsat parameters","","",&bShowHelpP,0);
+  AddParmBool(&parmHelp,"-helpalg,-ha","list of available (unweighted) algorithms","","",&bShowHelpA,0);
+  AddParmBool(&parmHelp,"-helpalg,-hw","list of available (weighted) algorithms","","",&bShowHelpW,0);
+  AddParmBool(&parmHelp,"-helpreports,-hr","list all reports","","",&bShowHelpR,0);
+  AddParmBool(&parmHelp,"-helpcolumns,-hc","help for reports with columns (-r out),(-r rtd)","","",&bShowHelpC,0);
+  AddParmBool(&parmHelp,"-helpstats,-hs","help for the statistics report (-r stats)","","",&bShowHelpS,0);
+  AddParmBool(&parmHelp,"-helpverbose,-hv","list all parameters and algorithms (verbose)","","",&bShowHelpV,0);
+  AddParmBool(&parmHelp,"-helpterse,-ht","list all parameters and algorithms (terse)","","",&bShowHelpT,0);
 
   AddParmUInt(&parmUBCSAT,"-runs","number of independent attempts (runs) [default %s]","","",&iNumRuns,1);
   AddParmUBigInt(&parmUBCSAT,"-cutoff","maximum number of search steps per run [default %s]","you can specify \"-cutoff max\" for largest integer limit","",&iCutoff,100000);
@@ -53,7 +53,7 @@ void AddParameters() {
   
   AddParmUInt(&parmUBCSAT,"-seed","specify an initial random seed","","",&iSeed,iSeed);
   
-  AddParmBool(&parmUBCSAT,"-solve","stop when a solution has been found and print solution","-solve may not complete all (-runs) specified~-solve also turns on the model report (-r model)","SolveMode",&bSolveMode,FALSE);
+  AddParmBool(&parmUBCSAT,"-solve","stop when a solution has been found and print solution","-solve may not complete all (-runs) specified~-solve also turns on the model report (-r model)","SolveMode",&bSolveMode,0);
   AddParmUInt(&parmUBCSAT,"-find,-numsol","terminate after INT successful runs","-find may not complete all (-runs) specified~or may terminate before enough successful runs","",&iFind,0);
   AddParmUInt(&parmUBCSAT,"-findunique","terminate after INT unique solutions have been found","-findunique may not complete all (-runs) specified~or may terminate before enough unique successful runs","UniqueSolutions",&iFindUnique,0);
   
@@ -65,18 +65,18 @@ void AddParameters() {
 
   AddParmString(&parmIO,"-varinitfile","variable initialization file","variables are initialized to specific values at the~start of each run and at restarts~~Example file:~  -1 3 -4 9 ~sets variables (3,9) to true and variables (1,4) to false~and all other variables would be initialized randomly","",&sFilenameVarInit,"");
   AddParmUInt(&parmIO,"-varinitflip","flip INT variables after initialization","forces INT (unique) random variables to be flipped~after initialization","CandidateList",&iInitVarFlip,0);
-  AddParmBool(&parmIO,"-varinitgreedy","greedy variable initialization","if a variable appears more often as a positive literal~then the var is initialized to true (and vice-versa)~for vars with ties, it alternates between true and false~this initialization is deterministic","",&bVarInitGreedy,FALSE);
+  AddParmBool(&parmIO,"-varinitgreedy","greedy variable initialization","if a variable appears more often as a positive literal~then the var is initialized to true (and vice-versa)~for vars with ties, it alternates between true and false~this initialization is deterministic","",&bVarInitGreedy,0);
 
   AddParmString(&parmIO,"-param,-fp","read command-line parameters from a file","file format is plain text, and in command-line syntax~the command-line will override any parameters from files~and you can specify more than one file~~Example file:~  -runs 100 -cutoff max -noimprove 1000n","",&sFilenameParms,"");
 
   AddParmReport(&parmIO,"-report,-r","-r reportname [filename [params]]... use -hr for more info","","");
 
-  AddParmBool(&parmIO, "-recho","all reports directed to files will also be echoed to stdout","","",&bReportEcho,FALSE);
-  AddParmBool(&parmIO, "-rflush","all report buffers are flushed before each run","","FlushBuffers",&bReportFlush,FALSE);
-  AddParmBool(&parmIO, "-rclean","suppress all report header output","","",&bReportClean,FALSE);
-  AddParmBool(&parmIO, "-rcsv","use alternate CSV format for (most) reports","","SetupCSV",&bReportCSV,FALSE);
+  AddParmBool(&parmIO, "-recho","all reports directed to files will also be echoed to stdout","","",&bReportEcho,0);
+  AddParmBool(&parmIO, "-rflush","all report buffers are flushed before each run","","FlushBuffers",&bReportFlush,0);
+  AddParmBool(&parmIO, "-rclean","suppress all report header output","","",&bReportClean,0);
+  AddParmBool(&parmIO, "-rcsv","use alternate CSV format for (most) reports","","SetupCSV",&bReportCSV,0);
 
-  AddParmBool(&parmIO, "-q","quiet mode (turn (-r out) and (-r stats) off by default)","","",&bReportQuiet,FALSE);
+  AddParmBool(&parmIO, "-q","quiet mode (turn (-r out) and (-r stats) off by default)","","",&bReportQuiet,0);
 
   AddParmString(&parmIO, "-rcomment","specify comment character for report headers (# is default)","","",&sCommentString,"#");
 

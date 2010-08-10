@@ -34,7 +34,7 @@ void AddRandom() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("urwalk","",FALSE,
+  pCurAlg = CreateAlgorithm("urwalk","",0,
     "Uninformed Random Walk: flip any var at random",
     "",
     "PickURWalk",
@@ -43,7 +43,7 @@ void AddRandom() {
 
   CreateTrigger("PickURWalk",ChooseCandidate,PickURWalk,"","");  
 
-  pCurAlg = CreateAlgorithm("crwalk","",FALSE,
+  pCurAlg = CreateAlgorithm("crwalk","",0,
     "Conflict-Directed Random Walk: choose unsat clause, then literal at random",
     "Papadimitriou [FOCS 91]",
     "PickCRWalk",
@@ -54,7 +54,7 @@ void AddRandom() {
 
   CreateTrigger("SchoeningRestart",CreateData,SchoeningRestart,"","");
 
-  pCurAlg = CreateAlgorithm("crwalk","schoening",FALSE,
+  pCurAlg = CreateAlgorithm("crwalk","schoening",0,
     "Conflict-Directed Random Walk, restart every 3n steps",
     "Schoening [FOCS 99]",
     "PickCRWalk,SchoeningRestart",

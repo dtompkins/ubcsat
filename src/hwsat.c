@@ -32,7 +32,7 @@ void AddHWSat() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("hwsat","",FALSE,
+  pCurAlg = CreateAlgorithm("hwsat","",0,
     "HWSAT: HSAT with random walk",
     "Gent, Walsh [Hybrid Problems... 95]",
     "PickHWSat",

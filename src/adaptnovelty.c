@@ -44,7 +44,7 @@ void AddAdaptNoveltyPlus() {
   
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("adaptnovelty+","",FALSE,
+  pCurAlg = CreateAlgorithm("adaptnovelty+","",0,
     "Adaptive Novelty+: Novelty+ with adaptive noise",
     "Hoos [AAAI 02]",
     "PickNoveltyPlus",
@@ -56,14 +56,14 @@ void AddAdaptNoveltyPlus() {
   CreateTrigger("InitAdaptNoveltyNoise",PostInit,InitAdaptNoveltyNoise,"","");
   CreateTrigger("AdaptNoveltyNoise",PostFlip,AdaptNoveltyNoise,"InitAdaptNoveltyNoise","");
 
-  pCurAlg = CreateAlgorithm("adaptnovelty+","params",FALSE,
+  pCurAlg = CreateAlgorithm("adaptnovelty+","params",0,
     "Adaptive Novelty+ with changable adaptability parameters",
     "Hoos [AAAI 02]",
     "PickNoveltyPlus",
     "DefaultProcedures,Flip+FalseClauseList,AdaptNoveltyNoiseAdjust,VarLastChange",
     "default","default");
 
-  CopyParameters(pCurAlg,"adaptnovelty+","",FALSE);
+  CopyParameters(pCurAlg,"adaptnovelty+","",0);
   AddParmFloat(&pCurAlg->parmList,"-phi","adjustment parameter phi [default %s]","phi determines the rate of change of noise","",&fAdaptPhi,(1.0f/5.0f));
   AddParmFloat(&pCurAlg->parmList,"-theta","adjustment parameter theta [default %s]","theta determines the stagnation detection","",&fAdaptTheta,(1.0f/6.0f));
   CreateTrigger("AdaptNoveltyNoiseAdjust",PostFlip,AdaptNoveltyNoiseAdjust,"InitAdaptNoveltyNoise","");

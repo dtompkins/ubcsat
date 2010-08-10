@@ -34,7 +34,7 @@ void AddGWSat() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("gwsat","",FALSE,
+  pCurAlg = CreateAlgorithm("gwsat","",0,
     "GWSAT: GSAT with random walk",
     "Selman, Kautz [IJCAI 93]",
     "PickGWSat",

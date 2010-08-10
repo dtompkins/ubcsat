@@ -83,7 +83,7 @@ void HelpShowHeader() {
   } else {
     ReportPrint1(pRepHelp,"\nUBCSAT version %s\n\n",sVersion);
     ReportPrint(pRepHelp,"http://www.satlib.org/ubcsat\n\n");
-    bHelpHeaderShown = TRUE;
+    bHelpHeaderShown = 1;
   }
 }
 
@@ -156,7 +156,7 @@ void HelpPrintParms() {
   HelpPrintSpecialParameters();
   
   if (pActiveAlgorithm) {
-    HelpPrintAlgorithm(pActiveAlgorithm,FALSE,TRUE);
+    HelpPrintAlgorithm(pActiveAlgorithm,0,1);
   }
 
 }
@@ -171,8 +171,8 @@ void HelpPrintAlgorithms() {
   ReportPrint(pRepHelp,"see http://www.satlib.org/ubcsat/algorithms for additional info\n\n");
 
   for (j=0;j<iNumAlg;j++) {
-    if (aAlgorithms[j].bWeighted == FALSE) {
-      HelpPrintAlgorithm(&aAlgorithms[j],FALSE,FALSE);
+    if (!aAlgorithms[j].bWeighted) {
+      HelpPrintAlgorithm(&aAlgorithms[j],0,0);
     }
   }
 }
@@ -189,7 +189,7 @@ void HelpPrintAlgorithmsW() {
 
   for (j=0;j<iNumAlg;j++) {
     if (aAlgorithms[j].bWeighted) {
-      HelpPrintAlgorithm(&aAlgorithms[j],FALSE,FALSE);
+      HelpPrintAlgorithm(&aAlgorithms[j],0,0);
     }
   }
 }
@@ -494,7 +494,7 @@ void HelpPrintAlgorithm(ALGORITHM *pAlg, BOOL bTerse, BOOL bVerbose) {
 
     if (bVerbose) {
       for (j=0;j<pAlg->parmList.iNumParms;j++) {
-        HelpPrintParameter(&pAlg->parmList.aParms[j],TRUE);
+        HelpPrintParameter(&pAlg->parmList.aParms[j],1);
       }
     }
   }
@@ -636,7 +636,7 @@ void HelpPrintParameters(ALGPARMLIST *pParmList) {
   UINT32 j;
   if (pParmList->iNumParms) {
     for (j=0;j<pParmList->iNumParms;j++) {
-      HelpPrintParameter(&pParmList->aParms[j], FALSE);
+      HelpPrintParameter(&pParmList->aParms[j],0);
     }
   }
 }
@@ -761,14 +761,14 @@ void HelpShowVerbose() {
   UINT32 j;
   HelpPrintSpecialParameters();
   for (j=0;j<iNumAlg;j++)
-    HelpPrintAlgorithm(&aAlgorithms[j],FALSE,TRUE);
+    HelpPrintAlgorithm(&aAlgorithms[j],0,1);
 }
 
 void HelpShowTerse() {
   UINT32 j;
   HelpPrintSpecialParametersTerse();
   for (j=0;j<iNumAlg;j++)
-    HelpPrintAlgorithm(&aAlgorithms[j],TRUE,FALSE);
+    HelpPrintAlgorithm(&aAlgorithms[j],1,0);
 }
 
 void HelpBadParm(char *sParm) {

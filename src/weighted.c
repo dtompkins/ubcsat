@@ -502,7 +502,7 @@ void PickRGSatW() {
     }
   } else {
     iFlipCandidate = 0;
-    bRestart = TRUE;
+    bRestart = 1;
   }
 }
 
@@ -769,16 +769,16 @@ void AddWeighted() {
 
   ALGORITHM *pCurAlg;
 
-  pCurAlg = CreateAlgorithm("adaptnovelty+","",TRUE,
+  pCurAlg = CreateAlgorithm("adaptnovelty+","",1,
     "Adaptive Novelty+: Novelty+ with adaptive noise (weighted)",
     "Hoos [AAAI 02]",
     "PickNoveltyPlusW",
     "DefaultProceduresW,Flip+FalseClauseListW,AdaptNoveltyNoiseW,VarLastChange",
     "default_w","default");
-  CopyParameters(pCurAlg,"adaptnovelty+","",FALSE);
+  CopyParameters(pCurAlg,"adaptnovelty+","",0);
   CreateTrigger("AdaptNoveltyNoiseW",PostFlip,AdaptNoveltyNoiseW,"InitAdaptNoveltyNoise","");
 
-  pCurAlg = CreateAlgorithm("g2wsat","",TRUE,
+  pCurAlg = CreateAlgorithm("g2wsat","",1,
     "G2WSAT: Gradient-based Greedy WalkSAT (generalized) (weighted)",
     "Li, Huang  [SAT 05] and Li, Wei, Zhang [SAT 07]",
     "PickG2WSatGeneralW,ConfigureG2WSatGeneralW",
@@ -795,7 +795,7 @@ void AddWeighted() {
   CreateTrigger("PickG2WSatGeneralW",ChooseCandidate,PickG2WSatGeneralW,"","");
   CreateTrigger("ConfigureG2WSatGeneralW",PostParameters,ConfigureG2WSatGeneralW,"","");
 
-  pCurAlg = CreateAlgorithm("adaptg2wsat","",TRUE,
+  pCurAlg = CreateAlgorithm("adaptg2wsat","",1,
     "Adaptive G2WSat (generalized) (weighted)",
     "Li, Wei, Zhang  [SAT 07]",
     "PickG2WSatGeneralW,ConfigureG2WSatGeneralW,InitAdaptG2WSatNoise,AdaptG2WSatNoiseW",
@@ -807,16 +807,16 @@ void AddWeighted() {
   AddParmUInt(&pCurAlg->parmList,"-base","G2WSAT Base Algorithm ID [default %s]","0: Novelty~2: Novelty+p~3: Top2","",&iG2WsatBaseAlgSelectID,0);
   CreateTrigger("AdaptG2WSatNoiseW",PostFlip,AdaptG2WSatNoiseW,"InitAdaptG2WSatNoise","");
 
-  pCurAlg = CreateAlgorithm("gsat-tabu","",TRUE,
+  pCurAlg = CreateAlgorithm("gsat-tabu","",1,
     "GSAT-TABU: GSAT with Tabu search (weighted)",
     "Mazure, Sais, Gregoire [AAAI 97]",
     "PickGSatTabuW",
     "DefaultProceduresW,Flip+VarScoreW,VarLastChange",
     "default_w","default");
-  CopyParameters(pCurAlg,"gsat-tabu","",FALSE);
+  CopyParameters(pCurAlg,"gsat-tabu","",0);
   CreateTrigger("PickGSatTabuW",ChooseCandidate,PickGSatTabuW,"","");
 
-  pCurAlg = CreateAlgorithm("gsat","",TRUE,
+  pCurAlg = CreateAlgorithm("gsat","",1,
     "GSAT: Greedy search for SAT (weighted)",
     "Selman, Levesque, Mitchell [AAAI 93]",
     "PickGSatW",
@@ -824,16 +824,16 @@ void AddWeighted() {
     "default_w","default");
   CreateTrigger("PickGSatW",ChooseCandidate,PickGSatW,"","");
 
-  pCurAlg = CreateAlgorithm("gwsat","",TRUE,
+  pCurAlg = CreateAlgorithm("gwsat","",1,
     "GWSAT: GSAT with random walk (weighted)",
     "Selman, Kautz [IJCAI 93]",
     "PickGWSatW",
     "DefaultProceduresW,VarScoreW,VarInFalse",
     "default_w","default");
-  CopyParameters(pCurAlg,"gwsat","",FALSE);
+  CopyParameters(pCurAlg,"gwsat","",0);
   CreateTrigger("PickGWSatW",ChooseCandidate,PickGWSatW,"","");
 
-  pCurAlg = CreateAlgorithm("hsat","",TRUE,
+  pCurAlg = CreateAlgorithm("hsat","",1,
     "HSAT (weighted)",
     "Gent, Walsh [AAAI 93]",
     "PickHSatW",
@@ -841,72 +841,72 @@ void AddWeighted() {
     "default_w","default");
   CreateTrigger("PickHSatW",ChooseCandidate,PickHSatW,"","");
 
-  pCurAlg = CreateAlgorithm("hwsat","",TRUE,
+  pCurAlg = CreateAlgorithm("hwsat","",1,
     "HWSAT: HSAT with random walk (weighted)",
     "Gent, Walsh [Hybrid Problems... 95]",
     "PickHWSatW",
     "DefaultProceduresW,Flip+VarScoreW,VarLastChange,FalseClauseList",
     "default_w","default");
-  CopyParameters(pCurAlg,"hwsat","",FALSE);
+  CopyParameters(pCurAlg,"hwsat","",0);
   CreateTrigger("PickHWSatW",ChooseCandidate,PickHWSatW,"","");
 
-  pCurAlg = CreateAlgorithm("irots","",TRUE,
+  pCurAlg = CreateAlgorithm("irots","",1,
     "IRoTS: Iterated Robust TABU Search (weighted)",
     "Smyth, Hoos, Stuetzle [AI 2003]",
     "PickRoTSW,PostStepIRoTS",
     "DefaultProceduresW,Flip+VarScoreW,CreateIRoTSBackup",
     "default_w","default");
-  CopyParameters(pCurAlg,"irots","",FALSE);
+  CopyParameters(pCurAlg,"irots","",0);
 
-  pCurAlg = CreateAlgorithm("novelty","",TRUE,
+  pCurAlg = CreateAlgorithm("novelty","",1,
     "Novelty: (weighted)",
     "McAllester, Selman, Kautz [AAAI 97]",
     "PickNoveltyW",
     "DefaultProceduresW,Flip+FalseClauseListW,VarLastChange",
     "default_w","default");
-  CopyParameters(pCurAlg,"novelty","",FALSE);
+  CopyParameters(pCurAlg,"novelty","",0);
   CreateTrigger("PickNoveltyW",ChooseCandidate,PickNoveltyW,"","");
 
-  pCurAlg = CreateAlgorithm("novelty+","",TRUE,
+  pCurAlg = CreateAlgorithm("novelty+","",1,
     "Novelty+: Novelty with random walk (weighted)",
     "Hoos [AAAI 99]",
     "PickNoveltyPlusW",
     "DefaultProceduresW,Flip+FalseClauseListW,VarLastChange",
     "default_w","default");
-  CopyParameters(pCurAlg,"novelty+","",FALSE);
+  CopyParameters(pCurAlg,"novelty+","",0);
   CreateTrigger("PickNoveltyPlusW",ChooseCandidate,PickNoveltyPlusW,"","");
  
-  pCurAlg = CreateAlgorithm("novelty++","",TRUE,
+  pCurAlg = CreateAlgorithm("novelty++","",1,
     "Novelty++: Novelty+ with a modified diversification mechanism (weighted)",
     "Li, Huang  [SAT 05]",
     "PickNoveltyPlusPlusW",
     "DefaultProceduresW,Flip+FalseClauseListW,VarLastChange",
     "default_w","default");
-  CopyParameters(pCurAlg,"novelty++","",FALSE);
+  CopyParameters(pCurAlg,"novelty++","",0);
   CreateTrigger("PickNoveltyPlusPlusW",ChooseCandidate,PickNoveltyPlusPlusW,"","");
 
-  pCurAlg = CreateAlgorithm("urwalk","",TRUE,
+  pCurAlg = CreateAlgorithm("urwalk","",1,
     "Uninformed Random Walk: flip any var at random (weighted)",
     "",
     "PickURWalk",
     "DefaultProceduresW",
     "default_w","default");
 
-  pCurAlg = CreateAlgorithm("crwalk","",TRUE,
+  pCurAlg = CreateAlgorithm("crwalk","",1,
     "Conflict-Directed Random Walk (weighted)",
     "Papadimitriou [FOCS 91]",
     "PickCRWalk",
     "DefaultProceduresW,Flip+FalseClauseListW",
     "default_w","default");
   
-  pCurAlg = CreateAlgorithm("crwalk","schoening",TRUE,
+  pCurAlg = CreateAlgorithm("crwalk","schoening",1,
     "Conflict-Directed Random Walk, restart every 3n steps (weighted)",
     "Schoening [FOCS 99]",
     "PickCRWalk,SchoeningRestart",
     "DefaultProceduresW,Flip+FalseClauseListW",
     "default_w","default");
 
-  pCurAlg = CreateAlgorithm("rgsat","",TRUE,
+  pCurAlg = CreateAlgorithm("rgsat","",1,
     "RGSAT: Restarting GSAT (poor algorithm -- academic use only) (weighted)",
     "Tompkins, Hoos [SAIM 04]",
     "PickRGSatW",
@@ -914,16 +914,16 @@ void AddWeighted() {
     "default_w","default");
   CreateTrigger("PickRGSatW",CheckRestart,PickRGSatW,"","");
 
-  pCurAlg = CreateAlgorithm("rots","",TRUE,
+  pCurAlg = CreateAlgorithm("rots","",1,
     "RoTS: Robust TABU Search (weighted)",
     "Taillard [Parallel Computing 1991], based on implementation by Stuetzle",
     "PickRoTSW",
     "DefaultProceduresW,Flip+VarScoreW",
     "default_w","default");
-  CopyParameters(pCurAlg,"rots","",FALSE);
+  CopyParameters(pCurAlg,"rots","",0);
   CreateTrigger("PickRoTSW",ChooseCandidate,PickRoTSW,"InitRoTS,VarLastChange,BestFalse","");
 
-  pCurAlg = CreateAlgorithm("samd","",TRUE,
+  pCurAlg = CreateAlgorithm("samd","",1,
     "SAMD: Steepest Ascent Mildest Descent (weighted)",
     "Hansen and Jaumard [Computing 1990]",
     "PickGSatTabuW,SAMDUpdateVarLastChangeW",
@@ -932,39 +932,39 @@ void AddWeighted() {
   CopyParameters(pCurAlg,"gsat-tabu","",1);
   CreateTrigger("SAMDUpdateVarLastChangeW",UpdateStateInfo,SAMDUpdateVarLastChangeW,"VarLastChange","UpdateVarLastChange");
 
-   pCurAlg = CreateAlgorithm("saps","winit",TRUE,
+   pCurAlg = CreateAlgorithm("saps","winit",1,
     "SAPS: (weighted -- init to weights)",
     "Hutter, Tompkins, Hoos [CP 02]",
     "PickSAPS,PostFlipSAPS",
     "DefaultProceduresW,InitClausePenaltyFLW,Flip+MBPFL+FCL+VIF+W",
     "default_w","default");
-  CopyParameters(pCurAlg,"saps","",FALSE);
+  CopyParameters(pCurAlg,"saps","",0);
 
-  pCurAlg = CreateAlgorithm("saps","wsmooth",TRUE,
+  pCurAlg = CreateAlgorithm("saps","wsmooth",1,
     "SAPS: (weighted -- init and smooth to weights)",
     "Hutter, Tompkins, Hoos [CP 02]",
     "PickSAPS,PostFlipSAPSWSmooth",
     "DefaultProceduresW,InitClausePenaltyFLW,Flip+MBPFL+FCL+VIF+W",
     "default_w","default");
-  CopyParameters(pCurAlg,"saps","",FALSE);
+  CopyParameters(pCurAlg,"saps","",0);
   CreateTrigger("PostFlipSAPSWSmooth",PostFlip,PostFlipSAPSWSmooth,"","");
 
-  pCurAlg = CreateAlgorithm("walksat","",TRUE,
+  pCurAlg = CreateAlgorithm("walksat","",1,
     "WALKSAT: Original WalkSAT algorithm (SKC variant) (weighted)",
     "Selman, Kautz, Cohen [AAAI 94]",
     "PickWalkSatSKCW",
     "DefaultProceduresW,Flip+FalseClauseListW",
     "default_w","default");
-  CopyParameters(pCurAlg,"walksat","",FALSE);
+  CopyParameters(pCurAlg,"walksat","",0);
   CreateTrigger("PickWalkSatSKCW",ChooseCandidate,PickWalkSatSKCW,"","");
 
-  pCurAlg = CreateAlgorithm("walksat-tabu","",TRUE,
+  pCurAlg = CreateAlgorithm("walksat-tabu","",1,
     "WALKSAT-TABU: WalkSAT with TABU search (weighted)",
     "McAllester, Selman, Kautz [AAAI 97]",
     "PickWalkSatTabuW",
     "DefaultProceduresW,Flip+FalseClauseListW,VarLastChange",
     "default_w","default");
-  CopyParameters(pCurAlg,"walksat-tabu","",FALSE);
+  CopyParameters(pCurAlg,"walksat-tabu","",0);
   CreateTrigger("PickWalkSatTabuW",ChooseCandidate,PickWalkSatTabuW,"","");
 
  
