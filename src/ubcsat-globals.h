@@ -221,7 +221,7 @@ void AddParmBool(ALGPARMLIST *pParmList,
                   const char *sName, 
                   const char *sDescription,
                   const char *sTriggers,
-                  UINT32 *pBool,
+                  BOOL *pBool,
                   BOOL bDefBool);
 
 void AddParmFloat(ALGPARMLIST *pParmList, 
@@ -256,6 +256,7 @@ REPORT *CreateReport(const char *sID,
 */
 
 void AddReportParmUInt(REPORT *pRep, const char *sParmName, UINT32 *pParmValUInt, UINT32 iDefault);
+void AddReportParmBool(REPORT *pRep, const char *sParmName, BOOL *pParmValBool, BOOL bDefault);
 void AddReportParmFloat(REPORT *pRep, const char *sParmName, FLOAT *pParmValFloat, FLOAT fDefault);
 void AddReportParmString(REPORT *pRep, const char *sParmName, const char *pDefault);
 

@@ -109,7 +109,7 @@ void ReportPenaltyPrintStep();
 void ReportPenaltyPrintRun();
 BOOL bReportPenaltyReNormBase;
 BOOL bReportPenaltyReNormFraction;
-UINT32 bReportPenaltyEveryLM;
+BOOL bReportPenaltyEveryLM;
 FLOAT *aPenaltyStatsFinal;
 FLOAT *aPenaltyStatsFinalSum;
 FLOAT *aPenaltyStatsFinalSum2;
@@ -178,6 +178,10 @@ void InitSolveMode();
 
 /***** Trigger UpdatePercents *****/
 void UpdatePercents();
+
+/***** Trigger UpdateColSolutionFound *****/
+void UpdateColSolutionFound();
+UINT32 iColSolutionFound;
 
 /***** Trigger MobilityColumn *****/
 void InitMobilityColumnN();
@@ -303,6 +307,7 @@ void AddReportTriggers() {
   CreateTrigger("ColumnInit",PreRun,ColumnInit,"","");
   CreateTrigger("SolveMode",PreStart,InitSolveMode,"ReportModelPrint","");
   CreateTrigger("UpdatePercents",FinalCalculations,UpdatePercents,"SortByStepPerformance","");
+  CreateTrigger("UpdateColSolutionFound",RunCalculations,UpdateColSolutionFound,"","");
 
   CreateTrigger("InitMobilityColumnN",PostParameters,InitMobilityColumnN,"","");
   CreateTrigger("InitMobilityColumnX",PostParameters,InitMobilityColumnX,"","");
@@ -1457,7 +1462,7 @@ void ReportCNFStatsPrint() {
 
 void ReportStatePrint() {
   UINT32 j;
-  UINT32 bLocalMin = FALSE;
+  BOOL bLocalMin = FALSE;
   UINT32 bPrint;
   if ((iRun==1)&&(iStep==1)) {
     ReportHdrPrefix(pRepState);
@@ -1767,7 +1772,7 @@ void ReportFalseHistPrint() {
 /***** Report -r distance *****/
 
 void ReportDistancePrint() {
-  UINT32 bLocalMin = FALSE;
+  BOOL bLocalMin = FALSE;
   UINT32 bPrint;
   if ((iRun==1)&&(iStep==1)) {
     ReportHdrPrefix(pRepDistance);
@@ -3130,9 +3135,19 @@ void UpdatePercents() {
   for (j=0;j<iRun;j++) {
     pCol->pfColumnData[aSortedByStepsAndFound[j]] = ((FLOAT) (j+1))/((FLOAT)iRun);
   }
-
 }
 
+
+/***** Trigger UpdateColSolutionFound *****/
+
+void UpdateColSolutionFound() {
+  
+  if (bSolutionFound) {
+    iColSolutionFound = 1;
+  } else {
+    iColSolutionFound = 0;
+  }
+}
 
 
 /***** Trigger UpdateTimes *****/

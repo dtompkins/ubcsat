@@ -31,7 +31,7 @@ namespace ubcsat {
 #ifdef MERSENNE
 
 #ifdef __cplusplus 
-  FXNRAND32 fxnRandUInt32 = mersenne::genrand_int32;
+  FXNRAND32 fxnRandUInt32 = (FXNRAND32) mersenne::genrand_int32;
   #define fxnRandSeed(A) mersenne::init_genrand(A)
 #else
   FXNRAND32 fxnRandUInt32 = genrand_int32;

@@ -316,8 +316,7 @@ void UpdateVW2Auto() {
   }
 }
 
-BOOL BoundedExpProbability (SINT32 iExpProbability)
-{
+BOOL BoundedExpProbability (SINT32 iExpProbability) {
   if (iExpProbability < 0) {
     return TRUE;
   }

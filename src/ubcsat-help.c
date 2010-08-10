@@ -445,9 +445,11 @@ void HelpPrintReport(REPORT *pRep) {
         case PTypeString:
           ReportPrint1(pRepHelp," [%s] \n",(char *)pRep->aParameters[k]);          
           break;
+        case PTypeBool:
+          ReportPrint1(pRepHelp," [%lu] \n",*(BOOL *)pRep->aParameters[k]);
+          break;
         case PTypeReport:
         case PTypeProbability:
-        case PTypeBool:
         case PTypeUBigInt:
         case PTypeSBigInt:
         case PTypeSInt:

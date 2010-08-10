@@ -53,7 +53,7 @@ FLOAT fIrotsSavedValueW;
 
 UINT32 iIrotsMode;
 
-UINT32 *aIrotsBackup;
+BOOL *aIrotsBackup;
 
 void InitIRoTSParms();
 void InitIRoTS();
@@ -297,7 +297,7 @@ void PostStepIRoTS() {
 
 
 void CreateIRoTSBackup() {
-  aIrotsBackup = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
+  aIrotsBackup = (BOOL *) AllocateRAM((iNumVars+1)*sizeof(BOOL));
 }
 
 void IRoTSBackup() {

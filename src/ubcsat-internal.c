@@ -555,7 +555,7 @@ void AddParmBool(ALGPARMLIST *pParmList,
                   const char *sTerseDescription, 
                   const char *sVerboseDescription,
                   const char *sTriggers,
-                  UINT32 *pBool,
+                  BOOL *pBool,
                   BOOL bDefBool)
 {
   ALGPARM *p;
@@ -718,6 +718,13 @@ void AddReportParmUInt(REPORT *pRep, const char *sParmName, UINT32 *pParmValUInt
   pRep->aParmTypes[pRep->iNumParms] = PTypeUInt;
   pRep->aParameters[pRep->iNumParms] = (void *) pParmValUInt;
   *pParmValUInt = iDefault;
+  AddReportParmCommon(pRep,sParmName);
+}
+
+void AddReportParmBool(REPORT *pRep, const char *sParmName, BOOL *pParmValBool, BOOL bDefault) {
+  pRep->aParmTypes[pRep->iNumParms] = PTypeBool;
+  pRep->aParameters[pRep->iNumParms] = (void *) pParmValBool;
+  *pParmValBool = bDefault;
   AddReportParmCommon(pRep,sParmName);
 }
 
@@ -1649,9 +1656,14 @@ void ParseParameters(ALGPARMLIST *pParmList) {
                       SetString((char **) &pRep->aParameters[iNumRepParms],aTotalParms[iCurParm]);
                       aParmValid[iCurParm++] = TRUE;
                       break;
+                    case PTypeBool:
+                      if (sscanf(aTotalParms[iCurParm],"%lu",(BOOL *) pRep->aParameters[iNumRepParms])==0) {
+                        HelpBadParm(aTotalParms[iCurParm]);
+                      }
+                      aParmValid[iCurParm++] = TRUE;
+                      break;
                     case PTypeReport:
                     case PTypeProbability:
-                    case PTypeBool:
                     case PTypeUBigInt:
                     case PTypeSBigInt:
                     case PTypeSInt:

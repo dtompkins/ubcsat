@@ -67,7 +67,7 @@ void AddReports() {
 
   pRepOut = CreateReport("out", "Standard Output with Columns","Prints an array of data, with each row representing an independent run~you can customize the report to include a variety of columns","stdout","ReportOut");
   AddReportParmString(pRepOut,"Columns to Display (ubcsat -hc for info)","default");
-  AddReportParmUInt(pRepOut,"Delay: Set to 1 to print after all runs are complete",&bReportOutputSuppress,0);
+  AddReportParmBool(pRepOut,"Delay: Set to 1 to print after all runs are complete",&bReportOutputSuppress,0);
   pRepOut->bDefaultActivate = TRUE;
 
   pRepStats = CreateReport("stats","Statistics Report","Shows summary statistics from all runs~you can customize the report to include a variety of statistics","stdout","ReportStats");
@@ -82,7 +82,7 @@ void AddReports() {
   pRepCNFStats = CreateReport("cnfstats","Instance Statistics","Provides additional information about the properties of the instance","stdout","ReportCNFStatsPrint");
   
   pRepState = CreateReport("state","State Information Trace","Provides detailed state information for each search step, including:~the solution quality, the variable flipped, and the state of all variables","stdout","ReportStatePrint");
-  AddReportParmUInt(pRepState,"Only print when in local minima",&bReportStateLMOnly,0);
+  AddReportParmBool(pRepState,"Only print when in local minima",&bReportStateLMOnly,0);
   AddReportParmFloat(pRepState,"Only print at a specific Solution Quality (all if -1)",&fReportStateQuality,-1.0f);
 
   pRepSolution = CreateReport("solution","Solutions","Prints solutions for every successful run in the format:~1001001101...~where variable 1 is true, 2 is false, 3 is false, etc...","stdout","ReportSolutionPrint");
@@ -92,18 +92,18 @@ void AddReports() {
   pRepBestSol = CreateReport("bestsol","Best Candidate Solutions","Similar to (-r solution), but includes variable assignments for the~best solution quality encountered when no solution is found","stdout","ReportBestSolPrint");
 
   pRepBestStep = CreateReport("beststep","Steps of Each New Best Solution Quality","Print step information for each new best solution encountered","stdout","ReportBestStepPrint");
-  AddReportParmUInt(pRepBestStep,"Include the variable assignment for each new best",&bReportBestStepVars,0);
+  AddReportParmBool(pRepBestStep,"Include the variable assignment for each new best",&bReportBestStepVars,0);
 
   pRepTrajBestLM = CreateReport("tbestlm","Trajectory Best Local Minima","Very similar to (-r beststep), except it ignores best solutions that~are improved upon in the next step","stdout","ReportTrajBestLM");
   
   pRepOptClauses = CreateReport("unsatclauses","Unsatisfied Clauses","Print unsatisfied clauses when the run is complete~mostly useful when -target > 0 -- the format is:~1101111...~where clause 3 was unsatisfied when the run terminated","stdout","ReportUnsatClausesPrint");
-  AddReportParmUInt(pRepOptClauses,"Only Include runs where -target solution was reached",&bReportOptClausesSol,0);
+  AddReportParmBool(pRepOptClauses,"Only Include runs where -target solution was reached",&bReportOptClausesSol,0);
 
   pRepFalseHist = CreateReport("falsehist","Number of False Clauses Histogram","Prints a count (histogram) that shows the distribution~of the number of false clauses throughout the search","stdout","ReportFalseHistPrint");
   AddReportParmUInt(pRepFalseHist,"Only include data from the last N steps",&iReportFalseHistCount,0);
 
   pRepDistance = CreateReport("distance","Hamming Distance Information","Detailed information for each step of the Hamming Distance~to the closest known solution~Note: Requires solution file (-filesol)","stdout","ReportDistancePrint");
-  AddReportParmUInt(pRepDistance,"Only print when in local minima",&bReportDistanceLMOnly,0);
+  AddReportParmBool(pRepDistance,"Only print when in local minima",&bReportDistanceLMOnly,0);
 
   pRepDistHist = CreateReport("disthist","Hamming Distance Histogram","Prints a count (histogram) that shows the distribution~of the Hamming distance from the solution(s) throughout the search~Note: Requires solution file (-filesol)","stdout","ReportDistHistPrint");
   AddReportParmUInt(pRepDistHist,"Only include data from the last N steps",&iReportDistHistCount,0);
@@ -122,40 +122,40 @@ void AddReports() {
   AddReportParmUInt(pRepSQGrid,"# of key step points per decade",&iLogDistStepsPerDecade,10);
 
   pRepPenalty = CreateReport("penalty","Clause Penalties","Prints the Clause penalties (weights) from DLS algorithms (i.e.: SAPS,PAWS)~Note: the renormalize to total overrides renormalize to base","stdout","ReportPenaltyPrint");
-  AddReportParmUInt(pRepPenalty,"Re-normalise to base so an untouched clause is equal to 1",&bReportPenaltyReNormBase,1);
-  AddReportParmUInt(pRepPenalty,"Re-normalise to total so sum of all penalties equals 1",&bReportPenaltyReNormFraction,0);
-  AddReportParmUInt(pRepPenalty,"Print penalties every local min (0=end of run only)",&bReportPenaltyEveryLM,0);
+  AddReportParmBool(pRepPenalty,"Re-normalise to base so an untouched clause is equal to 1",&bReportPenaltyReNormBase,1);
+  AddReportParmBool(pRepPenalty,"Re-normalise to total so sum of all penalties equals 1",&bReportPenaltyReNormFraction,0);
+  AddReportParmBool(pRepPenalty,"Print penalties every local min (0=end of run only)",&bReportPenaltyEveryLM,0);
 
   pRepPenMean = CreateReport("penmean","Clause Penalties (Mean)","Mean of clause penalties throughout the run","stdout","ReportPenMeanPrint");
-  AddReportParmUInt(pRepPenMean,"Re-normalise to base so an untouched clause is equal to 1",&bReportPenaltyReNormBase,1);
-  AddReportParmUInt(pRepPenMean,"Re-normalise to total so sum of all penalties equals 1",&bReportPenaltyReNormFraction,0);
+  AddReportParmBool(pRepPenMean,"Re-normalise to base so an untouched clause is equal to 1",&bReportPenaltyReNormBase,1);
+  AddReportParmBool(pRepPenMean,"Re-normalise to total so sum of all penalties equals 1",&bReportPenaltyReNormFraction,0);
   pRepPenStddev = CreateReport("penstddev","Clause Penalties (Stddev)","StdDev of clause penalties throughout the run","stdout","ReportPenStddevPrint");
-  AddReportParmUInt(pRepPenStddev,"Re-normalise to base so an untouched clause is equal to 1",&bReportPenaltyReNormBase,1);
-  AddReportParmUInt(pRepPenStddev,"Re-normalise to total so sum of all penalties equals 1",&bReportPenaltyReNormFraction,0);
+  AddReportParmBool(pRepPenStddev,"Re-normalise to base so an untouched clause is equal to 1",&bReportPenaltyReNormBase,1);
+  AddReportParmBool(pRepPenStddev,"Re-normalise to total so sum of all penalties equals 1",&bReportPenaltyReNormFraction,0);
   pRepPenCV = CreateReport("pencv","Clause Penalties (CV)","CV of clause penalties throughout the run","stdout","ReportPenCVPrint");
-  AddReportParmUInt(pRepPenCV,"Re-normalise to base so an untouched clause is equal to 1",&bReportPenaltyReNormBase,1);
-  AddReportParmUInt(pRepPenCV,"Re-normalise to total so sum of all penalties equals 1",&bReportPenaltyReNormFraction,0);
+  AddReportParmBool(pRepPenCV,"Re-normalise to base so an untouched clause is equal to 1",&bReportPenaltyReNormBase,1);
+  AddReportParmBool(pRepPenCV,"Re-normalise to total so sum of all penalties equals 1",&bReportPenaltyReNormFraction,0);
 
   pRepVW2Weights = CreateReport("vw2weights","VW2 Weights","Prints the VW2 weights at the end of the run","stdout","ReportVW2WeightsPrint");
 
   pRepMobility = CreateReport("mobility","Mobility Report","Mean Hamming distances for windows of sizes 1..length~Parameter 2 will normalize output so 1 is maximum value","stdout","ReportMobilityPrint");
   AddReportParmUInt(pRepMobility,"Largest mobility window length to display [default = n]",&iReportMobilityDisplay,0);
-  AddReportParmUInt(pRepMobility,"Normalize Mobility values: Mobility/min(n,windowsize)",&bReportMobilityNormalized,0);
+  AddReportParmBool(pRepMobility,"Normalize Mobility values: Mobility/min(n,windowsize)",&bReportMobilityNormalized,0);
 
   pRepMobFixed = CreateReport("mobfixed","Mobility For a Fixed Window Size","Provides step-by-step Mobility data for a fixed window size~1st parameter sets the size of the window,~2nd parameter includes or ignores(default) the first 1..size steps~both parameters affect column results (mobx, mobxcv, etc.)~to set parameters without running report, use~-r mobfixed null INT BOOL","stdout","ReportMobFixedPrint");
   AddReportParmUInt(pRepMobFixed,"Mobility window size [default = n]",&iMobFixedWindow,0);
-  AddReportParmUInt(pRepMobFixed,"Include first (1..windowsize) steps",&bMobilityFixedIncludeStart,0);
+  AddReportParmBool(pRepMobFixed,"Include first (1..windowsize) steps",&bMobilityFixedIncludeStart,0);
 
   pRepMobFixedFreq = CreateReport("mobfixedfreq","Mobility Fixed Window Histogram","Mobility frequency counts for a fixed window size~must use the same parameter settings as (-r mobfixed)","stdout","ReportMobFixedFreqPrint");
   AddReportParmUInt(pRepMobFixedFreq,"Mobility window size [default = n]",&iMobFixedWindow,0);
-  AddReportParmUInt(pRepMobFixedFreq,"Include first (1..windowsize) steps ",&bMobilityFixedIncludeStart,0);
+  AddReportParmBool(pRepMobFixedFreq,"Include first (1..windowsize) steps ",&bMobilityFixedIncludeStart,0);
 
   pRepAutoCorr = CreateReport("autocorr","Autocorrelation Report","Autocorrelation Length (ACL) and autocorrelation values for lengths 1..max~if the ACL is greater than max, it returns an ACL value of max~parameters affect column (acl) results~to set parameters without running report, use~-r autocorr null INT FL","stdout","ReportAutoCorrPrint");
   AddReportParmUInt(pRepAutoCorr,"Maximum window length [default = n]",&iAutoCorrMaxLen,0);
   AddReportParmFloat(pRepAutoCorr,"Cutoff Value for finding ACL [default = 1/e]",&fAutoCorrCutoff,0.3678794f);
   
   pRepTriggers = CreateReport("triggers","Trigger Report","Prints Out All Active Triggers","stdout","ReportTriggersPrint");
-  AddReportParmUInt(pRepTriggers,"Show All Triggers (not just active) [default = 0]",&bReportTriggersAll,0);
+  AddReportParmBool(pRepTriggers,"Show All Triggers (not just active) [default = 0]",&bReportTriggersAll,0);
 
   pRepParamILS = CreateReport("paramils","Output for ParamILS","Prints required output ParamILS~(use -r out null and -r stats null)~see http://www.cs.ubc.ca/labs/beta/Projects/ParamILS/","stdout","ReportParamILSPrint");
 
@@ -180,7 +180,7 @@ void AddReports() {
     "N",
     "D",
     "%1u"
-    ,&bSolutionFound,"",ColTypeFinal);
+    ,&iColSolutionFound,"UpdateColSolutionFound",ColTypeFinal);
 
 
   AddColumnUBigInt("steps","Total Number of Search Steps",

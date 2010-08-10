@@ -109,6 +109,7 @@ extern BOOL bReportMobilityNormalized;
 extern UINT32 iRunProceduresLoop;
 extern UINT32 iRunProceduresLoop2;
 extern BOOL bSortedByStepsValid;
+extern UINT32 iColSolutionFound;
 
 extern BOOL bMobilityColNActive;
 extern BOOL bMobilityColXActive;

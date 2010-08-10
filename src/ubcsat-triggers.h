@@ -94,7 +94,7 @@ extern BOOL bVarInitGreedy;
 */
 
 extern UINT32 *aNumTrueLit;
-extern UINT32 *aVarValue;
+extern BOOL *aVarValue;
 extern UINT32 iNumFalse;
 extern FLOAT fSumFalseW;
 

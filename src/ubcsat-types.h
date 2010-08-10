@@ -58,39 +58,27 @@
 #define STATCODE_CALCMASK     0x0000007E
 #define STATCODE_SFMASK       0x3FE00000
 
-#define FLOAT double
+typedef double FLOAT;
 #define FLOATMAX (1E+300)
 #define FLOATZERO (0.0f)
 
 #define FLOATSTATSMIN (1E-8)
 
-#define PROBABILITY unsigned long
+typedef unsigned long PROBABILITY;
 
-#ifndef BOOL
-#define BOOL unsigned long
-#endif
+typedef unsigned long BOOL;
 
-#ifndef UBIGINT
-#define UBIGINT unsigned long long
-#define UBIGINTMAX 0xFFFFFFFFFFFFFFFFull
-#endif
+typedef unsigned long long UBIGINT;
+#define UBIGINTMAX (0xFFFFFFFFFFFFFFFFull)
 
-#ifndef SBIGINT
-#define SBIGINT signed long long
+typedef signed long long SBIGINT;
 #define SBIGINTMAX 0x7FFFFFFFFFFFFFFFll
 #define SBIGINTMIN 0x8000000000000000ll
-#endif
 
-#ifndef UINT32
-#define UINT32 unsigned long
-#endif
+typedef unsigned long UINT32;
+#define UINT32MAX (0xFFFFFFFF)
 
-#define UINT32MAX 0xFFFFFFFF
-
-#ifndef SINT32
-#define SINT32 signed long
-#endif
-
+typedef signed long SINT32;
 #define SINT32MAX 0x7FFFFFFF
 #define SINT32MIN 0x80000000
 

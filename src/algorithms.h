@@ -118,12 +118,12 @@ void AddDDFW();
 /* g2wsat.c */
 
 void AddG2WSat();
-FXNPTR fxnG2WsatPromisingSelect;
-FXNPTR fxnG2WsatDiversificationSelect;
-FXNPTR fxnG2WsatBaseAlgSelect;
-UINT32 iG2WsatPromisingSelectID;
-UINT32 iG2WsatDiversificationSelectID;
-UINT32 iG2WsatBaseAlgSelectID;
+extern FXNPTR fxnG2WsatPromisingSelect;
+extern FXNPTR fxnG2WsatDiversificationSelect;
+extern FXNPTR fxnG2WsatBaseAlgSelect;
+extern UINT32 iG2WsatPromisingSelectID;
+extern UINT32 iG2WsatDiversificationSelectID;
+extern UINT32 iG2WsatBaseAlgSelectID;
 void PromisingSelectOldest();
 void DiversificationRandom();
 void DiversificationOldest();
@@ -132,6 +132,7 @@ void DiversificationMinusOne();
 /* vw.c */
 
 void AddVW();
+BOOL BoundedExpProbability (SINT32 iExpProbability);
 
 extern FLOAT fVW2Smooth;
 extern FLOAT fVW2WeightFactor;

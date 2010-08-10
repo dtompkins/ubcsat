@@ -82,7 +82,7 @@ void CreateDefaultStateInfo();
 void InitDefaultStateInfo();
 
 UINT32 *aNumTrueLit;
-UINT32 *aVarValue;
+BOOL *aVarValue;
 UINT32 iNumFalse;
 FLOAT fSumFalseW;
 
@@ -1150,7 +1150,7 @@ void CreateLitOccurence() {
 
   UINT32 j,k;
   LITTYPE *pLit;
-  LITTYPE *pCur;
+  UINT32 *pCur;
 
   aNumLitOcc = (UINT32 *) AllocateRAM((iNumVars+1)*2*sizeof(UINT32));
   pLitClause = (UINT32 **) AllocateRAM((iNumVars+1)*2*sizeof(UINT32 *));
@@ -1178,7 +1178,7 @@ void CreateLitOccurence() {
     pLit = pClauseLits[j];
     for (k=0;k<aClauseLen[j];k++) {
       pCur = pLitClause[*pLit] + aNumLitOcc[*pLit];
-       *pCur=j;
+      *pCur=j;
       aNumLitOcc[*pLit]++;
       pLit++;
     }
@@ -1274,7 +1274,7 @@ void InitVarsFromFile() {
 
 void CreateDefaultStateInfo() {
   aNumTrueLit = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
-  aVarValue = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
+  aVarValue = (BOOL *) AllocateRAM((iNumVars+1)*sizeof(BOOL));
   aVarInit = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
 }
 
@@ -1339,14 +1339,14 @@ void DefaultInitVars() {
   }
 
   for (j=1;j<=iNumVars;j++) {
-    if (aVarInit[j] == 3) {
+    if (aVarInit[j] >= 3) {
       aVarValue[j] = iNextAlternating;
       iNextAlternating = 1 - iNextAlternating;
     } else {
       if (aVarInit[j] == 2) {
-        aVarValue[j] = RandomInt(2);
+        aVarValue[j] = (BOOL) RandomInt(2);
       } else {
-        aVarValue[j] = aVarInit[j];
+        aVarValue[j] = (BOOL) aVarInit[j];
       }
     }
   }
@@ -5099,7 +5099,7 @@ void CreateVarsShareClauses() {
   BOOL bAlreadyShareClause;
   LITTYPE *pLit;
   LITTYPE *pLit2;
-  LITTYPE *pCur;
+  UINT32 *pCur;
   UINT32 iNumShareClauses;
 
   aNumVarsShareClause = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
