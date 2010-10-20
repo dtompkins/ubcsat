@@ -22,7 +22,7 @@
 
 #include "ubcsat.h"
 
-char sVersion[] = "1.0.0 (Grouse Mountain Release)";
+char sVersion[] = "1.0.5 rots-bug";
 
 int ubcsatmain(int argc, char *argv[]) {
   
