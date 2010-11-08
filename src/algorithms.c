@@ -58,6 +58,8 @@ void AddAlgorithms() {
 
   AddG2WSat();
 
+  AddGNoveltyPlus();
+
   AddVW();
 
   AddRoTS();
