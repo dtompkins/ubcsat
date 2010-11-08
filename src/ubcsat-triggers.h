@@ -205,6 +205,16 @@ extern UINT32 *aDecPromVarsListW;
 extern UINT32 iNumDecPromVarsW;
 
 
+/***** Trigger PenaltyDecPromVars *****/
+/*
+    iNumPenaltyDecPromVars        # Decreasing Promising Variables -- using Penalized Make & Break (INT)
+    aDecPenaltyPromVarsList[j]    variable # of the jth decreasing promising Variable list
+*/
+
+extern UINT32 *aPenaltyDecPromVarsList;
+extern UINT32 iNumPenaltyDecPromVars;
+
+
 /***** Trigger BestScoreList *****/
 /*
     iNumBestScoreList       # of variables tied for the 'best' aVarScore

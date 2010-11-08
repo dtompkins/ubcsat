@@ -230,6 +230,18 @@ UINT32 iNumDecPromVarsW;
 void FlipDecPromVarsFCL();
 
 
+/***** Trigger PenaltyDecPromVars *****/
+
+void CreatePenaltyDecPromVars();
+void InitPenaltyDecPromVars();
+void UpdatePenaltyDecPromVars();
+
+UINT32 *aPenaltyDecPromVarsList;
+UINT32 iNumPenaltyDecPromVars;
+
+/***** Trigger Flip+PenaltyDecPromVars+FCL *****/
+void FlipPenaltyDecPromVarsFCL();
+
 /***** Trigger BestScoreList *****/
 
 void CreateBestScoreList();
@@ -786,6 +798,13 @@ void AddDataTriggers() {
   CreateContainerTrigger("DecPromVars","CreateDecPromVars,InitDecPromVars,UpdateDecPromVars");
 
   CreateTrigger("Flip+DecPromVars+FCL",FlipCandidate,FlipDecPromVarsFCL,"DecPromVars,FalseClauseList","DefaultFlip,UpdateTrackChanges,UpdateVarScore,UpdateFalseClauseList,CreateTrackChanges,InitTrackChanges,UpdateTrackChanges");
+
+  CreateTrigger("CreatePenaltyDecPromVars",CreateStateInfo,CreatePenaltyDecPromVars,"CreateTrackChanges,CreateMakeBreakPenaltyINT","");
+  CreateTrigger("InitPenaltyDecPromVars",InitStateInfo,InitPenaltyDecPromVars,"InitTrackChanges,InitMakeBreakPenaltyINT","");
+  CreateTrigger("UpdatePenaltyDecPromVars",UpdateStateInfo,UpdatePenaltyDecPromVars,"UpdateTrackChanges,UpdateMakeBreakPenaltyINT","");
+  CreateContainerTrigger("PenaltyDecPromVars","CreateDecPromVars,InitDecPromVars,UpdateDecPromVars");
+
+  CreateTrigger("Flip+PenaltyDecPromVars+FCL",FlipCandidate,FlipPenaltyDecPromVarsFCL,"PenaltyDecPromVars,FalseClauseList","DefaultFlip,UpdateTrackChanges,UpdateVarScore,UpdateFalseClauseList,CreateTrackChanges,InitTrackChanges,UpdateTrackChanges,UpdateMakeBreakPenaltyINT");
 
   CreateTrigger("CreateDecPromVarsW",CreateStateInfo,CreateDecPromVarsW,"CreateTrackChangesW","");
   CreateTrigger("InitDecPromVarsW",InitStateInfo,InitDecPromVarsW,"InitTrackChangesW","");
@@ -2917,6 +2936,131 @@ void FlipDecPromVarsFCL() {
 }
 
 
+void FlipPenaltyDecPromVarsFCL() {
+
+  UINT32 j;
+  UINT32 k;
+  UINT32 *pClause;
+  UINT32 iVar;
+  LITTYPE litWasTrue;
+  LITTYPE litWasFalse;
+  LITTYPE *pLit;
+
+  SINT32 iPenalty;
+  SINT32 iPrevScore;
+  SINT32 iCurScore;
+
+  if (iFlipCandidate == 0) {
+    return;
+  }
+
+  iNumChanges = 0;
+
+  litWasTrue = GetTrueLit(iFlipCandidate);
+  litWasFalse = GetFalseLit(iFlipCandidate);
+
+  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+
+  pClause = pLitClause[litWasTrue];
+  for (j=0;j<aNumLitOcc[litWasTrue];j++) {
+    iPenalty = aClausePenaltyINT[*pClause];
+    if (aNumTrueLit[*pClause]==1) {
+      
+      aFalseList[iNumFalse] = *pClause;
+      aFalseListPos[*pClause] = iNumFalse++;
+      
+      //aVarScore[iFlipCandidate]--;
+      aBreakPenaltyINT[iFlipCandidate] -= iPenalty;
+
+      pLit = pClauseLits[*pClause];
+      for (k=0;k<aClauseLen[*pClause];k++) {
+        iVar = GetVarFromLit(*pLit);
+        iPrevScore = (SINT32) aBreakPenaltyINT[iVar] - (SINT32) aMakePenaltyINT[iVar];
+        aMakePenaltyINT[iVar] += iPenalty;
+        if ((iPrevScore >= 0)&&(iPrevScore < iPenalty)) { // ie: new score now < 0
+          aDecPromVarsList[iNumDecPromVars++] = iVar;
+        }
+        pLit++;
+      }
+    }
+    pClause++;
+  }
+
+  pClause = pLitClause[litWasFalse];
+  for (j=0;j<aNumLitOcc[litWasFalse];j++) {
+    iPenalty = aClausePenaltyINT[*pClause];
+    if (aNumTrueLit[*pClause]==1) {
+      iVar = aCritSat[*pClause];
+      iPrevScore = (SINT32) aBreakPenaltyINT[iVar] - (SINT32) aMakePenaltyINT[iVar];
+      //aVarScore[iVar]--;
+      aBreakPenaltyINT[iVar] -= iPenalty;
+      if ((iPrevScore >= 0)&&(iPrevScore < iPenalty)) { // see above
+        aDecPromVarsList[iNumDecPromVars++] = iVar;
+      }
+    }
+    pClause++;
+  }
+
+  // 2nd pass
+
+  pClause = pLitClause[litWasTrue];
+  for (j=0;j<aNumLitOcc[litWasTrue];j++) {
+    iPenalty = aClausePenaltyINT[*pClause];
+    aNumTrueLit[*pClause]--;
+    if (aNumTrueLit[*pClause]==1) {
+      pLit = pClauseLits[*pClause];
+      for (k=0;k<aClauseLen[*pClause];k++) {
+        if (IsLitTrue(*pLit)) {
+          iVar = GetVarFromLit(*pLit);
+          //aVarScore[iVar]++;
+          aBreakPenaltyINT[iVar] += iPenalty;
+          aCritSat[*pClause] = iVar;
+          break;
+        }
+        pLit++;
+      }
+    }
+    pClause++;
+  }
+
+  pClause = pLitClause[litWasFalse];
+  for (j=0;j<aNumLitOcc[litWasFalse];j++) {
+    iPenalty = aClausePenaltyINT[*pClause];
+    aNumTrueLit[*pClause]++;
+    if (aNumTrueLit[*pClause]==1) {
+
+      aFalseList[aFalseListPos[*pClause]] = aFalseList[--iNumFalse];
+      aFalseListPos[aFalseList[iNumFalse]] = aFalseListPos[*pClause];
+
+      pLit = pClauseLits[*pClause];
+      for (k=0;k<aClauseLen[*pClause];k++) {
+        iVar = GetVarFromLit(*pLit);
+        //aVarScore[iVar]++;
+        aMakePenaltyINT[iVar] -= iPenalty;
+        pLit++;
+      }
+      //aVarScore[iFlipCandidate]++;
+      aBreakPenaltyINT[iFlipCandidate] += iPenalty;
+      aCritSat[*pClause] = iFlipCandidate;
+    }
+    pClause++;
+  }
+
+  j=0;
+  k=0;
+  while (j < iNumDecPromVars) {
+    iVar = aDecPromVarsList[k];
+    iCurScore = (SINT32) aBreakPenaltyINT[iVar] - (SINT32) aMakePenaltyINT[iVar];
+    if ((iCurScore >= 0)||(iVar == iFlipCandidate)) {
+      iNumDecPromVars--;
+    } else {
+      aDecPromVarsList[j++]=aDecPromVarsList[k];
+    }
+    k++;
+  }
+}
+
+
 #define UpdateChangeW(var) {if(aChangeLastStepW[var]!=iStep) {aChangeOldScoreW[var] = aVarScoreW[var]; aChangeLastStepW[var]=iStep; aChangeListW[iNumChangesW++]=var;}}
 
 void CreateTrackChangesW() {
@@ -3174,7 +3318,6 @@ void FlipTrackChangesFCLW() {
 
 
 void CreateDecPromVars() {
-
   aDecPromVarsList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
 }
 
@@ -3258,6 +3401,53 @@ void UpdateDecPromVarsW() {
   }
 }
 
+void CreatePenaltyDecPromVars() {
+  aPenaltyDecPromVarsList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
+}
+
+void InitPenaltyDecPromVars() {
+
+  UINT32 j;
+
+  iNumPenaltyDecPromVars = 0;
+
+  for (j=1;j<=iNumVars;j++) {
+    //if (aVarScorej[] < 0) {
+    if ((SINT32) aBreakPenaltyINT[j] - (SINT32) aMakePenaltyINT[j] < 0) {
+      aPenaltyDecPromVarsList[iNumPenaltyDecPromVars++] = j;
+    }
+  }
+}
+
+void UpdatePenaltyDecPromVars() {
+
+  ReportPrint(pRepErr,"Unexpected Error: TODO: UpdatePenaltyDecPromVars\n");
+  AbnormalExit();
+  exit(1);
+
+  // need to use a penalized changeoldscore
+
+  //UINT32 j,k;
+  //UINT32 iVar;
+
+  //for (j=0;j<iNumChanges;j++) {
+  //  iVar = aChangeList[j];
+  //  if ((aVarScore[iVar] < 0)&&(aChangeOldScore[iVar] >= 0)) {
+  //    aDecPromVarsList[iNumDecPromVars++] = iVar;
+  //  }
+  //}
+  //j=0;
+  //k=0;
+  //while (j < iNumDecPromVars) {
+  //  iVar = aDecPromVarsList[k];
+  //  if ((aVarScore[iVar] >= 0)||(iVar == iFlipCandidate)) {
+  //    iNumDecPromVars--;
+  //  } else {
+  //    aDecPromVarsList[j++]=aDecPromVarsList[k];
+  //  }
+  //  k++;
+  //}
+}
 
 void CreateBestScoreList() {
   aBestScoreList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
