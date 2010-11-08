@@ -26,10 +26,12 @@
 namespace ubcsat {
 #endif
 
+UINT32 iTabuTenureMedian;
 UINT32 iTabuTenureInterval;
 UINT32 iTabuTenureLow;
 UINT32 iTabuTenureHigh;
 
+void CreateRoTS();
 void InitRoTS();
 void PickRoTS();
 
@@ -44,20 +46,22 @@ void AddRoTS() {
     "DefaultProcedures,Flip+VarScore",
     "default","default");
   
-  AddParmUInt(&pCurAlg->parmList,"-tabu","target (median) tabu tenure [default %s]","","",&iTabuTenure,10);
+  AddParmUInt(&pCurAlg->parmList,"-tabu","target (median) tabu tenure [default %s]","","",&iTabuTenureMedian,10);
   AddParmUInt(&pCurAlg->parmList,"-tabuinterval","interval size: percent of tabu tenure [default %s]","range of tabu tenure is: tt +/- tt * (INT/100)","",&iTabuTenureInterval,25);
 
-  CreateTrigger("InitRoTS",PostParameters,InitRoTS,"","");
-  CreateTrigger("PickRoTS",ChooseCandidate,PickRoTS,"InitRoTS,VarLastChange,BestFalse","");
+  CreateTrigger("CreateRoTS",PostParameters,CreateRoTS,"","");
+  CreateTrigger("InitRoTS",PreRun,InitRoTS,"","");
+  CreateTrigger("PickRoTS",ChooseCandidate,PickRoTS,"CreateRoTS,InitRoTS,VarLastChange,BestFalse","");
 
 }
 
+void CreateRoTS() {
+  iTabuTenureLow = iTabuTenureMedian - (iTabuTenureInterval * iTabuTenureMedian) / 100;
+  iTabuTenureHigh = iTabuTenureMedian + (iTabuTenureInterval * iTabuTenureMedian) / 100;
+}
+
 void InitRoTS() {
-
-  /* use the iTabuTenureInterval to set the low & high range for the tabu tenure */
-
-  iTabuTenureLow = iTabuTenure - (iTabuTenureInterval * iTabuTenure) / 100;
-  iTabuTenureHigh = iTabuTenure + (iTabuTenureInterval * iTabuTenure) / 100;
+  iTabuTenure = iTabuTenureMedian;
 }
 
 void PickRoTS() {

@@ -28,6 +28,7 @@ INTRO | FIXED | DESCRIPTION
 
 1.0.0   1.2.0   HSAT could pick the wrong variable
 1.1.0   1.2.0   Novelty++ Weighted [alg novelty++ -w] called the wrong trigger / wouldn't execute
+1.0.0   1.2.0   (minor) each run of RoTS would start with tabu tenure from previous run
 
 * new feature: Now support runs of length 2^64
 
