@@ -799,12 +799,12 @@ void AddDataTriggers() {
 
   CreateTrigger("Flip+DecPromVars+FCL",FlipCandidate,FlipDecPromVarsFCL,"DecPromVars,FalseClauseList","DefaultFlip,UpdateTrackChanges,UpdateVarScore,UpdateFalseClauseList,CreateTrackChanges,InitTrackChanges,UpdateTrackChanges");
 
-  CreateTrigger("CreatePenaltyDecPromVars",CreateStateInfo,CreatePenaltyDecPromVars,"CreateTrackChanges,CreateMakeBreakPenaltyINT","");
-  CreateTrigger("InitPenaltyDecPromVars",InitStateInfo,InitPenaltyDecPromVars,"InitTrackChanges,InitMakeBreakPenaltyINT","");
-  CreateTrigger("UpdatePenaltyDecPromVars",UpdateStateInfo,UpdatePenaltyDecPromVars,"UpdateTrackChanges,UpdateMakeBreakPenaltyINT","");
-  CreateContainerTrigger("PenaltyDecPromVars","CreateDecPromVars,InitDecPromVars,UpdateDecPromVars");
+  CreateTrigger("CreatePenaltyDecPromVars",CreateStateInfo,CreatePenaltyDecPromVars,"CreateTrackChanges,CreateMakeBreakPenaltyINT","CreateVarScore");
+  CreateTrigger("InitPenaltyDecPromVars",InitStateInfo,InitPenaltyDecPromVars,"InitTrackChanges,InitMakeBreakPenaltyINT","InitVarScore");
+  CreateTrigger("UpdatePenaltyDecPromVars",UpdateStateInfo,UpdatePenaltyDecPromVars,"UpdateTrackChanges,UpdateMakeBreakPenaltyINT","UpdateVarScore");
+  CreateContainerTrigger("PenaltyDecPromVars","CreatePenaltyDecPromVars,InitPenaltyDecPromVars,UpdatePenaltyDecPromVars");
 
-  CreateTrigger("Flip+PenaltyDecPromVars+FCL",FlipCandidate,FlipPenaltyDecPromVarsFCL,"PenaltyDecPromVars,FalseClauseList","DefaultFlip,UpdateTrackChanges,UpdateVarScore,UpdateFalseClauseList,CreateTrackChanges,InitTrackChanges,UpdateTrackChanges,UpdateMakeBreakPenaltyINT");
+  CreateTrigger("Flip+PenaltyDecPromVars+FCL",FlipCandidate,FlipPenaltyDecPromVarsFCL,"PenaltyDecPromVars,FalseClauseList","DefaultFlip,UpdateTrackChanges,UpdatePenaltyDecPromVars,UpdateFalseClauseList,CreateTrackChanges,InitTrackChanges,UpdateTrackChanges,UpdateMakeBreakPenaltyINT");
 
   CreateTrigger("CreateDecPromVarsW",CreateStateInfo,CreateDecPromVarsW,"CreateTrackChangesW","");
   CreateTrigger("InitDecPromVarsW",InitStateInfo,InitDecPromVarsW,"InitTrackChangesW","");
@@ -2978,7 +2978,7 @@ void FlipPenaltyDecPromVarsFCL() {
         iPrevScore = (SINT32) aBreakPenaltyINT[iVar] - (SINT32) aMakePenaltyINT[iVar];
         aMakePenaltyINT[iVar] += iPenalty;
         if ((iPrevScore >= 0)&&(iPrevScore < iPenalty)) { // ie: new score now < 0
-          aDecPromVarsList[iNumDecPromVars++] = iVar;
+          aPenaltyDecPromVarsList[iNumPenaltyDecPromVars++] = iVar;
         }
         pLit++;
       }
@@ -2995,7 +2995,7 @@ void FlipPenaltyDecPromVarsFCL() {
       //aVarScore[iVar]--;
       aBreakPenaltyINT[iVar] -= iPenalty;
       if ((iPrevScore >= 0)&&(iPrevScore < iPenalty)) { // see above
-        aDecPromVarsList[iNumDecPromVars++] = iVar;
+        aPenaltyDecPromVarsList[iNumPenaltyDecPromVars++] = iVar;
       }
     }
     pClause++;
@@ -3048,13 +3048,13 @@ void FlipPenaltyDecPromVarsFCL() {
 
   j=0;
   k=0;
-  while (j < iNumDecPromVars) {
-    iVar = aDecPromVarsList[k];
+  while (j < iNumPenaltyDecPromVars) {
+    iVar = aPenaltyDecPromVarsList[k];
     iCurScore = (SINT32) aBreakPenaltyINT[iVar] - (SINT32) aMakePenaltyINT[iVar];
     if ((iCurScore >= 0)||(iVar == iFlipCandidate)) {
-      iNumDecPromVars--;
+      iNumPenaltyDecPromVars--;
     } else {
-      aDecPromVarsList[j++]=aDecPromVarsList[k];
+      aPenaltyDecPromVarsList[j++]=aPenaltyDecPromVarsList[k];
     }
     k++;
   }
