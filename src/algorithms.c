@@ -60,6 +60,8 @@ void AddAlgorithms() {
 
   AddGNoveltyPlus();
 
+  AddSparrow();
+
   AddVW();
 
   AddRoTS();

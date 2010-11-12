@@ -135,6 +135,9 @@ void DiversificationMinusOne();
 /* gnovelty+.c */
 void AddGNoveltyPlus();
 
+/* sparrow.c */
+void AddSparrow();
+
 /* vw.c */
 
 void AddVW();
