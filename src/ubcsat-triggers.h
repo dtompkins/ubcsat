@@ -560,6 +560,16 @@ extern UINT32 *aMobilityFixedFrequencies;
 
 
 
+/***** Trigger VarAgeFrequencies *****/
+/*
+    aVarAgeFrequency[j]  # of times variable had age j when flipped
+*/
+
+extern UINT32 iMaxVarAgeFrequency;
+extern UBIGINT *aVarAgeFrequency;
+
+
+
 /***** Trigger AutoCorr *****/
 /*
     iAutoCorrMaxLen     Length of auto-correlation window (Maximum value of ACL)

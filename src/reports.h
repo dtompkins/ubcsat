@@ -54,6 +54,7 @@ extern REPORT *pRepVW2Weights;
 extern REPORT *pRepMobility;
 extern REPORT *pRepMobFixed;
 extern REPORT *pRepMobFixedFreq;
+extern REPORT *pRepVarAgeFreq;
 extern REPORT *pRepAutoCorr;
 extern REPORT *pRepTriggers;
 extern REPORT *pRepParamILS;

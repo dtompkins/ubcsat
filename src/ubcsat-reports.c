@@ -139,6 +139,10 @@ BOOL bMobilityFixedIncludeStart;
 /***** Trigger ReportMobFixedFreqPrint *****/
 void ReportMobFixedFreqPrint();
 
+/***** Trigger VarAgeFreqPrint *****/
+void ReportVarAgeFreqPrint();
+UINT32 iRepVarAgeFreqFormat;
+
 /***** Trigger ReportAutoCorrPrint *****/
 void ReportAutoCorrPrint();
 
@@ -282,6 +286,8 @@ void AddReportTriggers() {
   CreateTrigger("ReportMobilityPrint",PostRun,ReportMobilityPrint,"MobilityWindow","");
   CreateTrigger("ReportMobFixedPrint",PostStep,ReportMobFixedPrint,"MobilityWindow","");
   CreateTrigger("ReportMobFixedFreqPrint",PostRun,ReportMobFixedFreqPrint,"MobilityFixedFrequencies","");
+
+  CreateTrigger("ReportVarAgeFreqPrint",PostRun,ReportVarAgeFreqPrint,"VarAgeFrequencies","");
 
   CreateTrigger("ReportVW2WeightsPrint",PostRun,ReportVW2WeightsPrint,"VW2Weights","");
 
@@ -2491,6 +2497,31 @@ void ReportMobFixedFreqPrint() {
       ReportPrint1(pRepMobFixedFreq,"%.12g",fCurrent);
       ReportPrint1(pRepMobFixedFreq,"%s",sColSepString);
       ReportPrint1(pRepMobFixedFreq,"%.12g\n",fCumulative);
+    }
+  }
+}
+
+/***** report -r varagefreq *****/
+
+void ReportVarAgeFreqPrint() {
+
+  UINT32 j;
+  UBIGINT cdfVarAgeFreq = 0;
+
+  if (iRun==1) {
+    ReportHdrPrefix(pRepVarAgeFreq);
+    ReportHdrPrint(pRepVarAgeFreq," Run ID | Frequency of Flips with Variable of Age 1,2,3... \n");
+  }
+  ReportPrint1(pRepVarAgeFreq,"%lu",iRun);
+  for (j=1; j < iMaxVarAgeFrequency + 1; j++) {
+    ReportPrint1(pRepVarAgeFreq,"%s",sColSepString);
+    if (iRepVarAgeFreqFormat == 0) {
+      ReportPrint1(pRepVarAgeFreq,"%llu",aVarAgeFrequency[j]);
+    } else if (iRepVarAgeFreqFormat == 1) {
+      ReportPrint1(pRepVarAgeFreq,"%g",aVarAgeFrequency[j] * 100.0 / iStep);
+    } else {
+      cdfVarAgeFreq += aVarAgeFrequency[j];
+      ReportPrint1(pRepVarAgeFreq,"%llu",cdfVarAgeFreq);
     }
   }
 }

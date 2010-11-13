@@ -563,6 +563,16 @@ void UpdateMobilityFixedFrequencies();
 UINT32 *aMobilityFixedFrequencies;
 
 
+/***** Trigger VarAgeFrequencies *****/
+
+void CreateVarAgeFrequencies();
+void InitVarAgeFrequencies();
+void UpdateVarAgeFrequencies();
+
+UINT32 iMaxVarAgeFrequency;
+UBIGINT *aVarAgeFrequency;
+
+
 /***** Trigger AutoCorr *****/
 
 void CreateAutoCorr();
@@ -930,6 +940,11 @@ void AddDataTriggers() {
   CreateTrigger("InitMobilityFixedFrequencies",PreRun,InitMobilityFixedFrequencies,"InitMobilityWindow","");
   CreateTrigger("UpdateMobilityFixedFrequencies",PostStep,UpdateMobilityFixedFrequencies,"UpdateMobilityWindow","");
   CreateContainerTrigger("MobilityFixedFrequencies","CreateMobilityFixedFrequencies,InitMobilityFixedFrequencies,UpdateMobilityFixedFrequencies");
+
+  CreateTrigger("CreateVarAgeFrequencies",PreStart,CreateVarAgeFrequencies,"","");
+  CreateTrigger("InitVarAgeFrequencies",PreRun,InitVarAgeFrequencies,"","");
+  CreateTrigger("UpdateVarAgeFrequencies",PreFlip,UpdateVarAgeFrequencies,"","");
+  CreateContainerTrigger("VarAgeFrequencies","CreateVarAgeFrequencies,InitVarAgeFrequencies,UpdateVarAgeFrequencies,VarLastChange");
 
   CreateTrigger("CreateAutoCorr",PreStart,CreateAutoCorr,"","");
   CreateTrigger("InitAutoCorr",PreRun,InitAutoCorr,"","");
@@ -4742,6 +4757,29 @@ void UpdateMobilityFixedFrequencies() {
     }
   } else {
     aMobilityFixedFrequencies[aMobilityWindow[iMobFixedWindow]]++;
+  }
+}
+
+
+void CreateVarAgeFrequencies() {
+  if (iMaxVarAgeFrequency == 0) {
+    iMaxVarAgeFrequency = iNumVars*10;
+  }
+  aVarAgeFrequency = (UBIGINT *)AllocateRAM((iMaxVarAgeFrequency + 1) * sizeof(UBIGINT));
+}
+
+void InitVarAgeFrequencies() {
+  memset(aVarAgeFrequency,0,(iMaxVarAgeFrequency+1) * sizeof(UBIGINT));
+}
+
+void UpdateVarAgeFrequencies() {
+  UBIGINT iAge;
+  if (iFlipCandidate > 0) {
+    iAge = iStep - aVarLastChange[iFlipCandidate];
+    if (iAge > iMaxVarAgeFrequency) {
+      iAge = iMaxVarAgeFrequency;
+    }
+    aVarAgeFrequency[iAge]++;
   }
 }
 

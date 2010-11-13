@@ -58,6 +58,7 @@ REPORT *pRepVW2Weights;
 REPORT *pRepMobility;
 REPORT *pRepMobFixed;
 REPORT *pRepMobFixedFreq;
+REPORT *pRepVarAgeFreq;
 REPORT *pRepAutoCorr;
 REPORT *pRepTriggers;
 REPORT *pRepParamILS;
@@ -149,6 +150,10 @@ void AddReports() {
   pRepMobFixedFreq = CreateReport("mobfixedfreq","Mobility Fixed Window Histogram","Mobility frequency counts for a fixed window size~must use the same parameter settings as (-r mobfixed)","stdout","ReportMobFixedFreqPrint");
   AddReportParmUInt(pRepMobFixedFreq,"Mobility window size [default = n]",&iMobFixedWindow,0);
   AddReportParmBool(pRepMobFixedFreq,"Include first (1..windowsize) steps ",&bMobilityFixedIncludeStart,0);
+
+  pRepVarAgeFreq = CreateReport("varagefreq","Variable Flip Age Histogram","Number of times each variable age occured while flipping","stdout","ReportVarAgeFreqPrint");
+  AddReportParmUInt(pRepVarAgeFreq,"Format: 0=counts, 1=percent, 2=CDF",&iRepVarAgeFreqFormat,0);
+  AddReportParmUInt(pRepVarAgeFreq,"Mobility window size [default = n]",&iMaxVarAgeFrequency,0);
 
   pRepAutoCorr = CreateReport("autocorr","Autocorrelation Report","Autocorrelation Length (ACL) and autocorrelation values for lengths 1..max~if the ACL is greater than max, it returns an ACL value of max~parameters affect column (acl) results~to set parameters without running report, use~-r autocorr null INT FL","stdout","ReportAutoCorrPrint");
   AddReportParmUInt(pRepAutoCorr,"Maximum window length [default = n]",&iAutoCorrMaxLen,0);

@@ -105,6 +105,7 @@ extern UINT32 iNumReports;
 extern UINT32 iNumRTDColumns;
 extern UINT32 iNumStatsActive;
 extern UINT32 iReportMobilityDisplay;
+extern UINT32 iRepVarAgeFreqFormat;
 extern BOOL bReportMobilityNormalized;
 extern UINT32 iRunProceduresLoop;
 extern UINT32 iRunProceduresLoop2;
