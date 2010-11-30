@@ -26,7 +26,7 @@
 namespace ubcsat {
 #endif
 
-const char sVersion[] = "1.2-b6 BETA -- do not use for published results";
+const char sVersion[] = "1.2-b7 BETA -- do not use for published results";
 
 #ifdef __cplusplus
 
