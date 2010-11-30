@@ -532,461 +532,11 @@ FLOAT GetRowElement(REPORTCOL *pCol,UINT32 iRowRequested, BOOL bSorted, BOOL bSo
   }
 }
 
-void ReportStatsPrintCSV() {
-  // THIS IS QUITE A KLUDGE FOR NOW -- TODO: FIX UP
-  UINT32 j,k,l;
-  REPORTCOL *pCol;
-  REPORTCOL *pColSteps;
-  REPORTSTAT *pStat;
-
-  FLOAT fMean;
-  FLOAT fStdDev;
-  FLOAT fCV;
-  FLOAT fVar;
-  FLOAT fStdErr;
-  FLOAT fVMR;
-  FLOAT fMedian;
-
-  FLOAT fVal;
-  FLOAT fVal2;
-  UINT32 iPos;
-
-  UINT32 iNumFail;
-
-  char **pString;
-
-  for (k=0;k<iNumStatsActive;k++) {
-    for (j=0;j<listStats.iNumItems;j++) {
-      pStat = &aStats[j];
-      if ((pStat->bActive)&&(pStat->iActiveID==k)) {
-        if (pStat->bCustomField) {
-          ReportPrint1(pRepStats,"%s",pStat->sBaseDescription);
-          ReportPrint1(pRepStats,"%s",sColSepString);
-        } else {
-          if (pStat->iStatFlags & STATCODE_mean) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Mean");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_stddev) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"StdDev");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_cv) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"CoeffVariance");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_var) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Variance");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_stderr) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"StdErr");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_vmr) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"VarMeanRatio");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_sum) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Sum");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_median) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Median");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_min) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Min");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_max) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Max");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_q05) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.05");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_q10) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.10");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_q25) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.25");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_q75) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.75");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_q90) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.90");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_q95) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.95");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_q98) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.98");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_qr7525) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.75/25");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_qr9010) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.90/10");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_qr9505) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.95/05");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          } 
-          if (pStat->iStatFlags & STATCODE_SFMASK) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"StepMean");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_solvemean) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"SuccessMean");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_failmean) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"FailureMean");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_solvemedian) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"SuccessMedian");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_failmedian) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"FailureMedian");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_solvemin) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"SuccessMin");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_failmin) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"FailureMin");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_solvemax) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"SuccessMax");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-          if (pStat->iStatFlags & STATCODE_failmax) {
-            ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"FailureMax");
-            ReportPrint1(pRepStats,"%s",sColSepString);
-          }
-        }
-      }
-    }
-  }
-  for (k=0;k<iNumStatsActive;k++) {
-    for (j=0;j<listStats.iNumItems;j++) {
-      pStat = &aStats[j];
-      if ((pStat->bActive)&&(pStat->iActiveID==k)) {
-        if (pStat->bCustomField) {
-          switch (pStat->eCustomType) {
-            case DTypeUInt:
-              ReportPrint1(pRepStats,"%lu",*(UINT32 *) pStat->pCustomValue);
-              break;
-            case DTypeSInt:
-              ReportPrint1(pRepStats,"%ld",*(SINT32 *) pStat->pCustomValue);
-              break;
-            case DTypeUBigInt:
-              ReportPrint1(pRepStats,"%llu",*(UBIGINT *) pStat->pCustomValue);
-              break;
-            case DTypeSBigInt:
-              ReportPrint1(pRepStats,"%lld",*(SBIGINT *) pStat->pCustomValue);
-              break;
-            case DTypeFloat:
-              ReportPrint1(pRepStats,"%f",*(FLOAT *) pStat->pCustomValue);
-              break;
-            case DTypeString:
-              pString = (char **) pStat->pCustomValue;
-              ReportPrint1(pRepStats,"%s",*pString);
-              break;
-            default:
-              break;
-          }
-          ReportPrint1(pRepStats,"%s",sColSepString);
-        } else {
-
-          if (iRun) {
-
-            pCol = &aColumns[FindItem(&listColumns,pStat->sDataColumn)];
-
-            if (pStat->iStatFlags & STATCODE_CALCMASK) {
-              CalculateStats(&fMean, &fStdDev, &fCV, pCol->fColSum, pCol->fColSum2, iRun);
-
-              fVar = fStdDev * fStdDev;
-              fStdErr = fStdDev / (sqrt((FLOAT) iRun));            
-
-              if (fMean != FLOATZERO) {
-                fVMR = fVar / fMean;
-              } else {
-                fVMR = FLOATZERO;
-              }
-
-              if (pStat->iStatFlags & STATCODE_mean) {
-                ReportPrint1(pRepStats,"%.12g",fMean);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_stddev) {
-                ReportPrint1(pRepStats,"%.12g",fStdDev);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_cv) {
-                ReportPrint1(pRepStats,"%.12g",fCV);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_var) {
-                ReportPrint1(pRepStats,"%.12g",fVar);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_stderr) {
-                ReportPrint1(pRepStats,"%.12g",fStdErr);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_vmr) {
-                ReportPrint1(pRepStats,"%.12g",fVMR);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-            }
-
-            if (pStat->iStatFlags & STATCODE_sum) {
-              ReportPrint1(pRepStats,"%.12g",pCol->fColSum);
-              ReportPrint1(pRepStats,"%s",sColSepString);
-            }
-
-            if (pStat->iStatFlags & STATCODE_SORTMASK) {
-              if (!pStat->bSortByStep) {
-                SortByCurrentColData(pCol);
-              }
-
-              if (pStat->iStatFlags & STATCODE_median) {
-                fMedian = GetRowElement(pCol,(iRun-1)>>1,1,pStat->bSortByStep);
-                if (iRun % 2 == 0) {
-                  fMedian += GetRowElement(pCol,(iRun)>>1,1,pStat->bSortByStep);
-                  fMedian /= 2.0;
-                }
-                ReportPrint1(pRepStats,"%.12g",fMedian);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_min) {
-                iPos = 0;
-                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_max) {
-                iPos = iRun - 1;
-                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-              if (pStat->iStatFlags & STATCODE_q05) {
-                iPos = (UINT32)(floor(0.05 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-              if (pStat->iStatFlags & STATCODE_q10) {
-                iPos = (UINT32)(floor(0.10 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-              if (pStat->iStatFlags & STATCODE_q25) {
-                iPos = (UINT32)(floor(0.25 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-              if (pStat->iStatFlags & STATCODE_q75) {
-                iPos = (UINT32)(floor(0.75 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-              if (pStat->iStatFlags & STATCODE_q90) {
-                iPos = (UINT32)(floor(0.90 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-              if (pStat->iStatFlags & STATCODE_q95) {
-                iPos = (UINT32)(floor(0.95 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-              if (pStat->iStatFlags & STATCODE_q98) {
-                iPos = (UINT32)(floor(0.98 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-              if (pStat->iStatFlags & STATCODE_qr7525) {
-                iPos = (UINT32)(floor(0.75 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                iPos = (UINT32)(floor(0.25 * (FLOAT) (iRun-1)));
-                fVal2 = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                if (fVal2 != FLOATZERO) {
-                  fVal2 = fVal / fVal2;
-                }
-                ReportPrint1(pRepStats,"%.12g",fVal2);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-              
-              if (pStat->iStatFlags & STATCODE_qr9010) {
-                iPos = (UINT32)(floor(0.90 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                iPos = (UINT32)(floor(0.10 * (FLOAT) (iRun-1)));
-                fVal2 = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                if (fVal2 != FLOATZERO) {
-                  fVal2 = fVal / fVal2;
-                }
-                ReportPrint1(pRepStats,"%.12g",fVal2);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_qr9505) {
-                iPos = (UINT32)(floor(0.95 * (FLOAT) (iRun-1)));
-                fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                iPos = (UINT32)(floor(0.05 * (FLOAT) (iRun-1)));
-                fVal2 = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                if (fVal2 != FLOATZERO) {
-                  fVal2 = fVal / fVal2;
-                }
-                ReportPrint1(pRepStats,"%.12g",fVal2);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              } 
-            }
-            if (pStat->iStatFlags & STATCODE_SFMASK) {
-              SortByCurrentColDataAndFound(pCol);
-              iNumFail = iRun - iNumSolutionsFound;
-
-              if (pStat->iStatFlags & STATCODE_stepmean) {
-                pColSteps = &aColumns[FindItem(&listColumns,"steps")];
-                fVal = FLOATZERO;
-                for (l=0;l<iRun;l++) {
-                  fVal += (GetRowElement(pColSteps,l,0,0) * GetRowElement(pCol,l,0,0));
-                }
-                if (pColSteps->fColSum != FLOATZERO) {
-                  fVal /= pColSteps->fColSum;
-                } else {
-                  fVal = FLOATZERO;
-                }
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-            
-              if (pStat->iStatFlags & STATCODE_solvemean) {
-                fVal = FLOATZERO;
-                if (iNumSolutionsFound != 0) {
-                  for (l=0;l<iNumSolutionsFound;l++) {
-                    fVal += GetRowElement(pCol,l,1,0);
-                  }
-                  fVal /= iNumSolutionsFound;
-                }
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_failmean) {
-                fVal = FLOATZERO;
-                if (iNumFail != 0) {
-                  for (l=iNumSolutionsFound;l<iRun;l++) {
-                    fVal += GetRowElement(pCol,l,1,0);
-                  }
-                  fVal /= iNumFail;
-                }
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_solvemedian) {
-                if (iNumSolutionsFound == 0) {
-                  fVal = FLOATZERO;
-                } else {
-                  fVal = GetRowElement(pCol,(iNumSolutionsFound-1)>>1,1,0);
-                  if (iNumSolutionsFound % 2 == 0) {
-                    fVal += GetRowElement(pCol,(iNumSolutionsFound)>>1,1,0);
-                    fVal /= 2.0;
-                  }
-                }
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_failmedian) {
-                if (iNumFail == 0) {
-                  fVal = FLOATZERO;
-                } else {
-                  fVal = GetRowElement(pCol,((iNumFail-1)>>1) + iNumSolutionsFound,1,0);
-                  if (iNumFail % 2 == 0) {
-                    fVal += GetRowElement(pCol,((iNumFail)>>1) + iNumSolutionsFound,1,0);
-                    fVal /= 2.0;
-                  }
-                }
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_solvemin) {
-                if (iNumSolutionsFound == 0) {
-                  fVal = FLOATZERO;
-                } else {
-                  fVal = GetRowElement(pCol,0,1,0);
-                }
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_failmin) {
-                if (iNumFail == 0) {
-                  fVal = FLOATZERO;
-                } else {
-                  fVal = GetRowElement(pCol,iNumSolutionsFound,1,0);
-                }
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_solvemax) {
-                if (iNumSolutionsFound == 0) {
-                  fVal = FLOATZERO;
-                } else {
-                  fVal = GetRowElement(pCol,iNumSolutionsFound-1,1,0);
-                }
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-
-              if (pStat->iStatFlags & STATCODE_failmax) {
-                if (iNumFail == 0) {
-                  fVal = FLOATZERO;
-                } else {
-                  fVal = GetRowElement(pCol,iRun-1,1,0);
-                }
-                ReportPrint1(pRepStats,"%.12g",fVal);
-                ReportPrint1(pRepStats,"%s",sColSepString);
-              }
-            }
-          }
-        }
-      }
-    }
+void ReportStatsPrintSep() {
+  if (bReportCSV) {
+    ReportPrint(pRepStats,",");
+  } else {
+    ReportPrint(pRepStats," = ");
   }
 }
 
@@ -1013,11 +563,6 @@ void ReportStatsPrint() {
 
   char **pString;
 
-  if (bReportCSV) {
-    ReportStatsPrintCSV();
-    return;
-  } 
-
   ReportPrint(pRepStats,"\n\n");
 
   for (k=0;k<iNumStatsActive;k++) {
@@ -1026,7 +571,8 @@ void ReportStatsPrint() {
       if ((pStat->bActive)&&(pStat->iActiveID==k)) {
         if (pStat->bCustomField) {
 
-          ReportPrint1(pRepStats,"%s = ",pStat->sBaseDescription);
+          ReportPrint1(pRepStats,"%s",pStat->sBaseDescription);
+          ReportStatsPrintSep();
 
           switch (pStat->eCustomType) {
             case DTypeUInt:
@@ -1073,32 +619,46 @@ void ReportStatsPrint() {
               }
 
               if (pStat->iStatFlags & STATCODE_mean) {
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Mean",fMean);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Mean");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fMean);
               }
 
               if (pStat->iStatFlags & STATCODE_stddev) {
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"StdDev",fStdDev);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"StdDev");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fStdDev);
               }
-
+              
               if (pStat->iStatFlags & STATCODE_cv) {
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"CoeffVariance",fCV);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"CoeffVariance");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fCV);
               }
 
               if (pStat->iStatFlags & STATCODE_var) {
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Variance",fVar);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Variance");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVar);
               }
 
               if (pStat->iStatFlags & STATCODE_stderr) {
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"StdErr",fStdErr);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"StdErr");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fStdErr);
               }
 
               if (pStat->iStatFlags & STATCODE_vmr) {
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"VarMeanRatio",fVMR);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"VarMeanRatio");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVMR);
               }
             }
 
             if (pStat->iStatFlags & STATCODE_sum) {
-              ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Sum",pCol->fColSum);
+              ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Sum");
+              ReportStatsPrintSep();
+              ReportPrint1(pRepStats,"%.12g\n",pCol->fColSum);
             }
 
             if (pStat->iStatFlags & STATCODE_SORTMASK) {
@@ -1112,54 +672,74 @@ void ReportStatsPrint() {
                   fMedian += GetRowElement(pCol,(iRun)>>1,1,pStat->bSortByStep);
                   fMedian /= 2.0;
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Median",fMedian);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Median");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fMedian);
               }
 
               if (pStat->iStatFlags & STATCODE_min) {
                 iPos = 0;
                 fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Min",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Min");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
 
               if (pStat->iStatFlags & STATCODE_max) {
                 iPos = iRun - 1;
                 fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Max",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Max");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q05) {
                 iPos = (UINT32)(floor(0.05 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.05",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.05");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q10) {
                 iPos = (UINT32)(floor(0.10 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.10",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.10");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q25) {
                 iPos = (UINT32)(floor(0.25 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.25",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.25");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q75) {
                 iPos = (UINT32)(floor(0.75 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.75",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.75");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q90) {
                 iPos = (UINT32)(floor(0.90 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.90",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.90");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q95) {
                 iPos = (UINT32)(floor(0.95 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.95",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.95");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
               if (pStat->iStatFlags & STATCODE_q98) {
                 iPos = (UINT32)(floor(0.98 * (FLOAT) (iRun-1)));
                 fVal = GetRowElement(pCol,iPos,1,pStat->bSortByStep);
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.98",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.98");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
               if (pStat->iStatFlags & STATCODE_qr7525) {
                 iPos = (UINT32)(floor(0.75 * (FLOAT) (iRun-1)));
@@ -1169,7 +749,9 @@ void ReportStatsPrint() {
                 if (fVal2 != FLOATZERO) {
                   fVal2 = fVal / fVal2;
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.75/25",fVal2);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.75/25");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal2);
               }
               
               if (pStat->iStatFlags & STATCODE_qr9010) {
@@ -1180,7 +762,9 @@ void ReportStatsPrint() {
                 if (fVal2 != FLOATZERO) {
                   fVal2 = fVal / fVal2;
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.90/10",fVal2);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.90/10");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal2);
               }
 
               if (pStat->iStatFlags & STATCODE_qr9505) {
@@ -1191,7 +775,9 @@ void ReportStatsPrint() {
                 if (fVal2 != FLOATZERO) {
                   fVal2 = fVal / fVal2;
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"Q.95/05",fVal2);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"Q.95/05");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal2);
               } 
             }
             if (pStat->iStatFlags & STATCODE_SFMASK) {
@@ -1209,7 +795,9 @@ void ReportStatsPrint() {
                 } else {
                   fVal = FLOATZERO;
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"StepMean",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"StepMean");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
             
               if (pStat->iStatFlags & STATCODE_solvemean) {
@@ -1220,7 +808,9 @@ void ReportStatsPrint() {
                   }
                   fVal /= iNumSolutionsFound;
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"SuccessMean",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"SuccessMean");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
 
               if (pStat->iStatFlags & STATCODE_failmean) {
@@ -1231,7 +821,9 @@ void ReportStatsPrint() {
                   }
                   fVal /= iNumFail;
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"FailureMean",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"FailureMean");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
 
               if (pStat->iStatFlags & STATCODE_solvemedian) {
@@ -1244,7 +836,9 @@ void ReportStatsPrint() {
                     fVal /= 2.0;
                   }
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"SuccessMedian",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"SuccessMedian");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
 
               if (pStat->iStatFlags & STATCODE_failmedian) {
@@ -1257,7 +851,9 @@ void ReportStatsPrint() {
                     fVal /= 2.0;
                   }
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"FailureMedian",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"FailureMedian");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
 
               if (pStat->iStatFlags & STATCODE_solvemin) {
@@ -1266,7 +862,9 @@ void ReportStatsPrint() {
                 } else {
                   fVal = GetRowElement(pCol,0,1,0);
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"SuccessMin",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"SuccessMin");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
 
               if (pStat->iStatFlags & STATCODE_failmin) {
@@ -1275,7 +873,9 @@ void ReportStatsPrint() {
                 } else {
                   fVal = GetRowElement(pCol,iNumSolutionsFound,1,0);
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"FailureMin",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"FailureMin");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
 
               if (pStat->iStatFlags & STATCODE_solvemax) {
@@ -1284,7 +884,9 @@ void ReportStatsPrint() {
                 } else {
                   fVal = GetRowElement(pCol,iNumSolutionsFound-1,1,0);
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"SuccessMax",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"SuccessMax");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
 
               if (pStat->iStatFlags & STATCODE_failmax) {
@@ -1293,7 +895,9 @@ void ReportStatsPrint() {
                 } else {
                   fVal = GetRowElement(pCol,iRun-1,1,0);
                 }
-                ReportPrint3(pRepStats,"%s_%s = %.12g\n",pStat->sBaseDescription,"FailureMax",fVal);
+                ReportPrint2(pRepStats,"%s_%s",pStat->sBaseDescription,"FailureMax");
+                ReportStatsPrintSep();
+                ReportPrint1(pRepStats,"%.12g\n",fVal);
               }
             }
           }
