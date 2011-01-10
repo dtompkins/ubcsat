@@ -58,3 +58,6 @@ ubcsat: $(hfiles) $(cfiles)
 
 ubcsat_cpp: $(hfiles) $(cfiles)
 	gcc -lstdc++ -x c++ -Wall -O3 -lm -o ubcsat_cpp $(cfiles)
+
+ubcsat_debug: $(hfiles) $(cfiles)
+	gcc -Wall -g -O0 -lm -o ubcsat_debug $(cfiles)
