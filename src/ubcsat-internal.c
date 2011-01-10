@@ -224,6 +224,10 @@ void ActivateStatID(UINT32 iStatID, const char *sItem) {
         ActivateTriggers("SortByStepPerformance");
       }
 
+      if ((pStat->iStatFlags & STATCODE_SORTMASK) && (pStat->bSortByStep)) {
+        ActivateTriggers("SortByStepPerformance");
+      }
+
     } else {
       ActivateColumns(pStat->sDataColumn);
       ParseItemList(&listColumns,pStat->sDataColumn,AddAllocateRAMColumnID);
