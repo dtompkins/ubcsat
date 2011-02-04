@@ -1559,7 +1559,7 @@ void ReportSQGridPrint() {
       ReportHdrPrefix(pRepSQGrid);
       ReportHdrPrint(pRepSQGrid," Run ID | Solution Quality at steps:");
       for (j=0;j<iNumLogDistValues;j++) {
-        ReportHdrPrint1(pRepSQGrid," %llu",aLogDistValues[j]);
+        ReportHdrPrint1(pRepSQGrid," %"P64,aLogDistValues[j]);
       }
       ReportHdrPrint(pRepSQGrid,"\n");
     }
@@ -2025,14 +2025,14 @@ void ReportMobFixedPrint() {
     if (bMobilityFixedIncludeStart) {
       ReportPrint1(pRepMobFixed,"%"P32"\n",iRun);
       ReportPrint1(pRepMobFixed,"%s",sColSepString);
-      ReportPrint1(pRepMobFixed,"%llu\n",iStep);
+      ReportPrint1(pRepMobFixed,"%"P64"\n",iStep);
       ReportPrint1(pRepMobFixed,"%s",sColSepString);
       ReportPrint1(pRepMobFixed,"%"P32"\n",aMobilityWindow[iStep-1]);
     }
   } else {
     ReportPrint1(pRepMobFixed,"%"P32"\n",iRun);
     ReportPrint1(pRepMobFixed,"%s",sColSepString);
-    ReportPrint1(pRepMobFixed,"%llu\n",iStep);
+    ReportPrint1(pRepMobFixed,"%"P64"\n",iStep);
     ReportPrint1(pRepMobFixed,"%s",sColSepString);
     ReportPrint1(pRepMobFixed,"%"P32"\n",aMobilityWindow[iMobFixedWindow]);
   }
@@ -2232,7 +2232,7 @@ void ReportParamILSPrint() {
     ReportPrint(pRepParamILS,"TIMEOUT");
   }
   ReportPrint1(pRepParamILS,", %g",fRunTime);
-  ReportPrint1(pRepParamILS,", %llu",iStep);
+  ReportPrint1(pRepParamILS,", %"P64,iStep);
   if (bWeighted) {
     ReportPrint1(pRepParamILS,", %g",fBestSumFalseW );
   } else {
@@ -2728,10 +2728,10 @@ void StringAlgParms() {
         pNext += sprintf(pNext,"%"PS32" ", *(SINT32 *)pCurParm->pParmValue);
         break;
       case PTypeUBigInt:
-        pNext += sprintf(pNext,"%llu ", *(UBIGINT *)pCurParm->pParmValue);
+        pNext += sprintf(pNext,"%"P64" ", *(UBIGINT *)pCurParm->pParmValue);
         break;
       case PTypeSBigInt:
-        pNext += sprintf(pNext,"%lld ", *(SBIGINT *)pCurParm->pParmValue);
+        pNext += sprintf(pNext,"%"PS64" ", *(SBIGINT *)pCurParm->pParmValue);
         break;
       case PTypeProbability:
         pNext += sprintf(pNext,"%.4g ", ProbToFloat(*(PROBABILITY *)pCurParm->pParmValue));

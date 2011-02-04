@@ -1726,10 +1726,10 @@ void PrintAlgParmSettings(REPORT *pRep, ALGPARMLIST *pParmList) {
         ReportHdrPrint1(pRep,"%"PS32" ", *(SINT32 *)pCurParm->pParmValue);
         break;
       case PTypeUBigInt:
-        ReportHdrPrint1(pRep,"%llu ", *(UBIGINT *)pCurParm->pParmValue);
+        ReportHdrPrint1(pRep,"%"P64" ", *(UBIGINT *)pCurParm->pParmValue);
         break;
       case PTypeSBigInt:
-        ReportHdrPrint1(pRep,"%lld ", *(SBIGINT *)pCurParm->pParmValue);
+        ReportHdrPrint1(pRep,"%"PS64" ", *(SBIGINT *)pCurParm->pParmValue);
         break;
       case PTypeProbability:
         ReportHdrPrint1(pRep,"%.4g ", ProbToFloat(*(PROBABILITY *)pCurParm->pParmValue));
