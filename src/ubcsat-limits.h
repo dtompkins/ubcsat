@@ -43,7 +43,7 @@ namespace ubcsat {
 #define MAXREPORTS 64
 #define MAXREPORTPARMS 8
 
-#define MAXPARMLINELEN 4096
+#define MAXPARMLINELEN 16384
 #define MAXTOTALPARMS 128
 
 #define MAXITEMLIST 512
