@@ -434,10 +434,10 @@ void HelpPrintReport(REPORT *pRep) {
   if (pRep->iNumParms) {
 
     for (k=0;k<pRep->iNumParms;k++) {
-      ReportPrint2(pRepHelp,"    Param %2lu: %s",k+1,pRep->aParmName[k]);
+      ReportPrint2(pRepHelp,"    Param %"P32": %s",k+1,pRep->aParmName[k]);
       switch (pRep->aParmTypes[k]) {
         case PTypeUInt:
-          ReportPrint1(pRepHelp," [%lu] \n",*(UINT32 *)pRep->aParameters[k]);
+          ReportPrint1(pRepHelp," [%"P32"] \n",*(UINT32 *)pRep->aParameters[k]);
           break;
         case PTypeFloat:
           ReportPrint1(pRepHelp," [%.6g] \n",*(FLOAT *)pRep->aParameters[k]);
@@ -446,7 +446,7 @@ void HelpPrintReport(REPORT *pRep) {
           ReportPrint1(pRepHelp," [%s] \n",(char *)pRep->aParameters[k]);          
           break;
         case PTypeBool:
-          ReportPrint1(pRepHelp," [%lu] \n",*(BOOL *)pRep->aParameters[k]);
+          ReportPrint1(pRepHelp," [%"P32"] \n",*(BOOL *)pRep->aParameters[k]);
           break;
         case PTypeReport:
         case PTypeProbability:
@@ -529,19 +529,19 @@ void HelpPrintParameter(ALGPARM *pCurParm, BOOL bAlgOffset) {
 
   switch (pCurParm->eType) {
     case PTypeBool:
-      sprintf(sHelpString,"%lu",pCurParm->defDefault.bBool);
+      sprintf(sHelpString,"%u",(unsigned int) pCurParm->defDefault.bBool);
       break;
     case PTypeUInt:
-      sprintf(sHelpString,"%lu",pCurParm->defDefault.iUInt);
+      sprintf(sHelpString,"%"P32,pCurParm->defDefault.iUInt);
       break;
     case PTypeSInt:
-      sprintf(sHelpString,"%ld",pCurParm->defDefault.iSInt);
+      sprintf(sHelpString,"%"PS32,pCurParm->defDefault.iSInt);
       break;
     case PTypeUBigInt:
-      sprintf(sHelpString,"%llu",pCurParm->defDefault.iUBigInt);
+      sprintf(sHelpString,"%"P64,pCurParm->defDefault.iUBigInt);
       break;
     case PTypeSBigInt:
-      sprintf(sHelpString,"%lld",pCurParm->defDefault.iSBigInt);
+      sprintf(sHelpString,"%"PS64,pCurParm->defDefault.iSBigInt);
       break;
     case PTypeProbability:
       sprintf(sHelpString,"%.4g",ProbToFloat(pCurParm->defDefault.iProb));
@@ -650,19 +650,19 @@ void HelpPrintParametersTerse(ALGPARMLIST *pParmList) {
     pCurParm = &pParmList->aParms[j];
     switch (pCurParm->eType) {
       case PTypeBool:
-        sprintf(sHelpString,"%lu",pCurParm->defDefault.bBool);
+        sprintf(sHelpString,"%u",(unsigned int) pCurParm->defDefault.bBool);
         break;
       case PTypeUInt:
-        sprintf(sHelpString,"%lu",pCurParm->defDefault.iUInt);
+        sprintf(sHelpString,"%"P32,pCurParm->defDefault.iUInt);
         break;
       case PTypeSInt:
-        sprintf(sHelpString,"%ld",pCurParm->defDefault.iSInt);
+        sprintf(sHelpString,"%"PS32,pCurParm->defDefault.iSInt);
         break;
       case PTypeUBigInt:
-        sprintf(sHelpString,"%llu",pCurParm->defDefault.iUBigInt);
+        sprintf(sHelpString,"%"P64,pCurParm->defDefault.iUBigInt);
         break;
       case PTypeSBigInt:
-        sprintf(sHelpString,"%lld",pCurParm->defDefault.iSBigInt);
+        sprintf(sHelpString,"%"PS64,pCurParm->defDefault.iSBigInt);
         break;
       case PTypeProbability:
         sprintf(sHelpString,"%.4g",ProbToFloat(pCurParm->defDefault.iProb));

@@ -20,6 +20,20 @@
 
 */
 
+#ifndef UBCSAT_TYPES_H
+#define UBCSAT_TYPES_H
+
+#include <stdio.h>
+#ifndef _WIN32
+#include <stdbool.h>
+#endif
+#include "ubcsat-limits.h"
+
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
+
 /* Column Statistic Fields */
 
 #define STATCODE_all          0xFFFFFFFF
@@ -64,23 +78,27 @@ typedef double FLOAT;
 
 #define FLOATSTATSMIN (1E-8)
 
-typedef unsigned long PROBABILITY;
+typedef uint32_t UINT32;
+#define UINT32MAX (0xFFFFFFFF)
 
-typedef unsigned long BOOL;
+typedef int32_t SINT32;
+#define SINT32MAX 0x7FFFFFFF
+#define SINT32MIN 0x80000000
 
-typedef unsigned long long UBIGINT;
+typedef UINT32 PROBABILITY;
+
+typedef bool BOOL;
+
+typedef uint64_t UBIGINT;
 #define UBIGINTMAX (0xFFFFFFFFFFFFFFFFull)
 
-typedef signed long long SBIGINT;
+typedef int64_t SBIGINT;
 #define SBIGINTMAX 0x7FFFFFFFFFFFFFFFll
 #define SBIGINTMIN 0x8000000000000000ll
 
-typedef unsigned long UINT32;
-#define UINT32MAX (0xFFFFFFFF)
-
-typedef signed long SINT32;
-#define SINT32MAX 0x7FFFFFFF
-#define SINT32MIN 0x80000000
+#ifndef BYTE
+#define BYTE uint8_t
+#endif
 
 #ifndef NULL
 #define NULL 0
@@ -313,10 +331,6 @@ typedef struct typeREPORTSTAT {
 
 } REPORTSTAT;
 
-#ifndef BYTE
-#define BYTE unsigned char
-#endif
-
 typedef BYTE* VARSTATE;
 
 typedef struct typeVARSTATELIST {
@@ -336,3 +350,8 @@ typedef struct typeDYNAMICPARM {
 
 } DYNAMICPARM;
 
+
+#ifdef __cplusplus
+}
+#endif
+#endif

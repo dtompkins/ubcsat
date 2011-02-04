@@ -20,8 +20,18 @@
 
 */
 
-void AddDataTriggers();
+#ifndef UBCSAT_TRIGGERS_H
+#define UBCSAT_TRIGGERS_H
 
+#include "ubcsat-types.h"
+#include "ubcsat-lit.h"
+
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
+
+void AddDataTriggers();
 
 /***** Trigger ReadCNF *****/
 /* 
@@ -677,3 +687,8 @@ extern FLOAT fFDCRun;
 extern VARSTATELIST vslUnique;
 extern UINT32 iNumUniqueSolutions;
 extern UINT32 iLastUnique;
+
+#ifdef __cplusplus
+}
+#endif
+#endif

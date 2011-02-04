@@ -41,7 +41,7 @@
    email: matumoto@math.keio.ac.jp
 */
 
-#include <stdio.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 namespace mersenne {
@@ -54,11 +54,11 @@ namespace mersenne {
 #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
-static unsigned long mt[N]; /* the array for the state vector  */
+static uint32_t mt[N]; /* the array for the state vector  */
 static int mti=N+1; /* mti==N+1 means mt[N] is not initialized */
 
 /* initializes mt[N] with a seed */
-void init_genrand(unsigned long s)
+void init_genrand(uint32_t s)
 {
     mt[0]= s & 0xffffffffUL;
     for (mti=1; mti<N; mti++) {
@@ -78,7 +78,7 @@ void init_genrand(unsigned long s)
 /* init_key is the array for initializing keys */
 /* key_length is its length */
 void init_by_array(init_key, key_length)
-unsigned long init_key[], key_length;
+uint32_t init_key[], key_length;
 {
     int i, j, k;
     init_genrand(19650218UL);
@@ -105,10 +105,10 @@ unsigned long init_key[], key_length;
 #endif
 
 /* generates a random number on [0,0xffffffff]-interval */
-unsigned long genrand_int32(void)
+uint32_t genrand_int32(void)
 {
-    unsigned long y;
-    static unsigned long mag01[2]={0x0UL, MATRIX_A};
+    uint32_t y;
+    static uint32_t mag01[2]={0x0UL, MATRIX_A};
     /* mag01[x] = x * MATRIX_A  for x=0,1 */
 
     if (mti >= N) { /* generate N words at one time */
@@ -143,9 +143,9 @@ unsigned long genrand_int32(void)
 }
 
 /* generates a random number on [0,0x7fffffff]-interval */
-long genrand_int31(void)
+int32_t genrand_int31(void)
 {
-    return (long)(genrand_int32()>>1);
+    return (int32_t)(genrand_int32()>>1);
 }
 
 /* generates a random number on [0,1]-real-interval */
@@ -172,7 +172,7 @@ double genrand_real3(void)
 /* generates a random number on [0,1) with 53-bit resolution*/
 double genrand_res53(void) 
 { 
-    unsigned long a=genrand_int32()>>5, b=genrand_int32()>>6; 
+    uint32_t a=genrand_int32()>>5, b=genrand_int32()>>6; 
     return(a*67108864.0+b)*(1.0/9007199254740992.0); 
 } 
 /* These real versions are due to Isaku Wada, 2002/01/09 added */
@@ -181,7 +181,7 @@ double genrand_res53(void)
 int main(void)
 {
     int i;
-    unsigned long init[4]={0x123, 0x234, 0x345, 0x456}, length=4;
+    uint32_t init[4]={0x123, 0x234, 0x345, 0x456}, length=4;
     init_by_array(init, length);
     printf("1000 outputs of genrand_int32()\n");
     for (i=0; i<1000; i++) {

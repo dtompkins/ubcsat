@@ -26,14 +26,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <math.h>
 
 #include "mt19937ar.h"
-
-#ifdef __cplusplus 
-namespace ubcsat {
-#endif
 
 #include "ubcsat-limits.h"
 #include "ubcsat-types.h"
@@ -50,11 +47,6 @@ namespace ubcsat {
 #include "reports.h"
 
 #include "mylocal.h"
-
-#ifdef __cplusplus
-
-}
-#endif
 
 #endif
 

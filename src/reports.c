@@ -842,14 +842,14 @@ void AddReports() {
     
   AddContainerStat("default","instinfo,totaltime,fps,runs,numsolve,percentsolve,steps,timesteps");
 
-  AddStatCustom("numclauses","Number of Clauses","Clauses","%lu",(void *)&iNumClauses,DTypeUInt,"","");
-  AddStatCustom("numvars","Number of Variables","Variables","%lu",(void *)&iNumVars,DTypeUInt,"","");
-  AddStatCustom("numlits","Number of Total Literals","TotalLiterals","%lu",(void *)&iNumLits,DTypeUInt,"","");
+  AddStatCustom("numclauses","Number of Clauses","Clauses","%"P32,(void *)&iNumClauses,DTypeUInt,"","");
+  AddStatCustom("numvars","Number of Variables","Variables","%"P32,(void *)&iNumVars,DTypeUInt,"","");
+  AddStatCustom("numlits","Number of Total Literals","TotalLiterals","%"P32,(void *)&iNumLits,DTypeUInt,"","");
   AddContainerStat("instinfo","numvars,numclauses,numlits");
 
-  AddStatCustom("runs","Runs Executed","RunsExecuted","%lu",(void *)&iRun,DTypeUInt,"","");
+  AddStatCustom("runs","Runs Executed","RunsExecuted","%"P32,(void *)&iRun,DTypeUInt,"","");
 
-  AddStatCustom("numsolve","Number of Successful Runs","SuccessfulRuns","%lu",(void *)&iNumSolutionsFound,DTypeUInt,"","");
+  AddStatCustom("numsolve","Number of Successful Runs","SuccessfulRuns","%"P32,(void *)&iNumSolutionsFound,DTypeUInt,"","");
 
   AddStatCustom("percentsolve","Percent of Successful Runs","PercentSuccess","%-6.2f",(void *)&fPercentSuccess,DTypeFloat,"","CalcPercentSolve");
   
@@ -857,7 +857,7 @@ void AddReports() {
 
   AddStatCustom("fps","Flips Per Second","FlipsPerSecond","%-7.f",(void *)&fFlipsPerSecond,DTypeFloat,"","CalcFPS");
 
-  AddStatCustom("numunique","Number of Unique Solutions Found","UniqueSolutions","%lu",(void *)&iNumUniqueSolutions,DTypeUInt,"","UniqueSolutions");
+  AddStatCustom("numunique","Number of Unique Solutions Found","UniqueSolutions","%"P32,(void *)&iNumUniqueSolutions,DTypeUInt,"","UniqueSolutions");
 
   AddStatCustom("instname","File Name of the Instance","InstFileName","%s",(void *)&sFilenameIn,DTypeString,"","");
 

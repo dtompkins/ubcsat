@@ -20,6 +20,16 @@
 
 */
 
+#ifndef UBCSAT_ALGORITHMS_H
+#define UBCSAT_ALGORITHMS_H
+
+#include "ubcsat-types.h"
+
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
+
 void AddAlgorithms();
 
 /* gsat.c */
@@ -172,3 +182,8 @@ void AddRGSat();
 
 void AddWeighted();
 
+
+#ifdef __cplusplus
+}
+#endif
+#endif

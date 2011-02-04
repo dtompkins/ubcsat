@@ -20,6 +20,16 @@
 
 */
 
+#ifndef UBCSAT_REPORTS_H
+#define UBCSAT_REPORTS_H
+
+#include "ubcsat-types.h"
+
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
+
 void AddReports();
 
 extern REPORT *pRepHelp;
@@ -60,3 +70,7 @@ extern REPORT *pRepTriggers;
 extern REPORT *pRepParamILS;
 extern REPORT *pRepSATComp;
 
+#ifdef __cplusplus
+}
+#endif
+#endif
