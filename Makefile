@@ -61,3 +61,6 @@ ubcsat_cpp: $(hfiles) $(cfiles)
 
 ubcsat_debug: $(hfiles) $(cfiles)
 	gcc -Wall -g -O0 -lm -o ubcsat_debug $(cfiles)
+
+clean:
+	rm -f ubcsat ubcsat_cpp ubcsat_debug
