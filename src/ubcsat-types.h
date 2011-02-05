@@ -24,6 +24,7 @@
 #define UBCSAT_TYPES_H
 
 #include <stdio.h>
+#include <stdint.h>
 #ifndef _WIN32
 #include <stdbool.h>
 #endif
