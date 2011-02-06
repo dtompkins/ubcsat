@@ -446,7 +446,7 @@ void HelpPrintReport(REPORT *pRep) {
           ReportPrint1(pRepHelp," [%s] \n",(char *)pRep->aParameters[k]);          
           break;
         case PTypeBool:
-          ReportPrint1(pRepHelp," [%"P32"] \n",*(BOOL *)pRep->aParameters[k]);
+          ReportPrint1(pRepHelp," [%u] \n",(unsigned int) *(BOOL *)pRep->aParameters[k]);
           break;
         case PTypeReport:
         case PTypeProbability:

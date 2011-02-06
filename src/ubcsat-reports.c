@@ -2747,7 +2747,7 @@ void StringAlgParms() {
         pNext += sprintf(pNext,"%.6g ", *(FLOAT *)pCurParm->pParmValue);
         break;
       case PTypeBool:
-        pNext += sprintf(pNext,"%"P32" ", *(UINT32 *)pCurParm->pParmValue);
+        pNext += sprintf(pNext,"%u", (unsigned int) *(BOOL *)pCurParm->pParmValue);
         break;
       case PTypeReport:
         break;

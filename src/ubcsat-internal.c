@@ -1745,7 +1745,7 @@ void PrintAlgParmSettings(REPORT *pRep, ALGPARMLIST *pParmList) {
         ReportHdrPrint1(pRep,"%.6g ", *(FLOAT *)pCurParm->pParmValue);
         break;
       case PTypeBool:
-        ReportHdrPrint1(pRep,"%"P32" ", *(UINT32 *)pCurParm->pParmValue);
+        ReportHdrPrint1(pRep,"%u", (unsigned int) *(BOOL *)pCurParm->pParmValue);
         break;
       case PTypeReport:
         break;
