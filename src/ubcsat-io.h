@@ -25,6 +25,9 @@
 
 #include <stdio.h>
 #ifndef _WIN32
+#ifdef __cplusplus
+#define __STDC_FORMAT_MACROS
+#endif
 #include <inttypes.h>
 #endif
 #include "ubcsat-types.h"
