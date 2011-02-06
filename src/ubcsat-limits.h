@@ -34,7 +34,7 @@ namespace ubcsat {
 #define LITSPERCHUNK 262144
 
 #define MAXNUMALG 128
-#define MAXALGPARMS 16
+#define MAXALGPARMS 128
 
 #define MAXFXNLIST 32
 
