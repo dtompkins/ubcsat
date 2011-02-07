@@ -389,11 +389,28 @@ FLOAT fTrajBestLMMeanW;
 FLOAT fTrajBestLMCV;
 FLOAT fTrajBestLMCVW;
 
+
 /***** Trigger NoImprove *****/
 
 void CheckNoImprove();
 
 UBIGINT iNoImprove;
+
+
+/***** Trigger EarlyTerm *****/
+
+void CheckEarlyTerm();
+
+UBIGINT iEarlyTermSteps;
+UINT32 iEarlyTermQual;
+FLOAT fEarlyTermQualW;
+
+
+/***** Trigger Strikes *****/
+
+void CheckStrikes();
+
+UINT32 iStrikes;
 
 
 /***** Trigger StartSeed *****/
@@ -866,6 +883,9 @@ void AddDataTriggers() {
   CreateContainerTrigger("TrajBestLM","UpdateTrajBestLM,CalcTrajBestLM");
 
   CreateTrigger("NoImprove",CheckTerminate,CheckNoImprove,"BestFalse","");
+
+  CreateTrigger("EarlyTerm",CheckTerminate,CheckEarlyTerm,"","");
+  CreateTrigger("Strikes",PostRun,CheckStrikes,"","");
 
   CreateTrigger("StartSeed",PreRun,StartSeed,"","");
 
@@ -4257,6 +4277,37 @@ void CheckNoImprove() {
     }
   }
 }
+
+
+void CheckEarlyTerm() {
+  if (iEarlyTermSteps) {
+    if (iStep == iEarlyTermSteps) {
+      if (bWeighted) {
+        if (fEarlyTermQualW > FLOATZERO) {
+          if (fBestSumFalseW > fEarlyTermQualW) {
+            bTerminateRun = 1;
+          }
+        }
+      } else {
+        if (iEarlyTermQual) {
+          if (iBestNumFalse > iEarlyTermQual) {
+            bTerminateRun = 1;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+void CheckStrikes() {
+  if (!bSolutionFound) {
+    if ((iRun - iNumSolutionsFound) >= iStrikes) {
+      bTerminateAllRuns = 1;
+    }
+  }
+}
+
 
 void StartSeed () {
   if (iRun==1) {

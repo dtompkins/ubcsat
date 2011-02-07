@@ -39,10 +39,14 @@ INTRO | FIXED | DESCRIPTION
 * new option: -rcsv: prints reports in a .csv compatible mode
 * new option: -q turns off the default reports (-r out) and (-r stats)
 
+* new options: -earlysteps -earlyqual: If after -earlysteps steps, the quality is greater than -earlyqual, terminate
+* new options: -strikes: Terminate all runs after -strikes unsuccessful runs
+
 * new report: vw2weights
 * new report: ParamILS (-r paramils) see http://www.cs.ubc.ca/labs/beta/Projects/ParamILS/
 
 * code cleanup: Numerous code cleanups to make it more c++ friendly
+                Numerous code cleanups to make it both 32-bit & 64 bit compatible
                 Moved all weighted algorithm variants to weighted.c
                 Current Software Versions are now in ubcsat-version.c
                 Made the makefile a little cleaner

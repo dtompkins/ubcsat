@@ -397,6 +397,26 @@ extern FLOAT fTrajBestLMCVW;
 extern UBIGINT iNoImprove;
 
 
+/***** Trigger EarlyTerm *****/
+/*
+    iEarlyTermSteps       terminate this run if after iEarlyTermSteps the quality is greater than iEarlyTermQual
+    iEarlyTermQual
+    fEarlyTermQualW
+*/
+
+extern UBIGINT iEarlyTermSteps;
+extern UINT32 iEarlyTermQual;
+extern FLOAT fEarlyTermQualW;
+
+
+/***** Trigger Strikes *****/
+/*
+    iStrikes              terminate all runs after iStrikes runes without reaching target
+*/
+
+extern UINT32 iStrikes;
+
+
 /***** Trigger StartSeed *****/
 /*
     iStartSeed            starting seed required to duplicate the current run
