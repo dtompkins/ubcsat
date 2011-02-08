@@ -1182,7 +1182,7 @@ void ReadCNF() {
       exit(1);
     }
     if ((!bHaveWarnedUnitClause)&&(aClauseLen[j] == 1)) {
-      ReportPrint1(pRepErr,"Warning! Unit clause detected: consider using a pre-processor\n",j);
+      ReportPrint(pRepErr,"Warning! Unit clause detected: consider using a pre-processor\n");
       bHaveWarnedUnitClause = 1;
     }
   }
