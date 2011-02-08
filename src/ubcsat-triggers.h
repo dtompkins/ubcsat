@@ -52,6 +52,7 @@ extern UINT32 iNumLits;
 
 extern UINT32 *aClauseLen;
 extern LITTYPE **pClauseLits;
+extern UINT32 iMaxClauseLen;
 
 extern FLOAT *aClauseWeight;
 extern FLOAT fTotalWeight;

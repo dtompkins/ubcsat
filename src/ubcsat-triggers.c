@@ -40,6 +40,7 @@ UINT32 iNumLits;
 
 UINT32 *aClauseLen;
 LITTYPE **pClauseLits;
+UINT32 iMaxClauseLen;
 
 FLOAT *aClauseWeight;
 FLOAT fTotalWeight;
@@ -1027,6 +1028,7 @@ void ReadCNF() {
   float fDummy;
   SINT32 l;
   SINT32 iScanRet;
+  BOOL bHaveWarnedUnitClause;
   
 
   LITTYPE *pData;
@@ -1098,6 +1100,8 @@ void ReadCNF() {
   pLastLit = pNextLit = pData = 0;
 
   iNumLits = 0;
+  iMaxClauseLen = 0;
+  bHaveWarnedUnitClause = 0;
 
   for (j=0;j<iNumClauses;j++) {
 
@@ -1168,10 +1172,18 @@ void ReadCNF() {
       }
     } while (l != 0);
 
+    if (aClauseLen[j] > iMaxClauseLen) {
+      iMaxClauseLen = aClauseLen[j];
+    }
+
     if (aClauseLen[j] == 0) {
       ReportPrint1(pRepErr,"Error: Reading .cnf, clause [%"P32"] is empty\n",j);
       AbnormalExit();
       exit(1);
+    }
+    if ((!bHaveWarnedUnitClause)&&(aClauseLen[j] == 1)) {
+      ReportPrint1(pRepErr,"Warning! Unit clause detected: consider using a pre-processor\n",j);
+      bHaveWarnedUnitClause = 1;
     }
   }
 
