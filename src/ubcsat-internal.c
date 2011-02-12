@@ -224,6 +224,10 @@ void ActivateStatID(UINT32 iStatID, const char *sItem) {
         ActivateTriggers("SortByStepPerformance");
       }
 
+      if ((pStat->iStatFlags & STATCODE_SORTMASK) && (pStat->bSortByStep)) {
+        ActivateTriggers("SortByStepPerformance");
+      }
+
     } else {
       ActivateColumns(pStat->sDataColumn);
       ParseItemList(&listColumns,pStat->sDataColumn,AddAllocateRAMColumnID);
@@ -1380,7 +1384,7 @@ void ParseParameters(ALGPARMLIST *pParmList) {
   UINT32 iNumRepParms;
   ALGPARM *pParm;
 
-  
+  unsigned int iTemp;
   float fTemp;
   float fTemp2 = 100.0;
   BOOL bRatioParm;
@@ -1418,7 +1422,7 @@ void ParseParameters(ALGPARMLIST *pParmList) {
               AddDynamicParm(pParm->pParmValue,DTypeUInt,&iNumVars,fTemp);
               *((UINT32 *) pParm->pParmValue) = 0;
             } else {
-              if (sscanf(aTotalParms[iCurParm],"%lu",(UINT32 *) pParm->pParmValue)==0) {
+              if (sscanf(aTotalParms[iCurParm],"%"SCAN32,(UINT32 *) pParm->pParmValue)==0) {
                 HelpBadParm(aTotalParms[iCurParm-1]);
               }
             }
@@ -1443,7 +1447,7 @@ void ParseParameters(ALGPARMLIST *pParmList) {
               AddDynamicParm(pParm->pParmValue,DTypeSInt,&iNumVars,fTemp);
               *((SINT32 *) pParm->pParmValue) = 0;
             } else {
-              if (sscanf(aTotalParms[iCurParm],"%ld",(SINT32 *) pParm->pParmValue)==0) {
+              if (sscanf(aTotalParms[iCurParm],"%"SCANS32,(SINT32 *) pParm->pParmValue)==0) {
                 HelpBadParm(aTotalParms[iCurParm-1]);
               }
             }
@@ -1468,7 +1472,7 @@ void ParseParameters(ALGPARMLIST *pParmList) {
               AddDynamicParm(pParm->pParmValue,DTypeUBigInt,&iNumVars,fTemp);
               *((UINT32 *) pParm->pParmValue) = 0;
             } else {
-              if (sscanf(aTotalParms[iCurParm],"%llu",(UBIGINT *) pParm->pParmValue)==0) {
+              if (sscanf(aTotalParms[iCurParm],"%"SCAN64,(UBIGINT *) pParm->pParmValue)==0) {
                 HelpBadParm(aTotalParms[iCurParm-1]);
               }
             }
@@ -1493,7 +1497,7 @@ void ParseParameters(ALGPARMLIST *pParmList) {
               AddDynamicParm(pParm->pParmValue,DTypeSBigInt,&iNumVars,fTemp);
               *((SBIGINT *) pParm->pParmValue) = 0;
             } else {
-              if (sscanf(aTotalParms[iCurParm],"%lld",(SBIGINT *) pParm->pParmValue)==0) {
+              if (sscanf(aTotalParms[iCurParm],"%"SCANS64,(SBIGINT *) pParm->pParmValue)==0) {
                 HelpBadParm(aTotalParms[iCurParm-1]);
               }
             }
@@ -1503,7 +1507,12 @@ void ParseParameters(ALGPARMLIST *pParmList) {
         case PTypeBool:
           *((BOOL *)pParm->pParmValue) = 1;
           if (iCurParm < iNumTotalParms) {
-            if (sscanf(aTotalParms[iCurParm],"%lu",(BOOL *) pParm->pParmValue)) {
+            if (sscanf(aTotalParms[iCurParm],"%u",&iTemp)) {
+              if (iTemp) {
+                *((BOOL *)pParm->pParmValue) = 1;
+              } else {
+                *((BOOL *)pParm->pParmValue) = 0;
+              }
               aParmValid[iCurParm++] = 1;
             }
           }
@@ -1627,7 +1636,7 @@ void ParseParameters(ALGPARMLIST *pParmList) {
                         AddDynamicParm(pRep->aParameters[iNumRepParms],DTypeUInt,&iNumVars,fTemp);
                         *((UINT32 *) pRep->aParameters[iNumRepParms]) = 0;
                       } else {
-                        if (sscanf(aTotalParms[iCurParm],"%lu",(UINT32 *) pRep->aParameters[iNumRepParms])==0) {
+                        if (sscanf(aTotalParms[iCurParm],"%"SCAN32,(UINT32 *) pRep->aParameters[iNumRepParms])==0) {
                           HelpBadParm(aTotalParms[iCurParm]);
                         }
                       }
@@ -1657,8 +1666,14 @@ void ParseParameters(ALGPARMLIST *pParmList) {
                       aParmValid[iCurParm++] = 1;
                       break;
                     case PTypeBool:
-                      if (sscanf(aTotalParms[iCurParm],"%lu",(BOOL *) pRep->aParameters[iNumRepParms])==0) {
+                      if (sscanf(aTotalParms[iCurParm],"%u",&iTemp)==0) {
                         HelpBadParm(aTotalParms[iCurParm]);
+                      } else {
+                        if (iTemp) {
+                          *((BOOL *) pRep->aParameters[iNumRepParms]) = 1;
+                        } else {
+                          *((BOOL *) pRep->aParameters[iNumRepParms]) = 0;
+                        }
                       }
                       aParmValid[iCurParm++] = 1;
                       break;
@@ -1705,16 +1720,16 @@ void PrintAlgParmSettings(REPORT *pRep, ALGPARMLIST *pParmList) {
     ReportHdrPrint1(pRep," %s ",pCurParm->sSwitch);
     switch (pCurParm->eType) {
       case PTypeUInt:
-        ReportHdrPrint1(pRep,"%lu ", *(UINT32 *)pCurParm->pParmValue);
+        ReportHdrPrint1(pRep,"%"P32" ", *(UINT32 *)pCurParm->pParmValue);
         break;
       case PTypeSInt:
-        ReportHdrPrint1(pRep,"%ld ", *(SINT32 *)pCurParm->pParmValue);
+        ReportHdrPrint1(pRep,"%"PS32" ", *(SINT32 *)pCurParm->pParmValue);
         break;
       case PTypeUBigInt:
-        ReportHdrPrint1(pRep,"%llu ", *(UBIGINT *)pCurParm->pParmValue);
+        ReportHdrPrint1(pRep,"%"P64" ", *(UBIGINT *)pCurParm->pParmValue);
         break;
       case PTypeSBigInt:
-        ReportHdrPrint1(pRep,"%lld ", *(SBIGINT *)pCurParm->pParmValue);
+        ReportHdrPrint1(pRep,"%"PS64" ", *(SBIGINT *)pCurParm->pParmValue);
         break;
       case PTypeProbability:
         ReportHdrPrint1(pRep,"%.4g ", ProbToFloat(*(PROBABILITY *)pCurParm->pParmValue));
@@ -1730,7 +1745,7 @@ void PrintAlgParmSettings(REPORT *pRep, ALGPARMLIST *pParmList) {
         ReportHdrPrint1(pRep,"%.6g ", *(FLOAT *)pCurParm->pParmValue);
         break;
       case PTypeBool:
-        ReportHdrPrint1(pRep,"%lu ", *(UINT32 *)pCurParm->pParmValue);
+        ReportHdrPrint1(pRep,"%u", (unsigned int) *(BOOL *)pCurParm->pParmValue);
         break;
       case PTypeReport:
         break;

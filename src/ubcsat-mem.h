@@ -20,6 +20,16 @@
 
 */
 
+#ifndef UBCSAT_MEM_H
+#define UBCSAT_MEM_H
+
+#include "ubcsat-types.h"
+
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
+
 void *AllocateRAM( size_t size );
 void AdjustLastRAM( size_t size );
 void PrintMemUsage();
@@ -27,3 +37,9 @@ void SetString(char **sNew, const char *sSrc);
 void FreeRAM();
 
 extern UINT32 iNumHeap;
+
+
+#ifdef __cplusplus
+}
+#endif
+#endif

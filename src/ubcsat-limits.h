@@ -20,13 +20,21 @@
 
 */
 
+#ifndef UBCSAT_LIMITS_H
+#define UBCSAT_LIMITS_H
+
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
+
 #define DEFAULTHEAPSIZE 4194304
 #define MAXHEAPS 1024
 
 #define LITSPERCHUNK 262144
 
 #define MAXNUMALG 128
-#define MAXALGPARMS 16
+#define MAXALGPARMS 128
 
 #define MAXFXNLIST 32
 
@@ -35,7 +43,7 @@
 #define MAXREPORTS 64
 #define MAXREPORTPARMS 8
 
-#define MAXPARMLINELEN 4096
+#define MAXPARMLINELEN 16384
 #define MAXTOTALPARMS 128
 
 #define MAXITEMLIST 512
@@ -48,4 +56,9 @@
 #define HELPSTRINGLENGTH 128
 
 #define MAXDYNAMICPARMS 16
+
+#ifdef __cplusplus
+}
+#endif
+#endif
 

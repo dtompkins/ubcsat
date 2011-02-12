@@ -20,6 +20,15 @@
 
 */
 
+#ifndef UBCSAT_INTERNAL_H
+#define UBCSAT_INTERNAL_H
+
+#include "ubcsat-types.h"
+
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
 
 #define NOFXN 0
 #define NOREF(A) (A)=(A)
@@ -105,6 +114,7 @@ extern UINT32 iNumReports;
 extern UINT32 iNumRTDColumns;
 extern UINT32 iNumStatsActive;
 extern UINT32 iReportMobilityDisplay;
+extern UINT32 iRepVarAgeFreqFormat;
 extern BOOL bReportMobilityNormalized;
 extern UINT32 iRunProceduresLoop;
 extern UINT32 iRunProceduresLoop2;
@@ -162,3 +172,7 @@ VARSTATE FindClosestVarState(VARSTATELIST *vsList, VARSTATE vsIn);
 void AddToVarStateList(VARSTATELIST *vsList, VARSTATE vsAdd);
 BOOL AddUniqueToVarStateList(VARSTATELIST *vsList, VARSTATE vsAdd);
 
+#ifdef __cplusplus
+}
+#endif
+#endif

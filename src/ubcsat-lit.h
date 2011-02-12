@@ -20,7 +20,16 @@
 
 */
 
-typedef unsigned long LITTYPE;
+#ifndef UBCSAT_LIT_H
+#define UBCSAT_LIT_H
+
+#include "ubcsat-types.h"
+
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
+typedef UINT32 LITTYPE;
 
 #define GetTrueLit(V) (((V) << 1) + 1 - aVarValue[V])
 #define GetFalseLit(V) (((V) << 1) + aVarValue[V])
@@ -39,3 +48,7 @@ typedef unsigned long LITTYPE;
 
 #define SetLitFromFile(V) ((LITTYPE) (((V) < 0) ? (((-(V)) << 1) + 1) : ((V) << 1)))
 
+#ifdef __cplusplus
+}
+#endif
+#endif

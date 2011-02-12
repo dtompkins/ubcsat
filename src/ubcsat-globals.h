@@ -20,6 +20,16 @@
 
 */
 
+#ifndef UBCSAT_GLOBALS_H
+#define UBCSAT_GLOBALS_H
+
+#include "ubcsat-types.h"
+
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
+
 /***** UBCSAT GLOBAL VARIABLES *****/
 /*
     sAlgName              name of current algorithm
@@ -329,3 +339,8 @@ void AddStatCustom(const char *sID,
 
 BOOL IsLocalMinimum(BOOL bUseWeighted);
 
+
+#ifdef __cplusplus
+}
+#endif
+#endif

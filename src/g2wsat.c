@@ -204,7 +204,7 @@ void ConfigureG2WSatGeneral() {
     case 2: // Longest
       // fxnG2WsatPromisingSelect = PromisingSelectOldest;
     default:
-      ReportPrint1(pRepErr,"Unexpected Error: unknown -prom %lu\n",iG2WsatPromisingSelectID);
+      ReportPrint1(pRepErr,"Unexpected Error: unknown -prom %"P32"\n",iG2WsatPromisingSelectID);
       AbnormalExit();
       exit(1);
   }
@@ -221,7 +221,7 @@ void ConfigureG2WSatGeneral() {
     case 3: // MinusTwo
       // fxnG2WsatDiversificationSelect = DiversificationMinusTwo;
     default:
-      ReportPrint1(pRepErr,"Unexpected Error: unknown -div %lu\n",iG2WsatDiversificationSelectID);
+      ReportPrint1(pRepErr,"Unexpected Error: unknown -div %"P32"\n",iG2WsatDiversificationSelectID);
       AbnormalExit();
       exit(1);
   }
@@ -236,7 +236,7 @@ void ConfigureG2WSatGeneral() {
     case 2: // Top2
       //fxnG2WsatBaseAlgSelect = Top2;
     default:
-      ReportPrint1(pRepErr,"Unexpected Error: unknown -base %lu\n",iG2WsatBaseAlgSelectID);
+      ReportPrint1(pRepErr,"Unexpected Error: unknown -base %"P32"\n",iG2WsatBaseAlgSelectID);
       AbnormalExit();
       exit(1);
   }

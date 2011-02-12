@@ -48,7 +48,7 @@ double fStartRunTimeStamp;
 
 double fCurrentTimeStamp;
 
-#ifdef WIN32
+#ifdef _WIN32
 
   struct _timeb tstruct;
 
@@ -60,7 +60,7 @@ double fCurrentTimeStamp;
 
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 
   void CurrentTime() {
     _ftime( &tstruct );

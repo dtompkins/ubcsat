@@ -40,6 +40,7 @@ UINT32 iNumLits;
 
 UINT32 *aClauseLen;
 LITTYPE **pClauseLits;
+UINT32 iMaxClauseLen;
 
 FLOAT *aClauseWeight;
 FLOAT fTotalWeight;
@@ -401,11 +402,28 @@ FLOAT fTrajBestLMMeanW;
 FLOAT fTrajBestLMCV;
 FLOAT fTrajBestLMCVW;
 
+
 /***** Trigger NoImprove *****/
 
 void CheckNoImprove();
 
 UBIGINT iNoImprove;
+
+
+/***** Trigger EarlyTerm *****/
+
+void CheckEarlyTerm();
+
+UBIGINT iEarlyTermSteps;
+UINT32 iEarlyTermQual;
+FLOAT fEarlyTermQualW;
+
+
+/***** Trigger Strikes *****/
+
+void CheckStrikes();
+
+UINT32 iStrikes;
 
 
 /***** Trigger StartSeed *****/
@@ -573,6 +591,16 @@ void InitMobilityFixedFrequencies();
 void UpdateMobilityFixedFrequencies();
 
 UINT32 *aMobilityFixedFrequencies;
+
+
+/***** Trigger VarAgeFrequencies *****/
+
+void CreateVarAgeFrequencies();
+void InitVarAgeFrequencies();
+void UpdateVarAgeFrequencies();
+
+UINT32 iMaxVarAgeFrequency;
+UBIGINT *aVarAgeFrequency;
 
 
 /***** Trigger AutoCorr *****/
@@ -876,6 +904,9 @@ void AddDataTriggers() {
 
   CreateTrigger("NoImprove",CheckTerminate,CheckNoImprove,"BestFalse","");
 
+  CreateTrigger("EarlyTerm",CheckTerminate,CheckEarlyTerm,"","");
+  CreateTrigger("Strikes",PostRun,CheckStrikes,"","");
+
   CreateTrigger("StartSeed",PreRun,StartSeed,"","");
 
   CreateTrigger("SetupCountRandom",PreStart,SetupCountRandom,"","");
@@ -950,6 +981,11 @@ void AddDataTriggers() {
   CreateTrigger("UpdateMobilityFixedFrequencies",PostStep,UpdateMobilityFixedFrequencies,"UpdateMobilityWindow","");
   CreateContainerTrigger("MobilityFixedFrequencies","CreateMobilityFixedFrequencies,InitMobilityFixedFrequencies,UpdateMobilityFixedFrequencies");
 
+  CreateTrigger("CreateVarAgeFrequencies",PreStart,CreateVarAgeFrequencies,"","");
+  CreateTrigger("InitVarAgeFrequencies",PreRun,InitVarAgeFrequencies,"","");
+  CreateTrigger("UpdateVarAgeFrequencies",PreFlip,UpdateVarAgeFrequencies,"","");
+  CreateContainerTrigger("VarAgeFrequencies","CreateVarAgeFrequencies,InitVarAgeFrequencies,UpdateVarAgeFrequencies,VarLastChange");
+
   CreateTrigger("CreateAutoCorr",PreStart,CreateAutoCorr,"","");
   CreateTrigger("InitAutoCorr",PreRun,InitAutoCorr,"","");
   CreateTrigger("UpdateAutoCorr",PostStep,UpdateAutoCorr,"","");
@@ -1011,6 +1047,7 @@ void ReadCNF() {
   float fDummy;
   SINT32 l;
   SINT32 iScanRet;
+  BOOL bHaveWarnedUnitClause;
   
 
   LITTYPE *pData;
@@ -1040,17 +1077,17 @@ void ReadCNF() {
     if (sLine[0] =='p') {
       if (bWeighted) {
         if (bIsWCNF) {
-          sscanf(sLine,"p wcnf %lu %lu",&iNumVars,&iNumClauses);
+          sscanf(sLine,"p wcnf %"SCAN32" %"SCAN32,&iNumVars,&iNumClauses);
         } else {
           ReportPrint(pRepErr,"Warning! reading .cnf file and setting all weights = 1\n");
-          sscanf(sLine,"p cnf %lu %lu",&iNumVars,&iNumClauses);
+          sscanf(sLine,"p cnf %"SCAN32" %"SCAN32,&iNumVars,&iNumClauses);
         }
       } else {
         if (bIsWCNF) {
           ReportPrint(pRepErr,"Warning! reading .wcnf file and ignoring all weights\n");
-          sscanf(sLine,"p wcnf %lu %lu",&iNumVars,&iNumClauses);
+          sscanf(sLine,"p wcnf %"SCAN32" %"SCAN32,&iNumVars,&iNumClauses);
         } else {
-          sscanf(sLine,"p cnf %lu %lu",&iNumVars,&iNumClauses);
+          sscanf(sLine,"p cnf %"SCAN32" %"SCAN32,&iNumVars,&iNumClauses);
         }
       }
     } else {
@@ -1082,6 +1119,8 @@ void ReadCNF() {
   pLastLit = pNextLit = pData = 0;
 
   iNumLits = 0;
+  iMaxClauseLen = 0;
+  bHaveWarnedUnitClause = 0;
 
   for (j=0;j<iNumClauses;j++) {
 
@@ -1103,7 +1142,7 @@ void ReadCNF() {
     aClauseLen[j] = 0;
 
     do {
-      iScanRet = fscanf(filInput,"%ld",&l);
+      iScanRet = fscanf(filInput,"%"SCANS32,&l);
 
       while (iScanRet != 1) {
         if (iScanRet==0) {
@@ -1111,15 +1150,15 @@ void ReadCNF() {
 
           if (sLine[0] =='c') {
             ReportPrint1(pRepErr,"Warning: Ingoring comment line mid instance:\n   %s",sLine);
-            iScanRet = fscanf(filInput,"%ld",&l);
+            iScanRet = fscanf(filInput,"%"SCANS32,&l);
           } else {
-            ReportPrint1(pRepErr,"Error reading instance at clause [%lu]\n",j);
+            ReportPrint1(pRepErr,"Error reading instance at clause [%"P32"]\n",j);
             ReportPrint1(pRepErr,"  at or near: %s\n",sLine);
             AbnormalExit();
             exit(1);
           }
         } else {
-          ReportPrint1(pRepErr,"Error reading instance. at clause [%lu]\n",j);
+          ReportPrint1(pRepErr,"Error reading instance. at clause [%"P32"]\n",j);
           AbnormalExit();
           exit(1);
         }
@@ -1141,7 +1180,7 @@ void ReadCNF() {
         *pNextLit = SetLitFromFile(l);
 
         if (GetVarFromLit(*pNextLit) > iNumVars) {
-          ReportPrint2(pRepErr,"Error: Invalid Literal [%lu] in clause [%lu]\n",l,j);
+          ReportPrint2(pRepErr,"Error: Invalid Literal [%"P32"] in clause [%"P32"]\n",l,j);
           AbnormalExit();
           exit(1);
         }
@@ -1152,10 +1191,18 @@ void ReadCNF() {
       }
     } while (l != 0);
 
+    if (aClauseLen[j] > iMaxClauseLen) {
+      iMaxClauseLen = aClauseLen[j];
+    }
+
     if (aClauseLen[j] == 0) {
-      ReportPrint1(pRepErr,"Error: Reading .cnf, clause [%lu] is empty\n",j);
+      ReportPrint1(pRepErr,"Error: Reading .cnf, clause [%"P32"] is empty\n",j);
       AbnormalExit();
       exit(1);
+    }
+    if ((!bHaveWarnedUnitClause)&&(aClauseLen[j] == 1)) {
+      ReportPrint(pRepErr,"Warning! Unit clause detected: consider using a pre-processor\n");
+      bHaveWarnedUnitClause = 1;
     }
   }
 
@@ -1243,7 +1290,7 @@ void InitVarsFromFile() {
             } else {
               *pPos++=0;
 
-              sscanf(pStart,"%ld",&iLit);
+              sscanf(pStart,"%"SCANS32,&iLit);
 
               if (iLit) {
                 if (iLit > 0) {
@@ -1271,7 +1318,7 @@ void InitVarsFromFile() {
           }
 
           if (strlen(pStart)) {
-            sscanf(pStart,"%ld",&iLit);
+            sscanf(pStart,"%"SCANS32,&iLit);
 
             if (iLit) {
               if (iLit > 0) {
@@ -1360,12 +1407,20 @@ void DefaultInitVars() {
   for (j=1;j<=iNumVars;j++) {
     if (aVarInit[j] >= 3) {
       aVarValue[j] = iNextAlternating;
-      iNextAlternating = 1 - iNextAlternating;
+      iNextAlternating = !iNextAlternating;
     } else {
       if (aVarInit[j] == 2) {
-        aVarValue[j] = (BOOL) RandomInt(2);
+        if (RandomInt(2)) {
+          aVarValue[j] = 1;
+        } else {
+          aVarValue[j] = 0;
+        }
       } else {
-        aVarValue[j] = (BOOL) aVarInit[j];
+        if (aVarInit[j]) {
+          aVarValue[j] = 1;
+        } else {
+          aVarValue[j] = 0;
+        }
       }
     }
   }
@@ -1391,7 +1446,7 @@ void DefaultInitVars() {
         }
       } while (bAdded == 0);
       aCandidateList[j] = iVar;
-      aVarValue[iVar] = 1 - aVarValue[iVar];
+      aVarValue[iVar] = !aVarValue[iVar];
     }
   }
 
@@ -1411,7 +1466,7 @@ void DefaultFlip() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -1444,7 +1499,7 @@ void DefaultFlipW() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -1541,7 +1596,7 @@ void FlipFalseClauseList() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -1578,7 +1633,7 @@ void FlipFalseClauseListW() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -1717,7 +1772,7 @@ void FlipVarScore() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -1889,7 +1944,7 @@ void FlipVarScoreW() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -1965,7 +2020,7 @@ void FlipVarScoreFalseClauseList() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -2139,7 +2194,7 @@ void FlipMakeBreak() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -2315,7 +2370,7 @@ void FlipMakeBreakW() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -2490,7 +2545,7 @@ void FlipVarInFalse() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -2680,7 +2735,7 @@ void FlipTrackChanges() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -2762,7 +2817,7 @@ void FlipTrackChangesFCL() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -2846,7 +2901,7 @@ void FlipDecPromVarsFCL() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -3165,7 +3220,7 @@ void FlipTrackChangesW() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -3249,7 +3304,7 @@ void FlipTrackChangesFCLW() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -3682,7 +3737,7 @@ void FlipMBPFLandFCLandVIF() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -3782,7 +3837,7 @@ void FlipMBPFLandFCLandVIFandW() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -4030,7 +4085,7 @@ void FlipMBPINTandFCLandVIF() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -4130,7 +4185,7 @@ void FlipMBPINTandFCLandVIFandW() {
   litWasTrue = GetTrueLit(iFlipCandidate);
   litWasFalse = GetFalseLit(iFlipCandidate);
 
-  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
 
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
@@ -4424,6 +4479,37 @@ void CheckNoImprove() {
     }
   }
 }
+
+
+void CheckEarlyTerm() {
+  if (iEarlyTermSteps) {
+    if (iStep == iEarlyTermSteps) {
+      if (bWeighted) {
+        if (fEarlyTermQualW > FLOATZERO) {
+          if (fBestSumFalseW > fEarlyTermQualW) {
+            bTerminateRun = 1;
+          }
+        }
+      } else {
+        if (iEarlyTermQual) {
+          if (iBestNumFalse > iEarlyTermQual) {
+            bTerminateRun = 1;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+void CheckStrikes() {
+  if (!bSolutionFound) {
+    if ((iRun - iNumSolutionsFound) >= iStrikes) {
+      bTerminateAllRuns = 1;
+    }
+  }
+}
+
 
 void StartSeed () {
   if (iRun==1) {
@@ -4835,7 +4921,7 @@ void CreateVarFlipHistory() {
   }
 
   if (iVarFlipHistoryLen == 0) {
-    ReportPrint1(pRepErr,"Warning! Unknown Mobility Window Size requested (setting to %lu)\n",iNumVars);
+    ReportPrint1(pRepErr,"Warning! Unknown Mobility Window Size requested (setting to %"P32")\n",iNumVars);
     iVarFlipHistoryLen = iNumVars + 1;
   }
 
@@ -4932,6 +5018,29 @@ void UpdateMobilityFixedFrequencies() {
     }
   } else {
     aMobilityFixedFrequencies[aMobilityWindow[iMobFixedWindow]]++;
+  }
+}
+
+
+void CreateVarAgeFrequencies() {
+  if (iMaxVarAgeFrequency == 0) {
+    iMaxVarAgeFrequency = iNumVars*10;
+  }
+  aVarAgeFrequency = (UBIGINT *)AllocateRAM((iMaxVarAgeFrequency + 1) * sizeof(UBIGINT));
+}
+
+void InitVarAgeFrequencies() {
+  memset(aVarAgeFrequency,0,(iMaxVarAgeFrequency+1) * sizeof(UBIGINT));
+}
+
+void UpdateVarAgeFrequencies() {
+  UBIGINT iAge;
+  if (iFlipCandidate > 0) {
+    iAge = iStep - aVarLastChange[iFlipCandidate];
+    if (iAge > iMaxVarAgeFrequency) {
+      iAge = iMaxVarAgeFrequency;
+    }
+    aVarAgeFrequency[iAge]++;
   }
 }
 

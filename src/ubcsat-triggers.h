@@ -20,8 +20,18 @@
 
 */
 
-void AddDataTriggers();
+#ifndef UBCSAT_TRIGGERS_H
+#define UBCSAT_TRIGGERS_H
 
+#include "ubcsat-types.h"
+#include "ubcsat-lit.h"
+
+#ifdef __cplusplus 
+namespace ubcsat {
+#endif
+
+
+void AddDataTriggers();
 
 /***** Trigger ReadCNF *****/
 /* 
@@ -42,6 +52,7 @@ extern UINT32 iNumLits;
 
 extern UINT32 *aClauseLen;
 extern LITTYPE **pClauseLits;
+extern UINT32 iMaxClauseLen;
 
 extern FLOAT *aClauseWeight;
 extern FLOAT fTotalWeight;
@@ -397,6 +408,26 @@ extern FLOAT fTrajBestLMCVW;
 extern UBIGINT iNoImprove;
 
 
+/***** Trigger EarlyTerm *****/
+/*
+    iEarlyTermSteps       terminate this run if after iEarlyTermSteps the quality is greater than iEarlyTermQual
+    iEarlyTermQual
+    fEarlyTermQualW
+*/
+
+extern UBIGINT iEarlyTermSteps;
+extern UINT32 iEarlyTermQual;
+extern FLOAT fEarlyTermQualW;
+
+
+/***** Trigger Strikes *****/
+/*
+    iStrikes              terminate all runs after iStrikes runes without reaching target
+*/
+
+extern UINT32 iStrikes;
+
+
 /***** Trigger StartSeed *****/
 /*
     iStartSeed            starting seed required to duplicate the current run
@@ -570,6 +601,16 @@ extern UINT32 *aMobilityFixedFrequencies;
 
 
 
+/***** Trigger VarAgeFrequencies *****/
+/*
+    aVarAgeFrequency[j]  # of times variable had age j when flipped
+*/
+
+extern UINT32 iMaxVarAgeFrequency;
+extern UBIGINT *aVarAgeFrequency;
+
+
+
 /***** Trigger AutoCorr *****/
 /*
     iAutoCorrMaxLen     Length of auto-correlation window (Maximum value of ACL)
@@ -677,3 +718,8 @@ extern FLOAT fFDCRun;
 extern VARSTATELIST vslUnique;
 extern UINT32 iNumUniqueSolutions;
 extern UINT32 iLastUnique;
+
+#ifdef __cplusplus
+}
+#endif
+#endif

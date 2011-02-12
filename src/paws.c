@@ -113,7 +113,7 @@ void PickPAWS() {
       iLoopEnd = iNumCandidates + aMakeCount[iVar];
       
       if (iLoopEnd >= iMaxCandidates) {
-        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%lu]\n",iMaxCandidates);
+        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%"P32"]\n",iMaxCandidates);
         AbnormalExit();
         exit(1);
       }

@@ -58,6 +58,7 @@ REPORT *pRepVW2Weights;
 REPORT *pRepMobility;
 REPORT *pRepMobFixed;
 REPORT *pRepMobFixedFreq;
+REPORT *pRepVarAgeFreq;
 REPORT *pRepAutoCorr;
 REPORT *pRepTriggers;
 REPORT *pRepParamILS;
@@ -150,6 +151,10 @@ void AddReports() {
   AddReportParmUInt(pRepMobFixedFreq,"Mobility window size [default = n]",&iMobFixedWindow,0);
   AddReportParmBool(pRepMobFixedFreq,"Include first (1..windowsize) steps ",&bMobilityFixedIncludeStart,0);
 
+  pRepVarAgeFreq = CreateReport("varagefreq","Variable Flip Age Histogram","Number of times each variable age occured while flipping","stdout","ReportVarAgeFreqPrint");
+  AddReportParmUInt(pRepVarAgeFreq,"Format: 0=counts, 1=percent, 2=CDF",&iRepVarAgeFreqFormat,0);
+  AddReportParmUInt(pRepVarAgeFreq,"Mobility window size [default = n]",&iMaxVarAgeFrequency,0);
+
   pRepAutoCorr = CreateReport("autocorr","Autocorrelation Report","Autocorrelation Length (ACL) and autocorrelation values for lengths 1..max~if the ACL is greater than max, it returns an ACL value of max~parameters affect column (acl) results~to set parameters without running report, use~-r autocorr null INT FL","stdout","ReportAutoCorrPrint");
   AddReportParmUInt(pRepAutoCorr,"Maximum window length [default = n]",&iAutoCorrMaxLen,0);
   AddReportParmFloat(pRepAutoCorr,"Cutoff Value for finding ACL [default = 1/e]",&fAutoCorrCutoff,0.3678794f);
@@ -171,7 +176,7 @@ void AddReports() {
     "     ",
     "  Run",
     "  No.",
-    "%5u",
+    "%5"P32,
     &iRun,"",ColTypeFinal);
 
 
@@ -179,15 +184,15 @@ void AddReports() {
     "F",
     "N",
     "D",
-    "%1u"
-    ,&iColSolutionFound,"UpdateColSolutionFound",ColTypeFinal);
+    "%1"P32,
+    &iColSolutionFound,"UpdateColSolutionFound",ColTypeFinal);
 
 
   AddColumnUBigInt("steps","Total Number of Search Steps",
     "               Total",
     "              Search",
     "               Steps",
-    "%20llu",
+    "%20"P64,
     &iStep,"",ColTypeFinal);
 
   AddStatCol("steps","Steps","mean+cv+median",1);
@@ -207,7 +212,7 @@ void AddReports() {
     " Best",
     "Sol'n",
     "Found",
-    "%5u",
+    "%5"P32,
     &iNumFalse,"",ColTypeMin);
 
   AddStatCol("best","BestSolution","mean",0);
@@ -226,7 +231,7 @@ void AddReports() {
     "Worst",
     "Sol'n",
     "Found",
-    "%5u",
+    "%5"P32,
     &iNumFalse,"",ColTypeMax);
 
   AddStatCol("worst","WorstSolution","mean",0);
@@ -245,7 +250,7 @@ void AddReports() {
     " Last",
     "Sol'n",
     "Found",
-    "%5u",
+    "%5"P32,
     &iNumFalse,"",ColTypeFinal);
 
   AddStatCol("last","LastSolution","mean",0);
@@ -264,7 +269,7 @@ void AddReports() {
     "Start",
     "Sol'n",
     "Found",
-    "%5u",
+    "%5"P32,
     &iStartNumFalse,"StartFalse",ColTypeFinal);
 
   AddStatCol("start","StartSolution","mean",0);
@@ -283,7 +288,7 @@ void AddReports() {
     "                Step",
     "                  of",
     "                Best",
-    "%20llu",
+    "%20"P64,
     &iBestStepNumFalse,"BestFalse",ColTypeFinal);
 
   AddStatCol("beststep","BestStep","mean",0);
@@ -292,7 +297,7 @@ void AddReports() {
     "                Step",
     "                  of",
     "              W Best",
-    "%20llu",
+    "%20"P64,
     &iBestStepSumFalseW,"BestFalse",ColTypeFinal);
 
   AddStatCol("beststep_w","BestWeightedStep","mean",0);
@@ -321,7 +326,7 @@ void AddReports() {
     "False",
     "@ 1st",
     "L.Min",
-    "%5u",
+    "%5"P32,
     &iFirstLM,"FirstLM",ColTypeFinal);
 
   AddStatCol("firstlm","FirstLocalMin","mean",0);
@@ -340,7 +345,7 @@ void AddReports() {
     " Step",
     "of1st",
     "L.Min",
-    "%5llu",
+    "%5"P64,
     &iFirstLMStep,"FirstLM",ColTypeFinal);
 
   AddStatCol("firstlmstep","FirstLocalMinStep","mean",0);
@@ -349,7 +354,7 @@ void AddReports() {
     " Step",
     "of1st",
     "WLMin",
-    "%5llu",
+    "%5"P64,
     &iFirstLMStepW,"FirstLM",ColTypeFinal);
 
   AddStatCol("firstlmstep_w","FirstWeightedLocalMinStep","mean",0);
@@ -470,7 +475,7 @@ void AddReports() {
     "          ",
     "  Starting",
     "      Seed",
-    "%10u",
+    "%10"P32,
     &iStartSeed,"StartSeed",ColTypeFinal);
 
   
@@ -478,7 +483,7 @@ void AddReports() {
     "              Number",
     "             of Null",
     "               Flips",
-    "%20llu",
+    "%20"P64,
     &iNumNullFlips,"NullFlips",ColTypeFinal);
 
   AddStatCol("nullflips","NullFlips","mean",0);
@@ -497,7 +502,7 @@ void AddReports() {
     "  Number",
     "      of",
     "Restarts",
-    "%8u",
+    "%8"P32,
     &iNumRestarts,"NumRestarts",ColTypeFinal);
 
   AddStatCol("restarts","NumRestarts","mean",0);
@@ -507,7 +512,7 @@ void AddReports() {
     "              Number",
     "           of Random",
     "           Decisions",
-    "%20llu",
+    "%20"P64,
     &iNumRandomCalls,"CountRandom",ColTypeFinal);
 
   AddStatCol("rand","NumRandomDecisions","mean",0);
@@ -536,7 +541,7 @@ void AddReports() {
     "              Number",
     "            of Local",
     "              Minima",
-    "%20llu",
+    "%20"P64,
     &iNumLocalMins,"LocalMins",ColTypeFinal);
 
   AddStatCol("localmins","LocalMins","mean",0);
@@ -611,7 +616,7 @@ void AddReports() {
     "Auto",
     "Corr",
     "Len.",
-    "%4u",
+    "%4"P32,
     &iAutoCorrLen,"AutoCorr",ColTypeFinal);
 
   AddStatCol("acl","ACL","mean",0);
@@ -720,14 +725,14 @@ void AddReports() {
     "              Number",
     "               of Up",
     "               Steps",
-    "%20llu",
+    "%20"P64,
     &iNumUpSteps,"StepsUpDownSide",ColTypeFinal);
 
   AddColumnUBigInt("upsteps_w","Number of Up (Backward) Weighted Steps",
     "              Number",
     "               of Up",
     "            W. Steps",
-    "%20llu",
+    "%20"P64,
     &iNumUpStepsW,"StepsUpDownSide",ColTypeFinal);
 
   AddColumnUBigInt("percentup","Percent of Up (Backward) Steps",
@@ -753,14 +758,14 @@ void AddReports() {
     "              Number",
     "             of Down",
     "               Steps",
-    "%20llu",
+    "%20"P64,
     &iNumDownSteps,"StepsUpDownSide",ColTypeFinal);
 
   AddColumnUBigInt("downsteps_w","Number of Down (Improving) Weighted Steps",
     "              Number",
     "             of Down",
     "             W.Steps",
-    "%20llu",
+    "%20"P64,
     &iNumDownStepsW,"StepsUpDownSide",ColTypeFinal);
 
   AddColumnUBigInt("percentdown","Percent of Down (Improving) Steps",
@@ -786,14 +791,14 @@ void AddReports() {
     "           Number of",
     "            Sideways",
     "               Steps",
-    "%20llu",
+    "%20"P64,
     &iNumSideSteps,"StepsUpDownSide",ColTypeFinal);
 
   AddColumnUBigInt("sidesteps_w","Number of Sideways (Plateau) Weighted Steps",
     "           Number of",
     "            Sideways",
     "            W. Steps",
-    "%20llu",
+    "%20"P64,
     &iNumSideStepsW,"StepsUpDownSide",ColTypeFinal);
 
   AddColumnUBigInt("percentside","Percent of Sideways (Plateau) Steps",
@@ -837,14 +842,14 @@ void AddReports() {
     
   AddContainerStat("default","instinfo,totaltime,fps,runs,numsolve,percentsolve,steps,timesteps");
 
-  AddStatCustom("numclauses","Number of Clauses","Clauses","%lu",(void *)&iNumClauses,DTypeUInt,"","");
-  AddStatCustom("numvars","Number of Variables","Variables","%lu",(void *)&iNumVars,DTypeUInt,"","");
-  AddStatCustom("numlits","Number of Total Literals","TotalLiterals","%lu",(void *)&iNumLits,DTypeUInt,"","");
+  AddStatCustom("numclauses","Number of Clauses","Clauses","%"P32,(void *)&iNumClauses,DTypeUInt,"","");
+  AddStatCustom("numvars","Number of Variables","Variables","%"P32,(void *)&iNumVars,DTypeUInt,"","");
+  AddStatCustom("numlits","Number of Total Literals","TotalLiterals","%"P32,(void *)&iNumLits,DTypeUInt,"","");
   AddContainerStat("instinfo","numvars,numclauses,numlits");
 
-  AddStatCustom("runs","Runs Executed","RunsExecuted","%lu",(void *)&iRun,DTypeUInt,"","");
+  AddStatCustom("runs","Runs Executed","RunsExecuted","%"P32,(void *)&iRun,DTypeUInt,"","");
 
-  AddStatCustom("numsolve","Number of Successful Runs","SuccessfulRuns","%lu",(void *)&iNumSolutionsFound,DTypeUInt,"","");
+  AddStatCustom("numsolve","Number of Successful Runs","SuccessfulRuns","%"P32,(void *)&iNumSolutionsFound,DTypeUInt,"","");
 
   AddStatCustom("percentsolve","Percent of Successful Runs","PercentSuccess","%-6.2f",(void *)&fPercentSuccess,DTypeFloat,"","CalcPercentSolve");
   
@@ -852,7 +857,7 @@ void AddReports() {
 
   AddStatCustom("fps","Flips Per Second","FlipsPerSecond","%-7.f",(void *)&fFlipsPerSecond,DTypeFloat,"","CalcFPS");
 
-  AddStatCustom("numunique","Number of Unique Solutions Found","UniqueSolutions","%lu",(void *)&iNumUniqueSolutions,DTypeUInt,"","UniqueSolutions");
+  AddStatCustom("numunique","Number of Unique Solutions Found","UniqueSolutions","%"P32,(void *)&iNumUniqueSolutions,DTypeUInt,"","UniqueSolutions");
 
   AddStatCustom("instname","File Name of the Instance","InstFileName","%s",(void *)&sFilenameIn,DTypeString,"","");
 

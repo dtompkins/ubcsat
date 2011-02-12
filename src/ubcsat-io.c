@@ -38,7 +38,7 @@ namespace ubcsat {
   #define fxnRandSeed(A) init_genrand(A)
 #endif
 #else
-  #ifdef WIN32
+  #ifdef _WIN32
     FXNRAND32 fxnRandUInt32 = (UINT32 (*)()) rand;
     #define fxnRandSeed(A) srand(A)
   #else
