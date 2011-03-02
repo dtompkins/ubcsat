@@ -32,6 +32,7 @@ extern UINT32 **pVarsShareClause;
 void PickSparrow();
 void ScaleSparrow();
 void InitSparrow();
+void SparrowSat2011Settings();
 
 void CreateGNovPromVars();
 void InitGNovPromVars();
@@ -84,6 +85,38 @@ void AddSparrow() {
   CreateTrigger("Flip+GNovPromVars+FCL",FlipCandidate,FlipGNovPromVarsFCL,"GNovPromVars,FalseClauseList","DefaultFlip,UpdateTrackChanges,UpdateGNovPromVars,UpdateFalseClauseList,CreateTrackChanges,InitTrackChanges,UpdateTrackChanges,UpdateMakeBreakPenaltyINT");
 
   CreateTrigger("InitSparrow",PostRead,InitSparrow,"","");
+
+  pCurAlg = CreateAlgorithm("sparrow","sat11",0,
+    "Sparrow [SAT 11 Competition]",
+    "Balint, Froehlich [SAT 10]",
+    "PickSparrow,SparrowSat2011Settings",
+    "DefaultProcedures,Flip+GNovPromVars+FCL,GNovPromVars,FalseClauseList,VarLastChange,PenClauseList,AdaptNoveltyNoise,VarsShareClauses,CreateSparrowScores",
+    "default","default");
+
+  CreateTrigger("SparrowSat2011Settings",PostRead,SparrowSat2011Settings,"","");
+}
+
+void SparrowSat2011Settings() {
+  // These settings provided by Adrian Balint for the SAT 2011 competition
+  if (iMaxClauseLen < 4) {
+    fSparrowC1 = 2.15;
+    iSparrowC2 = 4;
+    fSparrowC3 = 100000.0;
+    iPs = FloatToProb(0.347);
+  } else {
+    if (iMaxClauseLen < 6) {
+      fSparrowC1 = 2.85;
+      iSparrowC2 = 4;
+      fSparrowC3 = 75000.0;
+      iPs = FloatToProb(1.0);
+    } else {
+      fSparrowC1 = 6.5;
+      iSparrowC2 = 4;
+      fSparrowC3 = 100000.0;
+      iPs = FloatToProb(0.83);
+    }
+  }
+  InitSparrow();
 }
 
 void InitSparrow() {
