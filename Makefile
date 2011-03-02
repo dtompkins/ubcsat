@@ -20,7 +20,6 @@ cfiles = src/adaptnovelty.c \
          src/ddfw.c \
          src/derandomized.c \
          src/g2wsat.c \
-         src/gnovelty+.c \
          src/gsat-tabu.c \
          src/gsat.c \
          src/gwsat.c \
