@@ -2278,12 +2278,12 @@ void ReportSatCompetitionPrint() {
   SetString(&sCommentString,"c");
 
   PrintUBCSATHeader(pRepSATComp);
-  PrintAlgParmSettings(pRepSATComp,&parmUBCSAT);
-  ReportHdrPrefix(pRepSATComp);
-  ReportHdrPrint(pRepSATComp,"\n");
-  PrintAlgParmSettings(pRepSATComp,&pActiveAlgorithm->parmList);
-  ReportHdrPrefix(pRepSATComp);
-  ReportHdrPrint(pRepSATComp,"\n");
+  //PrintAlgParmSettings(pRepSATComp,&parmUBCSAT);
+  //ReportHdrPrefix(pRepSATComp);
+  //ReportHdrPrint(pRepSATComp,"\n");
+  //PrintAlgParmSettings(pRepSATComp,&pActiveAlgorithm->parmList);
+  //ReportHdrPrefix(pRepSATComp);
+  //ReportHdrPrint(pRepSATComp,"\n");
 
   if (bSolutionFound) {
     ReportPrint(pRepSATComp,"s SATISFIABLE\n");

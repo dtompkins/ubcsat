@@ -132,6 +132,41 @@ int ubcsatmain(int argc, char *argv[]) {
   
 }
 
+char *myargv[100];
+int myargc = 0;
+
+int sparrowmain(int argc, char *argv[]) {
+
+  if (argc != 3) {
+    printf("ERROR Competition build requires 2 (and only 2) parameters: filename.cnf and seed\n");
+    exit(0);
+  }
+
+  myargv[myargc++] = argv[0];
+
+  myargv[myargc++] = "-i";
+  myargv[myargc++] = argv[1];
+
+  myargv[myargc++] = "-seed";
+  myargv[myargc++] = argv[2];
+
+  myargv[myargc++] = "-q";
+
+  myargv[myargc++] = "-r";
+  myargv[myargc++] = "satcomp";
+
+  myargv[myargc++] = "-cutoff";
+  myargv[myargc++] = "max";
+
+  myargv[myargc++] = "-alg";
+  myargv[myargc++] = "sparrow";
+
+  myargv[myargc++] = "-v";
+  myargv[myargc++] = "sat11";
+
+  return(ubcsatmain(myargc,myargv));
+}
+
 #ifdef __cplusplus
 }
 #endif
@@ -140,13 +175,13 @@ int ubcsatmain(int argc, char *argv[]) {
 #ifdef __cplusplus
 
 int main(int argc, char *argv[]) {
-  return(ubcsat::ubcsatmain(argc,argv));
+  return(ubcsat::sparrowmain(argc,argv));
 }
 
 #else
 
 int main(int argc, char *argv[]) {
-  return(ubcsatmain(argc,argv));
+  return(sparrowmain(argc,argv));
 }
 
 #endif

@@ -26,7 +26,7 @@
 namespace ubcsat {
 #endif
 
-const char sVersion[] = "1.2-sparrow2011 (based on BETA 1.2-b10) -- SAT 2011 Sparrow Build";
+const char sVersion[] = "1.2-sparrow2011 (based on BETA 1.2-b10) SAT11 Sparrow Build";
 
 #ifdef __cplusplus
 
