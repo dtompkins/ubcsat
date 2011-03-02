@@ -55,13 +55,7 @@ cfiles = src/adaptnovelty.c \
          src/weighted.c
 
 ubcsat: $(hfiles) $(cfiles)
-	gcc -Wall -O3 -lm -o ubcsat $(cfiles)
-
-ubcsat_cpp: $(hfiles) $(cfiles)
-	gcc -lstdc++ -x c++ -Wall -O3 -lm -o ubcsat_cpp $(cfiles)
-
-ubcsat_debug: $(hfiles) $(cfiles)
-	gcc -Wall -g -O0 -lm -o ubcsat_debug $(cfiles)
+	gcc -Wall -O3 -static -o sparrow2011 $(cfiles) -lm
 
 clean:
-	rm -f ubcsat ubcsat_cpp ubcsat_debug
+	rm -f sparrow2011
