@@ -31,10 +31,17 @@ extern UINT32 **pVarsShareClause;
 
 void PickSparrow();
 void ScaleSparrow();
+void InitSparrow();
 
-extern UINT32 *aGNovPromVarsList;
-extern UINT32 *aVarIsGNovProm;
-extern UINT32 iNumGNovPromVars;
+void CreateGNovPromVars();
+void InitGNovPromVars();
+void UpdateGNovPromVars();
+void FlipGNovPromVarsFCL();
+
+
+UINT32 *aGNovPromVarsList;
+UINT32 *aVarIsGNovProm;
+UINT32 iNumGNovPromVars;
 
 FLOAT *aSparrowScores;
 void CreateSparrowScores() {
@@ -44,6 +51,10 @@ void CreateSparrowScores() {
 FLOAT fSparrowC1;
 UINT32 iSparrowC2;
 FLOAT fSparrowC3;
+FLOAT fInvSparrowC3;
+
+FLOAT aSparrowPreCalc[11];
+
 
 void AddSparrow() {
 
@@ -53,7 +64,7 @@ void AddSparrow() {
     "gNovelty+",
     "Balint, Froehlich [SAT 10]",
     "PickSparrow",
-    "DefaultProcedures,Flip+GNovPromVars+FCL,GNovPromVars,FalseClauseList,VarLastChange,PenClauseList,AdaptNoveltyNoise,VarsShareClauses,CreateSparrowScores",
+    "DefaultProcedures,Flip+GNovPromVars+FCL,GNovPromVars,FalseClauseList,VarLastChange,PenClauseList,AdaptNoveltyNoise,VarsShareClauses,CreateSparrowScores,InitSparrow",
     "default","default");
   
   AddParmProbability(&pCurAlg->parmList,"-ps","smooth probabilty [default %s]","after a scaling step, ~smooth penalties with probability PR","",&iPs,0.347);
@@ -65,6 +76,22 @@ void AddSparrow() {
   CreateTrigger("PickSparrow",ChooseCandidate,PickSparrow,"","");
   CreateTrigger("CreateSparrowScores",CreateStateInfo,CreateSparrowScores,"","");
 
+  CreateTrigger("CreateGNovPromVars",CreateStateInfo,CreateGNovPromVars,"CreateTrackChanges,CreateMakeBreakPenaltyINT","CreateVarScore");
+  CreateTrigger("InitGNovPromVars",InitStateInfo,InitGNovPromVars,"InitTrackChanges,InitMakeBreakPenaltyINT","InitVarScore");
+  CreateTrigger("UpdateGNovPromVars",UpdateStateInfo,UpdateGNovPromVars,"UpdateTrackChanges,UpdateMakeBreakPenaltyINT","UpdateVarScore");
+  CreateContainerTrigger("GNovPromVars","CreateGNovPromVars,InitGNovPromVars,UpdateGNovPromVars");
+
+  CreateTrigger("Flip+GNovPromVars+FCL",FlipCandidate,FlipGNovPromVarsFCL,"GNovPromVars,FalseClauseList","DefaultFlip,UpdateTrackChanges,UpdateGNovPromVars,UpdateFalseClauseList,CreateTrackChanges,InitTrackChanges,UpdateTrackChanges,UpdateMakeBreakPenaltyINT");
+
+  CreateTrigger("InitSparrow",PostRead,InitSparrow,"","");
+}
+
+void InitSparrow() {
+  SINT32 j;
+  for (j=0;j <= 10; j++) {
+    aSparrowPreCalc[j] = pow(fSparrowC1,-j);
+  }
+  fInvSparrowC3 = 1.0f / fSparrowC3;
 }
 
 void PickSparrow() {
@@ -139,8 +166,8 @@ void PickSparrow() {
       iScore = 0;
     }
     
-    fScoreProb = pow(fSparrowC1,iScore);
-    fBaseAgeProb = (iStep - aVarLastChange[iVar]) / fSparrowC3;
+    fScoreProb = aSparrowPreCalc[-iScore];
+    fBaseAgeProb = (iStep - aVarLastChange[iVar]) * fInvSparrowC3;
     fAgeProb = 1.0;
     for (k=0; k < iSparrowC2; k++) {
       fAgeProb *= fBaseAgeProb;
@@ -230,6 +257,261 @@ void ScaleSparrow() {
     }
   }
 }
+
+
+void FlipGNovPromVarsFCL() {
+
+  // update GNovPromVars according to author's scheme
+
+  UINT32 j;
+  UINT32 k;
+  UINT32 *pClause;
+  UINT32 iVar;
+  LITTYPE litWasTrue;
+  LITTYPE litWasFalse;
+  LITTYPE *pLit;
+
+  SINT32 iPenalty;
+
+  UINT32 *pShareVar;
+  SINT32 iShareScore;
+
+  if (iFlipCandidate == 0) {
+    return;
+  }
+
+  pShareVar = pVarsShareClause[iFlipCandidate];
+  for (j=0; j < aNumVarsShareClause[iFlipCandidate]; j++) {
+    iShareScore = (SINT32) aBreakPenaltyINT[*pShareVar] - (SINT32) aMakePenaltyINT[*pShareVar];
+    if (iShareScore < 0) {
+      aVarIsGNovProm[*pShareVar] = 1;
+    } else {
+      aVarIsGNovProm[*pShareVar] = 0;
+    }
+    pShareVar++;
+  }
+
+  /// REGULAR FLIP ///
+
+  iNumChanges = 0;
+
+  litWasTrue = GetTrueLit(iFlipCandidate);
+  litWasFalse = GetFalseLit(iFlipCandidate);
+
+  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
+
+  pClause = pLitClause[litWasTrue];
+  for (j=0;j<aNumLitOcc[litWasTrue];j++) {
+    iPenalty = aClausePenaltyINT[*pClause];
+    aNumTrueLit[*pClause]--;
+    if (aNumTrueLit[*pClause]==0) { 
+      
+      aFalseList[iNumFalse] = *pClause;
+      aFalseListPos[*pClause] = iNumFalse++;
+
+      //aBreakCount[iFlipCandidate]--;
+      
+      aBreakPenaltyINT[iFlipCandidate] -= iPenalty;
+      
+      pLit = pClauseLits[*pClause];
+      for (k=0;k<aClauseLen[*pClause];k++) {
+        iVar = GetVarFromLit(*pLit);
+        //aMakeCount[iVar]++;
+        aMakePenaltyINT[iVar] += iPenalty;
+
+        //if (aMakeCount[iVar]==1) {
+        //  aVarInFalseList[iNumVarsInFalseList] = iVar;
+        //  aVarInFalseListPos[iVar] = iNumVarsInFalseList++;
+        //}
+        
+        pLit++;
+
+      }
+    }
+    if (aNumTrueLit[*pClause]==1) {
+      pLit = pClauseLits[*pClause];
+      for (k=0;k<aClauseLen[*pClause];k++) {
+        if (IsLitTrue(*pLit)) {
+          iVar = GetVarFromLit(*pLit);
+          //aBreakCount[iVar]++;
+          aBreakPenaltyINT[iVar] += iPenalty;
+          aCritSat[*pClause] = iVar;
+          break;
+        }
+        pLit++;
+      }
+    }
+    pClause++;
+  }
+
+  pClause = pLitClause[litWasFalse];
+  for (j=0;j<aNumLitOcc[litWasFalse];j++) {
+    iPenalty = aClausePenaltyINT[*pClause];
+    aNumTrueLit[*pClause]++;
+    if (aNumTrueLit[*pClause]==1) {
+
+      aFalseList[aFalseListPos[*pClause]] = aFalseList[--iNumFalse];
+      aFalseListPos[aFalseList[iNumFalse]] = aFalseListPos[*pClause];
+
+      pLit = pClauseLits[*pClause];
+      for (k=0;k<aClauseLen[*pClause];k++) {
+        iVar = GetVarFromLit(*pLit);
+        //aMakeCount[iVar]--;
+        aMakePenaltyINT[iVar] -= iPenalty;
+
+        //if (aMakeCount[iVar]==0) {
+        //  aVarInFalseList[aVarInFalseListPos[iVar]] = aVarInFalseList[--iNumVarsInFalseList];
+        //  aVarInFalseListPos[aVarInFalseList[iNumVarsInFalseList]] = aVarInFalseListPos[iVar];
+        //}
+        
+        pLit++;
+
+      }
+      //aBreakCount[iFlipCandidate]++;
+      aBreakPenaltyINT[iFlipCandidate] += iPenalty;
+      aCritSat[*pClause] = iFlipCandidate;
+    }
+    if (aNumTrueLit[*pClause]==2) {
+      //aBreakCount[aCritSat[*pClause]]--;
+      aBreakPenaltyINT[aCritSat[*pClause]] -= iPenalty;
+    }
+    pClause++;
+  }
+
+/* PREVIOUS ATTEMPT
+
+  aVarValue[iFlipCandidate] = 1 - aVarValue[iFlipCandidate];
+
+  pClause = pLitClause[litWasTrue];
+  for (j=0;j<aNumLitOcc[litWasTrue];j++) {
+    iPenalty = aClausePenaltyINT[*pClause];
+    if (aNumTrueLit[*pClause]==1) {
+      
+      aFalseList[iNumFalse] = *pClause;
+      aFalseListPos[*pClause] = iNumFalse++;
+      
+      //aVarScore[iFlipCandidate]--;
+      aBreakPenaltyINT[iFlipCandidate] -= iPenalty;
+
+      pLit = pClauseLits[*pClause];
+      for (k=0;k<aClauseLen[*pClause];k++) {
+        iVar = GetVarFromLit(*pLit);
+        iPrevScore = (SINT32) aBreakPenaltyINT[iVar] - (SINT32) aMakePenaltyINT[iVar];
+        aMakePenaltyINT[iVar] += iPenalty;
+        //if ((iPrevScore >= 0)&&(iPrevScore < iPenalty)) { // ie: new score now < 0
+        //  aGNovPromVarsList[iNumGNovPromVars++] = iVar;
+        //}
+        pLit++;
+      }
+    }
+    pClause++;
+  }
+
+  pClause = pLitClause[litWasFalse];
+  for (j=0;j<aNumLitOcc[litWasFalse];j++) {
+    iPenalty = aClausePenaltyINT[*pClause];
+    if (aNumTrueLit[*pClause]==1) {
+      iVar = aCritSat[*pClause];
+      iPrevScore = (SINT32) aBreakPenaltyINT[iVar] - (SINT32) aMakePenaltyINT[iVar];
+      //aVarScore[iVar]--;
+      aBreakPenaltyINT[iVar] -= iPenalty;
+      //if ((iPrevScore >= 0)&&(iPrevScore < iPenalty)) { // see above
+      //  aGNovPromVarsList[iNumGNovPromVars++] = iVar;
+      //}
+    }
+    pClause++;
+  }
+
+  // 2nd pass
+
+  pClause = pLitClause[litWasTrue];
+  for (j=0;j<aNumLitOcc[litWasTrue];j++) {
+    iPenalty = aClausePenaltyINT[*pClause];
+    aNumTrueLit[*pClause]--;
+    if (aNumTrueLit[*pClause]==1) {
+      pLit = pClauseLits[*pClause];
+      for (k=0;k<aClauseLen[*pClause];k++) {
+        if (IsLitTrue(*pLit)) {
+          iVar = GetVarFromLit(*pLit);
+          //aVarScore[iVar]++;
+          aBreakPenaltyINT[iVar] += iPenalty;
+          aCritSat[*pClause] = iVar;
+          break;
+        }
+        pLit++;
+      }
+    }
+    pClause++;
+  }
+
+  pClause = pLitClause[litWasFalse];
+  for (j=0;j<aNumLitOcc[litWasFalse];j++) {
+    iPenalty = aClausePenaltyINT[*pClause];
+    aNumTrueLit[*pClause]++;
+    if (aNumTrueLit[*pClause]==1) {
+
+      aFalseList[aFalseListPos[*pClause]] = aFalseList[--iNumFalse];
+      aFalseListPos[aFalseList[iNumFalse]] = aFalseListPos[*pClause];
+
+      pLit = pClauseLits[*pClause];
+      for (k=0;k<aClauseLen[*pClause];k++) {
+        iVar = GetVarFromLit(*pLit);
+        //aVarScore[iVar]++;
+        aMakePenaltyINT[iVar] -= iPenalty;
+        pLit++;
+      }
+      //aVarScore[iFlipCandidate]++;
+      aBreakPenaltyINT[iFlipCandidate] += iPenalty;
+      aCritSat[*pClause] = iFlipCandidate;
+    }
+    pClause++;
+  }
+  */
+
+  pShareVar = pVarsShareClause[iFlipCandidate];
+  for (j=0; j < aNumVarsShareClause[iFlipCandidate]; j++) {
+    iShareScore = (SINT32) aBreakPenaltyINT[*pShareVar] - (SINT32) aMakePenaltyINT[*pShareVar];
+    if (iShareScore < 0) {
+      if (aVarIsGNovProm[*pShareVar] == 0) {
+        aGNovPromVarsList[iNumGNovPromVars++] = *pShareVar;
+        aVarIsGNovProm[*pShareVar] = 1;
+      }
+    }
+    pShareVar++;
+  }
+}
+
+void CreateGNovPromVars() {
+  aGNovPromVarsList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
+  aVarIsGNovProm = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
+}
+
+void InitGNovPromVars() {
+
+  UINT32 j;
+
+  iNumGNovPromVars = 0;
+
+  for (j=1;j<=iNumVars;j++) {
+    if ((SINT32) aBreakPenaltyINT[j] - (SINT32) aMakePenaltyINT[j] < 0) {
+      aGNovPromVarsList[iNumGNovPromVars++] = j;
+      aVarIsGNovProm[j] = 1;
+    } else {
+      aVarIsGNovProm[j] = 0;
+    }
+  }
+}
+
+void UpdateGNovPromVars() {
+
+  ReportPrint(pRepErr,"Unexpected Error: TODO: UpdateGNovPromVars\n");
+  AbnormalExit();
+  exit(1);
+}
+
+
+
+
 
 
 #ifdef __cplusplus
