@@ -998,21 +998,22 @@ void ReportCNFStatsPrint() {
   FLOAT fPosNegRatio;
 
   UINT32 *aClauseBins;
+  UINT32 *aVarBins;
   
 
   ReportPrint1(pRepCNFStats,"Clauses = %"P32"\n",iNumClauses);
   ReportPrint1(pRepCNFStats,"Variables = %"P32" \n",iNumVars);
   ReportPrint1(pRepCNFStats,"TotalLiterals = %"P32"\n",iNumLits);
 
-  iMaxClauseLen = 0;
-  for (j=0;j<iNumClauses;j++) {
-    if (aClauseLen[j] > iMaxClauseLen) {
-      iMaxClauseLen = aClauseLen[j];
+  if ((iNumVars > 0) && (iNumClauses > 0)) {
+    ReportPrint1(pRepCNFStats,"ClauseVarRatio = %.12g \n",(FLOAT) iNumClauses / (FLOAT) iNumVars);
+    iMaxClauseLen = 0;
+    for (j=0;j<iNumClauses;j++) {
+      if (aClauseLen[j] > iMaxClauseLen) {
+        iMaxClauseLen = aClauseLen[j];
+      }
     }
-  }
-  ReportPrint1(pRepCNFStats,"MaxClauseLen = %"P32"\n",iMaxClauseLen);
-
-  if (iNumClauses > 0) {
+    ReportPrint1(pRepCNFStats,"MaxClauseLen = %"P32"\n",iMaxClauseLen);
 
     aClauseBins = (UINT32 *) AllocateRAM((iMaxClauseLen + 3) * sizeof(UINT32));
     
@@ -1028,7 +1029,7 @@ void ReportCNFStatsPrint() {
     ReportPrint1(pRepCNFStats,"NumClauseLen2 =  %"P32" \n",aClauseBins[2]);
     ReportPrint1(pRepCNFStats,"NumClauseLen3+ = %"P32" \n",iNumClauses - aClauseBins[1] - aClauseBins[2]);
 
-    ReportPrint(pRepCNFStats,"FullClauseDistribution = ");
+    ReportPrint(pRepCNFStats,"FullClauseDistribution =");
     for (j=0;j<=iMaxClauseLen;j++) {
       if (aClauseBins[j] > 0) {
         ReportPrint1(pRepCNFStats," %"P32,j);
@@ -1042,16 +1043,42 @@ void ReportCNFStatsPrint() {
     
     fAvgVarOccur = (FLOAT) iNumLits / (FLOAT) iNumVars;
     ReportPrint1(pRepCNFStats,"MeanVariableOcc = %.12g \n",fAvgVarOccur);
+    
+    UINT32 iVarOcc;
+    UINT32 iMaxVarOcc;
 
+    iMaxVarOcc = 0;
     fStdDevVarOccur = FLOATZERO; 
     for (j=1;j<=iNumVars;j++) {
-      fTemp = (aNumLitOcc[GetPosLit(j)] + aNumLitOcc[GetNegLit(j)])-fAvgVarOccur;
+      iVarOcc = aNumLitOcc[GetPosLit(j)] + aNumLitOcc[GetNegLit(j)];
+      if (iVarOcc > iMaxVarOcc) {
+        iMaxVarOcc = iVarOcc;
+      }
+      fTemp = ((FLOAT) iVarOcc) - fAvgVarOccur;
       fStdDevVarOccur += (fTemp*fTemp);
     }
     fStdDevVarOccur /= (FLOAT) (iNumVars-1);
     fStdDevVarOccur = sqrt(fStdDevVarOccur);
-    
     ReportPrint1(pRepCNFStats,"StdDevVariableOcc = %.12g \n",fStdDevVarOccur);
+
+    aVarBins = (UINT32 *) AllocateRAM((iMaxVarOcc + 1) * sizeof(UINT32));
+
+    for (j=0;j<iMaxVarOcc + 1;j++) {
+      aVarBins[j] = 0;
+    }
+    for (j=1;j<=iNumVars;j++) {
+      iVarOcc = aNumLitOcc[GetPosLit(j)] + aNumLitOcc[GetNegLit(j)];
+      aVarBins[iVarOcc]++;
+    }
+    ReportPrint(pRepCNFStats,"FullVarDistribution =");
+    for (j=0;j<=iMaxVarOcc;j++) {
+      if (aVarBins[j] > 0) {
+        ReportPrint1(pRepCNFStats," %"P32,j);
+        ReportPrint1(pRepCNFStats,":%"P32,aVarBins[j]);
+      }
+    }
+    ReportPrint(pRepCNFStats,"\n");
+
 
     iNumPos = 0;
     iNumNeg = 0;

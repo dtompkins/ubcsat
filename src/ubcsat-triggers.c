@@ -730,9 +730,7 @@ UINT32 iLastUnique;
 /***** Trigger VarsShareClauses *****/
 
 UINT32 *aNumVarsShareClause;
-UINT32 *aVarsShareClauseData;
 UINT32 **pVarsShareClause;
-UINT32 iNumShareClauses;
 
 void CreateVarsShareClauses();
 
@@ -5398,12 +5396,9 @@ void CreateVarsShareClauses() {
   BOOL bAlreadyShareClause;
   LITTYPE *pLit;
   LITTYPE *pLit2;
-  UINT32 *pCur;
-  UINT32 iNumShareClauses;
 
   aNumVarsShareClause = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
   pVarsShareClause = (UINT32 **) AllocateRAM((iNumVars+1)*sizeof(UINT32 *));
-  iNumShareClauses = 0;
 
   memset(aNumVarsShareClause,0,(iNumVars+1)*sizeof(UINT32));
 
@@ -5412,17 +5407,12 @@ void CreateVarsShareClauses() {
     for (k=0;k<aClauseLen[j];k++) {
       iVar = GetVarFromLit(*pLit);
       aNumVarsShareClause[iVar] += (aClauseLen[j] - 1);
-      iNumShareClauses += (aClauseLen[j]) * (aClauseLen[j] - 1);
       pLit++;
     }
   } 
-
-  aVarsShareClauseData = (UINT32 *) AllocateRAM(iNumShareClauses*sizeof(UINT32));
   
-  pCur = aVarsShareClauseData;
   for (j=0;j<(iNumVars+1);j++) {
-    pVarsShareClause[j] = pCur;
-    pCur += aNumVarsShareClause[j];
+    pVarsShareClause[j] = (UINT32 *) AllocateRAM(aNumVarsShareClause[j]*sizeof(UINT32));;
   }
 
   memset(aNumVarsShareClause,0,(iNumVars+1)*sizeof(UINT32));
