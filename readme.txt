@@ -23,6 +23,8 @@ SAT11 Sparrow Build
 This is a special build of ubcsat that includes an implementation of the sparrow algorithm
 It is based on a preliminary beta version (1.2b10) of ubcsat version 1.2
 
+see sparrow.c for algorithm details (sorry for the lack of comments)
+
 USAGE:
 
 sparrow2011 BENCHNAME RANDOMSEED

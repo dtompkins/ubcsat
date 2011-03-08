@@ -26,6 +26,11 @@
 namespace ubcsat {
 #endif
 
+/* 
+    Note: For consistency, we use the same weighted promising variable scheme as in gNovelty+, which has some quirks,
+    espeically during smoothing & scaling updates.
+*/
+
 void PickSparrow();
 void ScaleSparrow();
 void SmoothSparrow();
@@ -84,8 +89,6 @@ void AddSparrow() {
   CreateTrigger("CreateSparrowScore",CreateStateInfo,CreateSparrowScore,"CreateClausePenaltyINT","");
   CreateTrigger("InitSparrowScore",InitStateInfo,InitSparrowScore,"InitClausePenaltyINT","");
   CreateContainerTrigger("SparrowScore","CreateSparrowScore,InitSparrowScore");
-
-
 
 
   pCurAlg = CreateAlgorithm("sparrow","sat11",0,
@@ -152,7 +155,7 @@ void PickSparrow() {
   }
 
   if (iNumSparrowPromVars > 0 ) { 
-    iBestScore = (SINT32) iTotalPenaltyINT;
+    iBestScore = 0;
     j=0;
     k=0;
     while (j < iNumSparrowPromVars) {
@@ -190,7 +193,7 @@ void PickSparrow() {
   for (j=0;j<iClauseLen;j++) {
     iVar = GetVarFromLit(*pLit);
     
-    // note :: unlike in sparrow paper, negative iScore is "good"
+    // note :: unlike in sparrow paper, negative score is "good"
 
     iScoreAdjust = aSparrowScore[iVar];
     
@@ -225,7 +228,12 @@ void PickSparrow() {
       break;
     }
   }
-  ScaleSparrow();
+
+  if (RandomProb(iPs)) {
+    SmoothSparrow();
+  } else {
+    ScaleSparrow();
+  }
 }
 
 void SmoothSparrow() {
@@ -266,11 +274,6 @@ void ScaleSparrow() {
   UINT32 iClause;
   LITTYPE *pLit;
 
-  if (RandomProb(iPs)) {
-    SmoothSparrow();
-    return;
-  }
-
   iTotalPenaltyINT += iNumFalse;
 
   for(j=0;j<iNumFalse;j++) {
@@ -292,7 +295,6 @@ void ScaleSparrow() {
     }
   }
 }
-
 
 void FlipSparrow() {
 
@@ -460,8 +462,6 @@ void InitSparrowScore() {
     }
   }
 }
-
-
 
 #ifdef __cplusplus
 }
