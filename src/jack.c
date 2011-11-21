@@ -27,16 +27,7 @@ namespace ubcsat {
 #endif
 
 
-// comment out the following line for no penalties
-//#define NEWJACK_PENALTIES
-
-#ifdef NEWJACK_PENALTIES
-extern UINT32 *aNumVarsShareClause;
-extern UINT32 **pVarsShareClause;
-extern void ScaleSparrow();
-#else
 extern void PromisingSelectBest();
-#endif
 
 extern UINT32 iVarAgeHistoryLen;
 extern UBIGINT VarAge(UINT32 iVar, UINT32 iIndex);
@@ -99,10 +90,6 @@ FLOAT *aLitNewJackNormFlopCount;
 //UBIGINT *aLitPromFlipCount;
 
 BOOL bNewJackUsePromising;
-#ifdef NEWJACK_PENALTIES
-BOOL bNewJackUsePromPenalties;
-BOOL bNewJackUseScorePenalties;
-#endif
 
 FLOAT fScoreNeg;
 FLOAT fScorePos;
@@ -159,20 +146,10 @@ void AddJack() {
     "Captain Jack",
     "Tompkins, Balint, Hoos [SAT 11]",
     "PickNewJack",
-#ifdef NEWJACK_PENALTIES
-    "DefaultProcedures,FlipNewJack,GNovPromVars,FalseClauseList,VarLastChange,PenClauseList,VarsShareClauses,CreateNewJackScores,MakeBreak,FlipCounts,NewJackFlopCount,AdaptNewJackDivAdjust,PreRunNewJack,RunCalculationsNewJack,InitNewJackConfig,AgeHistory,CreateNextClauseLit,InitNextClauseLit,CreateClauseLastFlipVar,InitClauseLastFlipVar", //ClauseLitFlipCount,PromFlipCount
-#else
     "DefaultProcedures,Flip+DecPromVars+FCL,DecPromVars,FalseClauseList,VarLastChange,CreateNewJackScores,MakeBreak,FlipCounts,NewJackFlopCount,AdaptNewJackDivAdjust,PreRunNewJack,RunCalculationsNewJack,InitNewJackConfig,AgeHistory,CreateNextClauseLit,InitNextClauseLit,CreateClauseLastFlipVar,InitClauseLastFlipVar", //ClauseLitFlipCount,PromFlipCount
-#endif
     "default","default");
   
   AddParmBool(&pCurAlg->parmList,"-prom","use promising variables [default %s]","","",&bNewJackUsePromising,1);
-
-#ifdef NEWJACK_PENALTIES
-  AddParmBool(&pCurAlg->parmList,"-pen","if -prom, use penalties [default %s]","","",&bNewJackUsePromPenalties,0);
-  AddParmBool(&pCurAlg->parmList,"-penscore","if -pen, use penalties for scoring as well [default %s]","","",&bNewJackUseScorePenalties,0);
-  AddParmProbability(&pCurAlg->parmList,"-ps","smooth probabilty [default %s]","after a scaling step, ~smooth penalties with probability PR","",&iPs,0.347);
-#endif
 
   AddParmFloat(&pCurAlg->parmList,"-selgreedy2","weight of greedy-only [default %s]","","",&aGreedyWeights[0],1);
   AddParmFloat(&pCurAlg->parmList,"-selmixed2","weight of mixed [default %s]","","",&aMixedWeights[0],1);
@@ -254,10 +231,6 @@ void AddJack() {
   
   CreateTrigger("PickNewJack",ChooseCandidate,PickNewJack,"","");
   CreateTrigger("InitNewJackConfig",PostParameters,InitNewJackConfig,"","");
-
-#ifdef NEWJACK_PENALTIES
-  CreateTrigger("FlipNewJack",FlipCandidate,FlipNewJack,"GNovPromVars,FalseClauseList","DefaultFlip,UpdateTrackChanges,UpdateGNovPromVars,UpdateFalseClauseList,CreateTrackChanges,InitTrackChanges,UpdateTrackChanges,UpdateMakeBreakPenaltyINT,UpdateMakeBreak");
-#endif
 
   CreateTrigger("CreateNewJackFlopCount",CreateStateInfo,CreateNewJackFlopCount,"","");
   CreateTrigger("InitNewJackFlopCount",InitStateInfo,InitNewJackFlopCount,"","");
@@ -352,61 +325,8 @@ void InitNewJackConfig() {
     }
   }
 
-#ifdef NEWJACK_PENALTIES
-  if (bNewJackUsePromPenalties) {
-    if (!bNewJackUsePromising) {
-      ReportPrint(pRepErr,"Warning! ignoring -pen value\n");
-      bNewJackUsePromPenalties = 0;
-    }
-  }
-
-  if (bNewJackUseScorePenalties) {
-    if ((!bNewJackUsePromising)||(!bNewJackUsePromPenalties)) {
-      ReportPrint(pRepErr,"Warning! ignoring -scorepen \n");
-      bNewJackUseScorePenalties = 0;
-    }
-  }
-#endif
-
   iVarAgeHistoryLen = 6;
 }
-
-#ifdef NEWJACK_PENALTIES
-
-void PickPromGNovelty() {
-
-  UINT32 j;
-  UINT32 k;
-  UINT32 iVar;
-  SINT32 iScore;
-
-  iBestScore = SINT32MAX;
-  j=0;
-  k=0;
-  while (j < iNumGNovPromVars) {
-    iVar = aGNovPromVarsList[k];
-    iScore = (SINT32) aBreakPenaltyINT[iVar] - (SINT32) aMakePenaltyINT[iVar];
-    if (iScore >= 0) {
-      iNumGNovPromVars--;
-      aVarIsGNovProm[iVar] = 0;
-    } else {
-      if (iScore < iBestScore) {
-        iFlipCandidate = iVar;
-        iBestScore = iScore;
-      } else {
-        if (iScore == iBestScore) {
-          if (aVarLastChange[iVar] < aVarLastChange[iFlipCandidate]) {
-            iFlipCandidate = iVar;
-          }
-        }
-      }
-      aGNovPromVarsList[j++]=aGNovPromVarsList[k];
-    }
-    k++;
-  }
-}
-
-#endif
 
 void PickNewJack() {
 
@@ -457,15 +377,9 @@ void PickNewJack() {
   ////// PROM VARS
 
   if (bNewJackUsePromising) {
-#ifdef NEWJACK_PENALTIES
-    if (iNumGNovPromVars > 0 ) { 
-      PickPromGNovelty();
-    }
-#else
     if (iNumDecPromVars > 0) {
       PromisingSelectBest();
     }
-#endif
     if (iFlipCandidate != 0) {
       //aLitPromFlipCount[GetFalseLit(iFlipCandidate)]++;
       iNumPromFlips++;
@@ -537,15 +451,7 @@ void PickNewJack() {
 
       switch (iSelectProperty) {
         case 0:
-#ifdef NEWJACK_PENALTIES
-          if (bNewJackUseScorePenalties) {
-            fPropValue = (FLOAT) aMakePenaltyINT[iVar] - (FLOAT) aBreakPenaltyINT[iVar];
-          } else {
-            fPropValue = (FLOAT) aMakeCount[iVar] - (FLOAT) aBreakCount[iVar];
-          }
-#else
           fPropValue = (FLOAT) aMakeCount[iVar] - (FLOAT) aBreakCount[iVar];
-#endif
           break;
         case 1: 
           fPropValue = (FLOAT) aMakeCount[iVar]; 
@@ -567,15 +473,7 @@ void PickNewJack() {
           fPropValue = 1.0 - fRelBreak;
           break;
         case 6:
-#ifdef NEWJACK_PENALTIES
-          if (bNewJackUseScorePenalties) {
-            fPropValue = (FLOAT) aMakePenaltyINT[iVar] - (FLOAT) aBreakPenaltyINT[iVar];
-          } else {
-            fPropValue = (FLOAT) aMakeCount[iVar] - (FLOAT) aBreakCount[iVar];
-          }
-#else
           fPropValue = (FLOAT) aMakeCount[iVar] - (FLOAT) aBreakCount[iVar];
-#endif
           if (fPropValue == FLOATZERO) {
             fPropValue = 1.0f;
           } else {
@@ -983,140 +881,7 @@ void PickNewJack() {
   aLitNewJackResetFlopCount[GetFalseLit(iFlipCandidate)] = 0;
   aClauseLastFlipVar[iClause] = iFlipCandidate;
 
-#ifdef NEWJACK_PENALTIES
-  if (bNewJackUsePromPenalties) {
-    ScaleSparrow();
-  }
-#endif
 }
-
-#ifdef NEWJACK_PENALTIES
-
-void FlipNewJack() { // COPIED FROM THE GNOVELTY CODE
-
-  UINT32 j;
-  UINT32 k;
-  UINT32 *pClause;
-  UINT32 iVar;
-  LITTYPE litWasTrue;
-  LITTYPE litWasFalse;
-  LITTYPE *pLit;
-
-  SINT32 iPenalty;
-
-  UINT32 *pShareVar;
-  SINT32 iShareScore;
-
-  if (iFlipCandidate == 0) {
-    return;
-  }
-
-  if (bNewJackUsePromising) {
-    pShareVar = pVarsShareClause[iFlipCandidate];
-    for (j=0; j < aNumVarsShareClause[iFlipCandidate]; j++) {
-      iShareScore = (SINT32) aBreakPenaltyINT[*pShareVar] - (SINT32) aMakePenaltyINT[*pShareVar];
-      if (iShareScore < 0) {
-        aVarIsGNovProm[*pShareVar] = 1;
-      } else {
-        aVarIsGNovProm[*pShareVar] = 0;
-      }
-      pShareVar++;
-    }
-  }
-
-  /// REGULAR FLIP ///
-
-  iNumChanges = 0;
-
-  litWasTrue = GetTrueLit(iFlipCandidate);
-  litWasFalse = GetFalseLit(iFlipCandidate);
-
-  aVarValue[iFlipCandidate] = !aVarValue[iFlipCandidate];
-
-  pClause = pLitClause[litWasTrue];
-  for (j=0;j<aNumLitOcc[litWasTrue];j++) {
-    iPenalty = aClausePenaltyINT[*pClause];
-    aNumTrueLit[*pClause]--;
-    if (aNumTrueLit[*pClause]==0) { 
-      
-      aFalseList[iNumFalse] = *pClause;
-      aFalseListPos[*pClause] = iNumFalse++;
-
-      aBreakCount[iFlipCandidate]--;
-      
-      aBreakPenaltyINT[iFlipCandidate] -= iPenalty;
-      
-      pLit = pClauseLits[*pClause];
-      for (k=0;k<aClauseLen[*pClause];k++) {
-        iVar = GetVarFromLit(*pLit);
-        aMakeCount[iVar]++;
-        aMakePenaltyINT[iVar] += iPenalty;
-
-        pLit++;
-
-      }
-    }
-    if (aNumTrueLit[*pClause]==1) {
-      pLit = pClauseLits[*pClause];
-      for (k=0;k<aClauseLen[*pClause];k++) {
-        if (IsLitTrue(*pLit)) {
-          iVar = GetVarFromLit(*pLit);
-          aBreakCount[iVar]++;
-          aBreakPenaltyINT[iVar] += iPenalty;
-          aCritSat[*pClause] = iVar;
-          break;
-        }
-        pLit++;
-      }
-    }
-    pClause++;
-  }
-
-  pClause = pLitClause[litWasFalse];
-  for (j=0;j<aNumLitOcc[litWasFalse];j++) {
-    iPenalty = aClausePenaltyINT[*pClause];
-    aNumTrueLit[*pClause]++;
-    if (aNumTrueLit[*pClause]==1) {
-
-      aFalseList[aFalseListPos[*pClause]] = aFalseList[--iNumFalse];
-      aFalseListPos[aFalseList[iNumFalse]] = aFalseListPos[*pClause];
-
-      pLit = pClauseLits[*pClause];
-      for (k=0;k<aClauseLen[*pClause];k++) {
-        iVar = GetVarFromLit(*pLit);
-        aMakeCount[iVar]--;
-        aMakePenaltyINT[iVar] -= iPenalty;
-
-        pLit++;
-
-      }
-      aBreakCount[iFlipCandidate]++;
-      aBreakPenaltyINT[iFlipCandidate] += iPenalty;
-      aCritSat[*pClause] = iFlipCandidate;
-    }
-    if (aNumTrueLit[*pClause]==2) {
-      aBreakCount[aCritSat[*pClause]]--;
-      aBreakPenaltyINT[aCritSat[*pClause]] -= iPenalty;
-    }
-    pClause++;
-  }
-
-  if (bNewJackUsePromising) {
-    pShareVar = pVarsShareClause[iFlipCandidate];
-    for (j=0; j < aNumVarsShareClause[iFlipCandidate]; j++) {
-      iShareScore = (SINT32) aBreakPenaltyINT[*pShareVar] - (SINT32) aMakePenaltyINT[*pShareVar];
-      if (iShareScore < 0) {
-        if (aVarIsGNovProm[*pShareVar] == 0) {
-          aGNovPromVarsList[iNumGNovPromVars++] = *pShareVar;
-          aVarIsGNovProm[*pShareVar] = 1;
-        }
-      }
-      pShareVar++;
-    }
-  }
-}
-
-#endif
 
 void CreateNewJackFlopCount() {
   aLitNewJackFlopCount = (UBIGINT *) AllocateRAM((iNumVars+1)*2*sizeof(UBIGINT));
