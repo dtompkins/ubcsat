@@ -139,6 +139,7 @@ extern UINT32 iG2WsatPromisingSelectID;
 extern UINT32 iG2WsatDiversificationSelectID;
 extern UINT32 iG2WsatBaseAlgSelectID;
 void PromisingSelectOldest();
+void PromisingSelectBest();
 void DiversificationRandom();
 void DiversificationOldest();
 void DiversificationMinusOne();
@@ -177,6 +178,7 @@ void AddRandom();
 /* derandomized.c */
 
 void AddDerandomized();
+extern UINT32 *aNextClauseLit;
 
 /* rgsat.c */
 

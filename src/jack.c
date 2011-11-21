@@ -26,57 +26,37 @@
 namespace ubcsat {
 #endif
 
-
-extern void PromisingSelectBest();
-
-extern UINT32 iVarAgeHistoryLen;
-extern UBIGINT VarAge(UINT32 iVar, UINT32 iIndex);
-extern UINT32 *aNextClauseLit;
+#define JACK_NUM_GREEDY_PROP 9
+#define JACK_NUM_DIV_PROP 17
+#define JACK_NUM_CLAUSE_GROUPS 4
+#define JACK_EPSILON 0.001
 
 void PickJack();
 void FlipJack();
 void InitJackConfig();
-void PreRunJack();
-void RunCalculationsJack();
 
+void CreateJackScores();
 FLOAT *aJackGreedy;
 FLOAT *aJackDiv;
 UINT32 *aJackCandidates;
 
-void CreateJackScores() {
-  aJackGreedy = (FLOAT *) AllocateRAM(iMaxClauseLen*sizeof(FLOAT));
-  aJackDiv = (FLOAT *) AllocateRAM(iMaxClauseLen*sizeof(FLOAT));
-  aJackCandidates = (UINT32 *) AllocateRAM(iMaxClauseLen*sizeof(UINT32));
-}
-
-UINT32 *aClauseLastFlipVar;
-
 void CreateClauseLastFlipVar();
 void InitClauseLastFlipVar();
-
-void CreateClauseLastFlipVar() {
-  aClauseLastFlipVar = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
-}
-
-void InitClauseLastFlipVar() {
-  memset(aClauseLastFlipVar,0,iNumClauses*sizeof(UINT32));
-}
-
+UINT32 *aClauseLastFlipVar;
 
 void CreateJackFlopCount();
 void InitJackFlopCount();
-
-void InitAdaptJackDiv();
-void AdaptJackDivAdjust();
-PROBABILITY iJackDiv;
-
-extern UINT32 *aGNovPromVarsList;
-extern UINT32 *aVarIsGNovProm;
-extern UINT32 iNumGNovPromVars;
-
 UBIGINT *aLitJackFlopCount;
 UBIGINT *aLitJackResetFlopCount;
 FLOAT *aLitJackNormFlopCount;
+
+UINT32 iVarAgeHistoryBufferLen;
+UBIGINT *aVarAgeHistoryData;
+UBIGINT **pVarAgeHistory;
+void CreateAgeHistory();
+void InitAgeHistory();
+void UpdateAgeHistory();
+UBIGINT VarAge(UINT32 iVar, UINT32 iIndex);
 
 BOOL bJackUsePromising;
 
@@ -89,43 +69,19 @@ UINT32 iAgeExp;
 FLOAT fAgeDiv;
 UINT32 iAgeGap;
 
-#define JACK_NUMPROP 20
-#define JACK_NUM_GREEDY_PROP 9
-#define JACK_NUM_DIV_PROP 17
-
-#define EPSILON_RELBREAK 0.001
-
-REPORT *pRepJackTrace;
-BOOL bJackHeader;
-
-FLOAT aPropGWeights[JACK_NUMPROP];
+FLOAT aPropGWeights[JACK_NUM_GREEDY_PROP];
 FLOAT fPropGWeightsSum;
-FLOAT aPropDWeights[JACK_NUMPROP];
+FLOAT aPropDWeights[JACK_NUM_DIV_PROP];
 FLOAT fPropDWeightsSum;
 
-#define NUMCLAUSERANGE 4
+FLOAT aGreedyWeights[JACK_NUM_CLAUSE_GROUPS];
+FLOAT aMixedWeights[JACK_NUM_CLAUSE_GROUPS];
+FLOAT aDivWeights[JACK_NUM_CLAUSE_GROUPS];
+FLOAT aSumGreedyMixedDivWeights[JACK_NUM_CLAUSE_GROUPS];
 
-FLOAT aGreedyWeights[NUMCLAUSERANGE];
-FLOAT aMixedWeights[NUMCLAUSERANGE];
-FLOAT aDivWeights[NUMCLAUSERANGE];
-FLOAT aSumGreedyMixedDivWeights[NUMCLAUSERANGE];
-
-PROBABILITY aUseGreedyBest[NUMCLAUSERANGE];
-PROBABILITY aUseMixedBest[NUMCLAUSERANGE];
-PROBABILITY aUseDivBest[NUMCLAUSERANGE];
-
-UBIGINT iNumPromFlips;
-UINT32 iSumSelClauseLen;
-FLOAT fMeanSelClauseLen;
-
-UINT32 iVarAgeHistoryLen;
-UBIGINT *aVarAgeHistoryData;
-UBIGINT **pVarAgeHistory;
-void CreateAgeHistory();
-void InitAgeHistory();
-void UpdateAgeHistory();
-UBIGINT VarAge(UINT32 iVar, UINT32 iIndex);
-
+PROBABILITY aUseGreedyBest[JACK_NUM_CLAUSE_GROUPS];
+PROBABILITY aUseMixedBest[JACK_NUM_CLAUSE_GROUPS];
+PROBABILITY aUseDivBest[JACK_NUM_CLAUSE_GROUPS];
 
 void AddJack() {
 
@@ -135,7 +91,7 @@ void AddJack() {
     "Captain Jack",
     "Tompkins, Balint, Hoos [SAT 11]",
     "PickJack",
-    "DefaultProcedures,Flip+DecPromVars+FCL,DecPromVars,FalseClauseList,VarLastChange,CreateJackScores,MakeBreak,FlipCounts,JackFlopCount,AdaptJackDivAdjust,PreRunJack,RunCalculationsJack,InitJackConfig,AgeHistory,CreateNextClauseLit,InitNextClauseLit,CreateClauseLastFlipVar,InitClauseLastFlipVar", //ClauseLitFlipCount,PromFlipCount
+    "DefaultProcedures,Flip+DecPromVars+FCL,DecPromVars,FalseClauseList,VarLastChange,CreateJackScores,MakeBreak,FlipCounts,JackFlopCount,InitJackConfig,AgeHistory,CreateNextClauseLit,InitNextClauseLit,ClauseLastFlipVar", 
     "default","default");
   
   AddParmBool(&pCurAlg->parmList,"-prom","use promising variables [default %s]","","",&bJackUsePromising,1);
@@ -176,12 +132,6 @@ void AddJack() {
   AddParmFloat(&pCurAlg->parmList,"-gscorerat","score ratio [default %s]","","",&aPropGWeights[7],1);
   AddParmFloat(&pCurAlg->parmList,"-grelscorerat","score ratio [default %s]","","",&aPropGWeights[8],1);
 
-  if (JACK_NUM_GREEDY_PROP != 9) {
-    ReportPrint(pRepErr,"Unexpected Error: JACK_NUM_GREEDY_PROP\n");
-    AbnormalExit();
-    exit(1);
-  }
-
   AddParmFloat(&pCurAlg->parmList,"-dnone","none/uniform [default %s]","","",&aPropDWeights[0],1);
   AddParmFloat(&pCurAlg->parmList,"-drand","random [default %s]","","",&aPropDWeights[1],1);
   AddParmFloat(&pCurAlg->parmList,"-dage","age [default %s]","","",&aPropDWeights[2],1);
@@ -200,12 +150,6 @@ void AddJack() {
   AddParmFloat(&pCurAlg->parmList,"-dfair","fair selection [default %s]","","",&aPropDWeights[15],1);
   AddParmFloat(&pCurAlg->parmList,"-dlast","last flip var [default %s]","","",&aPropDWeights[16],1);
 
-  if (JACK_NUM_DIV_PROP != 17) {
-    ReportPrint(pRepErr,"Unexpected Error: JACK_NUM_DIV_PROP\n");
-    AbnormalExit();
-    exit(1);
-  }
-
   AddParmFloat(&pCurAlg->parmList,"-xssneg","sparrow Negative score adjustment parameter [default %s]","","",&fScoreNeg,2.0);
   AddParmFloat(&pCurAlg->parmList,"-xsspos","sparrow Positive score adjustment parameter [default %s]","","",&fScorePos,1.0);
   AddParmUInt(&pCurAlg->parmList,"-xscorerattype","score ratio type [default %s]","","",&iScoreRatioType,1);
@@ -222,51 +166,16 @@ void AddJack() {
   CreateTrigger("InitJackFlopCount",InitStateInfo,InitJackFlopCount,"","");
   CreateContainerTrigger("JackFlopCount","CreateJackFlopCount,InitJackFlopCount");
 
-  CreateTrigger("InitAdaptJackDiv",PostInit,InitAdaptJackDiv,"","");
-  CreateTrigger("AdaptJackDivAdjust",PostFlip,AdaptJackDivAdjust,"InitAdaptJackDiv","");
-
-  pRepJackTrace = CreateReport("Jacktrace","Jacktrace","Prints data for every var every step","stdout","");
-
   CreateTrigger("CreateJackScores",CreateStateInfo,CreateJackScores,"","");
-
-  CreateTrigger("PreRunJack",PreRun,PreRunJack,"","");
-  CreateTrigger("RunCalculationsJack",RunCalculations,RunCalculationsJack,"","");
 
   CreateTrigger("CreateClauseLastFlipVar",CreateStateInfo,CreateClauseLastFlipVar,"","");
   CreateTrigger("InitClauseLastFlipVar",InitStateInfo,InitClauseLastFlipVar,"","");
+  CreateContainerTrigger("ClauseLastFlipVar","CreateClauseLastFlipVar,InitClauseLastFlipVar");
 	
-  AddColumnUBigInt("percentprom","Percent of Promising Flips",
-    "Percent",
-    "   Prom",
-    "  Flips",
-    "%7.1f",
-    &iNumPromFlips,"",ColTypeFinalDivStep100);
-
-  AddColumnFloat("meanclauselen","Average Selected Clause Length",
-    "Mean",
-    "Cls.",
-    " Len",
-    "%4.1f",
-    &fMeanSelClauseLen,"",ColTypeFinal);
-
-  AddStatCol("percentprom","PercentProm","mean",0);
-
   CreateTrigger("CreateAgeHistory",CreateStateInfo,CreateAgeHistory,"VarLastChange,FlipCounts","");
   CreateTrigger("InitAgeHistory",InitStateInfo,InitAgeHistory,"","");
   CreateTrigger("UpdateAgeHistory",UpdateStateInfo,UpdateAgeHistory,"","UpdateVarLastChange,UpdateFlipCounts");
   CreateContainerTrigger("AgeHistory","CreateAgeHistory,InitAgeHistory,UpdateAgeHistory");
-}
-
-
-void PreRunJack() {
-
-  iNumPromFlips = 0;
-  iSumSelClauseLen = 0;
-
-}
-
-void RunCalculationsJack() {
-  fMeanSelClauseLen = ((FLOAT) (iSumSelClauseLen) / (FLOAT) (iStep - iNumPromFlips));
 }
 
 
@@ -293,7 +202,7 @@ void InitJackConfig() {
     aPropDWeights[0] = 1.0;
   }
 
-  for (j=0; j < NUMCLAUSERANGE; j++) {
+  for (j=0; j < JACK_NUM_CLAUSE_GROUPS; j++) {
     aSumGreedyMixedDivWeights[j] = aGreedyWeights[j] + aMixedWeights[j] + aDivWeights[j];
     if (aSumGreedyMixedDivWeights[j] == FLOATZERO) {
       ReportPrint(pRepErr,"Warning! set Greedy/Mixed/Div weights \n");
@@ -302,7 +211,7 @@ void InitJackConfig() {
     }
   }
 
-  iVarAgeHistoryLen = 6;
+  iVarAgeHistoryBufferLen = 6;
 }
 
 void PickJack() {
@@ -314,15 +223,12 @@ void PickJack() {
   UINT32 j;
   UINT32 k;
  
-  FLOAT fDiv;
-
   FLOAT fSelectSum;
   FLOAT fSelectPos;
 
   FLOAT fMaxPropValue;
   FLOAT fMinPropValue;
   FLOAT fPropValue;
-  //FLOAT fPropValueSum;
   FLOAT fPropertyAddOffset;
 
   BOOL bUseBest;
@@ -343,32 +249,21 @@ void PickJack() {
 
   UINT32 iNumJackCandidates;
 
-  fDiv = ProbToFloat(iJackDiv);
-  
   iFlipCandidate = 0;
 
   if (iNumFalse==0) {
     return;
   }
 
-  ////// PROM VARS
-
   if (bJackUsePromising) {
     if (iNumDecPromVars > 0) {
       PromisingSelectBest();
-    }
-    if (iFlipCandidate != 0) {
-      //aLitPromFlipCount[GetFalseLit(iFlipCandidate)]++;
-      iNumPromFlips++;
       return;
     }
   }
 
-  // On to Jack
-
   iClause = aFalseList[RandomInt(iNumFalse)];
   iClauseLen = aClauseLen[iClause];
-  iSumSelClauseLen += iClauseLen;
 
   if (iClauseLen <= 2) {
     iClauseIndex = 0;
@@ -437,7 +332,7 @@ void PickJack() {
           break;
         case 3:
           fRelMake = ((FLOAT) aMakeCount[iVar]) / ((FLOAT) aNumLitOcc[*pLit]);
-          fRelBreak = ((FLOAT) aBreakCount[iVar]) / (EPSILON_RELBREAK + (FLOAT) aNumLitOcc[GetNegatedLit(*pLit)]);
+          fRelBreak = ((FLOAT) aBreakCount[iVar]) / (JACK_EPSILON + (FLOAT) aNumLitOcc[GetNegatedLit(*pLit)]);
           fPropValue = fRelMake - fRelBreak;
           break;
         case 4:
@@ -445,7 +340,7 @@ void PickJack() {
           fPropValue = fRelMake;
           break;
         case 5:
-          fRelBreak = ((FLOAT) aBreakCount[iVar]) / (EPSILON_RELBREAK + (FLOAT) aNumLitOcc[GetNegatedLit(*pLit)]);
+          fRelBreak = ((FLOAT) aBreakCount[iVar]) / (JACK_EPSILON + (FLOAT) aNumLitOcc[GetNegatedLit(*pLit)]);
           fPropValue = 1.0 - fRelBreak;
           break;
         case 6:
@@ -469,12 +364,12 @@ void PickJack() {
           break;
         case 8:
           fRelMake = ((FLOAT) aMakeCount[iVar]) / ((FLOAT) aNumLitOcc[*pLit]);
-          fRelBreak = ((FLOAT) aBreakCount[iVar]) / (EPSILON_RELBREAK + (FLOAT) aNumLitOcc[GetNegatedLit(*pLit)]);
+          fRelBreak = ((FLOAT) aBreakCount[iVar]) / (JACK_EPSILON + (FLOAT) aNumLitOcc[GetNegatedLit(*pLit)]);
           if (iScoreRatioType) {
             fPropValue = fRelMake / (fRelMake + fRelBreak);
           } else {
             fPropValue = fRelMake / (fRelMake + fRelBreak);
-            fPropValue = fRelMake / (fRelBreak + EPSILON_RELBREAK);
+            fPropValue = fRelMake / (fRelBreak + JACK_EPSILON);
           }
           break;
 
@@ -507,7 +402,7 @@ void PickJack() {
         fPropertyAddOffset = 1.0f - fMinPropValue;
       }
       if (iSelectProperty==3) {
-        fPropertyAddOffset = EPSILON_RELBREAK - fMinPropValue;
+        fPropertyAddOffset = JACK_EPSILON - fMinPropValue;
       }
       if (fPropertyAddOffset != FLOATZERO) {
         for (j=0;j<iClauseLen;j++) {
@@ -714,8 +609,62 @@ void PickJack() {
   }
   aLitJackResetFlopCount[GetFalseLit(iFlipCandidate)] = 0;
   aClauseLastFlipVar[iClause] = iFlipCandidate;
-
 }
+
+
+
+void CreateAgeHistory() {
+  UINT32 j;
+  aVarAgeHistoryData = (UBIGINT *) AllocateRAM((iNumVars+1)*iVarAgeHistoryBufferLen*sizeof(UBIGINT));
+  pVarAgeHistory = (UBIGINT **) AllocateRAM((iNumVars+1)*sizeof(UBIGINT *));
+  for (j=0;j<=iNumVars;j++) {
+    pVarAgeHistory[j] = &aVarAgeHistoryData[j*iVarAgeHistoryBufferLen];
+  }
+}
+
+void InitAgeHistory() {
+  memset(aVarAgeHistoryData,0,(iNumVars+1)*iVarAgeHistoryBufferLen*sizeof(UBIGINT));
+}
+
+void UpdateAgeHistory() {
+  // replaces UpdateVarLastChange() & UpdateFlipCounts()
+  // SCREWS UP IF THERE IS A RESET
+  pVarAgeHistory[iFlipCandidate][aFlipCounts[iFlipCandidate] % iVarAgeHistoryBufferLen] = iStep - aVarLastChange[iFlipCandidate];
+  aFlipCounts[iFlipCandidate]++;
+  aVarLastChange[iFlipCandidate] = iStep;
+}
+
+UBIGINT VarAge(UINT32 iVar, UINT32 iIndex) {
+  UINT32 j;
+  UINT32 iPos;
+  UBIGINT iAge;
+
+  iAge = iStep - aVarLastChange[iVar];
+  iPos = (aFlipCounts[iVar] + iVarAgeHistoryBufferLen - iIndex) % iVarAgeHistoryBufferLen;
+
+  for (j=1; j <= iIndex; j++) {
+    iPos = (aFlipCounts[iVar] + iVarAgeHistoryBufferLen - j) % iVarAgeHistoryBufferLen;
+    iAge += pVarAgeHistory[iVar][iPos];
+  }
+  return iAge;
+}
+
+
+void CreateJackScores() {
+  aJackGreedy = (FLOAT *) AllocateRAM(iMaxClauseLen*sizeof(FLOAT));
+  aJackDiv = (FLOAT *) AllocateRAM(iMaxClauseLen*sizeof(FLOAT));
+  aJackCandidates = (UINT32 *) AllocateRAM(iMaxClauseLen*sizeof(UINT32));
+}
+
+
+void CreateClauseLastFlipVar() {
+  aClauseLastFlipVar = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+}
+
+void InitClauseLastFlipVar() {
+  memset(aClauseLastFlipVar,0,iNumClauses*sizeof(UINT32));
+}
+
 
 void CreateJackFlopCount() {
   aLitJackFlopCount = (UBIGINT *) AllocateRAM((iNumVars+1)*2*sizeof(UBIGINT));
@@ -728,71 +677,6 @@ void InitJackFlopCount() {
   memset(aLitJackResetFlopCount,0,(iNumVars+1)*2*sizeof(UBIGINT));
   memset(aLitJackNormFlopCount,0,(iNumVars+1)*2*sizeof(FLOAT));
 }
-
-void InitAdaptJackDiv() {
-  iLastAdaptStep=iStep;
-  iLastAdaptNumFalse=iNumFalse;
-  iJackDiv = 0;
-}
-
-void AdaptJackDivAdjust() {
-
-  /* this varaint allows for different values of Phi & Theta */
-
-  if (iStep-iLastAdaptStep > iNumClauses*fAdaptTheta) {
-    iJackDiv += (PROBABILITY) ((UINT32MAX - iJackDiv)*fAdaptPhi);
-    iLastAdaptStep = iStep;
-    iLastAdaptNumFalse = iNumFalse;
-  } else if (iNumFalse < iLastAdaptNumFalse) {
-    iJackDiv -= (PROBABILITY) (iJackDiv * fAdaptPhi / 2);
-    iLastAdaptStep = iStep;
-    iLastAdaptNumFalse = iNumFalse;
-  }
-}
-
-
-void CreateAgeHistory() {
-  UINT32 j;
-  aVarAgeHistoryData = (UBIGINT *) AllocateRAM((iNumVars+1)*iVarAgeHistoryLen*sizeof(UBIGINT));
-  pVarAgeHistory = (UBIGINT **) AllocateRAM((iNumVars+1)*sizeof(UBIGINT *));
-  for (j=0;j<=iNumVars;j++) {
-    pVarAgeHistory[j] = &aVarAgeHistoryData[j*iVarAgeHistoryLen];
-  }
-}
-
-void InitAgeHistory() {
-  memset(aVarAgeHistoryData,0,(iNumVars+1)*iVarAgeHistoryLen*sizeof(UBIGINT));
-}
-
-void UpdateAgeHistory() {
-  // replaces UpdateVarLastChange() & UpdateFlipCounts()
-
-  // SCREWS UP IF THERE IS A RESET
-
-  pVarAgeHistory[iFlipCandidate][aFlipCounts[iFlipCandidate] % iVarAgeHistoryLen] = iStep - aVarLastChange[iFlipCandidate];
-  aFlipCounts[iFlipCandidate]++;
-  aVarLastChange[iFlipCandidate] = iStep;
-
-}
-
-UBIGINT VarAge(UINT32 iVar, UINT32 iIndex) {
-  UINT32 j;
-  UINT32 iPos;
-  UBIGINT iAge;
-
-  iAge = iStep - aVarLastChange[iVar];
-  iPos = (aFlipCounts[iVar] + iVarAgeHistoryLen - iIndex) % iVarAgeHistoryLen;
-
-  for (j=1; j <= iIndex; j++) {
-    iPos = (aFlipCounts[iVar] + iVarAgeHistoryLen - j) % iVarAgeHistoryLen;
-    iAge += pVarAgeHistory[iVar][iPos];
-  }
-
-  return iAge;
-
-}
-
-
 
 
 #ifdef __cplusplus
