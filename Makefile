@@ -26,6 +26,7 @@ cfiles = src/adaptnovelty.c \
          src/hsat.c \
          src/hwsat.c \
          src/irots.c \
+         src/jack.c \
          src/mt19937ar.c \
          src/mylocal.c \
          src/novelty+p.c \

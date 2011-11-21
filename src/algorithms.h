@@ -56,6 +56,10 @@ void PickHSatW();
 
 void AddHWSat();
 
+/* jack.c */
+
+void AddJack();
+
 /* walksat.c */
 
 void AddWalkSat();
