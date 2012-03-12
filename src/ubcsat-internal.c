@@ -1534,28 +1534,22 @@ void ParseParameters(ALGPARMLIST *pParmList) {
               bRatioParm = 1;
               aParmValid[iCurParm++] = 1;
               if (fTemp2 == 0.000000) {
-                ReportPrint(pRepErr,"\n\nProbability invalid: The 2nd parameter to a Probability can not be 0\n\n");
+                ReportPrint(pRepErr,"\n\nERROR: BAD PROBABILITY: Divide by zero (2nd parameter can't be 0)\n\n");
                 HelpBadParm(aTotalParms[iCurParm-3]);
               }
             }
           }
           
           if (!bRatioParm) {
-            if (strcmp("1",aTotalParms[iCurParm-1])==0) {
-              ReportPrint(pRepErr,"\n\nProbability ambiguous: 1/100 or 1.0? specify 0.01 or 1 100 or 1.0\n\n");
-              HelpBadParm(aTotalParms[iCurParm-2]);
-            }
             if (fTemp > 1.0) {
-              fTemp /= 100;
-              if (fTemp > 1.0) {
-                ReportPrint(pRepErr,"\n\nProbability invalid: specify range 0.0-1.0 or 0-100\n\n");
-                HelpBadParm(aTotalParms[iCurParm-2]);
-              }
+              ReportPrint(pRepErr,"\nWARNING: UBCSAT parameter behaviour has changed for probabilities:\n   enter a value between 0..1 or a numerator and denominator (eg: 70 100)\n\n");
+              ReportPrint(pRepErr,"ERROR: BAD PROBABILITY: (probability can't be above 1)\n\n");
+              HelpBadParm(aTotalParms[iCurParm-2]);
             }
           } else {
             fTemp = fTemp / fTemp2;
             if (fTemp > 1.0) {
-              ReportPrint(pRepErr,"\n\nProbability ratio invalid: numerator > denominator \n\n");
+              ReportPrint(pRepErr,"\n\nERROR: BAD PROBABILITY: Probability above 1 (numerator > denominator)\n\n");
               HelpBadParm(aTotalParms[iCurParm-3]);
             }
           }
