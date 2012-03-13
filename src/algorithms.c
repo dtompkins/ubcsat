@@ -36,6 +36,8 @@ void AddAlgorithms() {
   AddHSat();
   AddHWSat();
 
+  AddJack();
+
   AddWalkSat();
   AddWalkSatTabu();
 
