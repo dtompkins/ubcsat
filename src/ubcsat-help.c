@@ -145,8 +145,7 @@ void HelpPrintParms() {
 
   ReportPrint(pRepHelp,"-parameter STR      STRING - string (text) value\n\n");
 
-  ReportPrint(pRepHelp,"-parameter PR       PROBABILITY - a float in the range 0.0 .. 1.0\n");
-  ReportPrint(pRepHelp,"                                  or a float in the range 1.0 .. 100.0 (%%)\n");
+  ReportPrint(pRepHelp,"-parameter PR       PROBABILITY - a float in the range 0 .. 1\n");
   ReportPrint(pRepHelp,"                                  or 2 ints as a ratio (e.g.: 1 3 for 1/3)\n\n");
 
   ReportPrint(pRepHelp,"For INT and FL parameters, you can add a trailing \"n\", to specify the\n");
