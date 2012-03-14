@@ -179,6 +179,7 @@ void AddRandom();
 
 void AddDerandomized();
 extern UINT32 *aNextClauseLit;
+extern UINT32 iClausePick;
 
 /* rgsat.c */
 

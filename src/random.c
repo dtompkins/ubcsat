@@ -30,6 +30,10 @@ void PickURWalk();
 void PickCRWalk();
 void SchoeningRestart();
 
+void InitLLLWalk();
+void PickLLLWalk();
+PROBABILITY iLLLWalkVarFlipProb;
+
 void AddRandom() {
 
   ALGORITHM *pCurAlg;
@@ -58,8 +62,20 @@ void AddRandom() {
     "Conflict-Directed Random Walk, restart every 3n steps",
     "Schoening [FOCS 99]",
     "PickCRWalk,SchoeningRestart",
+    "DefaultProcedures,Flip+FalseClauseList,CheckForRestarts",
+    "default","default");
+
+  pCurAlg = CreateAlgorithm("lllwalk","",0,
+    "Lovasz-Local-Lemma Rnd Walk: choose unsat clause, flip each var with prob.",
+    "Mosser [STOC 09]",
+    "PickLLLWalk",
     "DefaultProcedures,Flip+FalseClauseList",
     "default","default");
+
+  AddParmProbability(&pCurAlg->parmList,"-vfp","var flip probability [default %s]","flip each var in clause with probability PR","",&iLLLWalkVarFlipProb,0.5);
+
+  CreateTrigger("InitLLLWalk",InitStateInfo,InitLLLWalk,"","");
+  CreateTrigger("PickLLLWalk",ChooseCandidate,PickLLLWalk,"InitLLLWalk","");
 
 }
 
@@ -91,6 +107,38 @@ void SchoeningRestart() {
 
   iPeriodicRestart = iNumVars * 3;
 
+}
+
+
+UINT32 iLLLWalkClausePosition; // next literal in the clause to select; 0 for no clause selected
+
+void InitLLLWalk() {
+  iLLLWalkClausePosition = 0;
+}
+
+void PickLLLWalk() {
+
+  LITTYPE litPick;
+
+  if (iNumFalse) {
+
+    if (iLLLWalkClausePosition == 0) {
+      iClausePick = aFalseList[RandomInt(iNumFalse)];
+    }
+
+    if (RandomProb(iLLLWalkVarFlipProb)) {
+      litPick = pClauseLits[iClausePick][iLLLWalkClausePosition];
+      iFlipCandidate = GetVarFromLit(litPick);
+    } else {
+      iFlipCandidate = 0;
+    }
+
+    iLLLWalkClausePosition++;
+
+    if (iLLLWalkClausePosition == aClauseLen[iClausePick]) {
+      iLLLWalkClausePosition = 0;
+    }
+  }
 }
 
 #ifdef __cplusplus
