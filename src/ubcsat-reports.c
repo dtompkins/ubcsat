@@ -1260,7 +1260,7 @@ void ReportTrajBestLMPostStep() {
         ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
         ReportPrint1(pRepTrajBestLM,"%"P64,iStep-1);
         ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
-        ReportPrint1(pRepTrajBestLM,"%.12g\n",iBestSumFalseWeight);
+        ReportPrint1(pRepTrajBestLM,"%"P64"\n",iBestSumFalseWeight);
       }
     } else {
       if (iBestStepNumFalse==(iStep-1)) {
