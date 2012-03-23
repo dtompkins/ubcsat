@@ -155,6 +155,9 @@ void ReportParamILSPrint();
 /***** Trigger ReportSatCompetitionPrint *****/
 void ReportSatCompetitionPrint();
 
+/***** Trigger ReportCompetitionComment *****/
+void ReportCompetitionComment();
+
 /***** Trigger SetupCSV *****/
 void SetupCSV();
 
@@ -298,6 +301,8 @@ void AddReportTriggers() {
   CreateTrigger("ReportParamILSPrint",PostRun,ReportParamILSPrint,"BestFalse","");
 
   CreateTrigger("ReportSatCompetitionPrint",FinalReports,ReportSatCompetitionPrint,"","");
+
+  CreateTrigger("ReportCompetitionComment",PostParameters,ReportCompetitionComment,"","");
 
   CreateTrigger("SetupCSV",PostParameters,SetupCSV,"","");
 
@@ -951,7 +956,7 @@ void ReportModelPrint() {
       ReportHdrPrint(pRepModel,"\n");
       ReportHdrPrefix(pRepModel);
       if (bWeighted) {
-        ReportHdrPrint1(pRepModel,"Solution found for -wtarget %.6g\n\n", fTargetW);
+        ReportHdrPrint1(pRepModel,"Solution found for -wtarget %"P64"\n\n", iTargetWeight);
       } else {
         ReportHdrPrint1(pRepModel,"Solution found for -target %"P32"\n\n", iTarget);
       }
@@ -971,7 +976,7 @@ void ReportModelPrint() {
     } else {
       ReportHdrPrefix(pRepModel);
       if (bWeighted) {
-        ReportHdrPrint1(pRepModel,"No Solution found for -wtarget %.6g\n\n", fTargetW);
+        ReportHdrPrint1(pRepModel,"No Solution found for -wtarget %"P64"\n\n", iTargetWeight);
       } else {
         ReportHdrPrint1(pRepModel,"No Solution found for -target %"P32"\n", iTarget);
       }
@@ -1104,28 +1109,9 @@ void ReportStatePrint() {
   if ((iRun==1)&&(iStep==1)) {
     ReportHdrPrefix(pRepState);
     ReportHdrPrint(pRepState," Run ID | Step No. | Num False (or sum of false weights) | VarFlip | IsLocalMin | vararray\n");
-    if (fReportStateQuality < 0) {
-      bReportStateQuality = 0;
-    } else {
-      bReportStateQuality = 1;
-      if (!bWeighted) {
-        iReportStateQuality = (UINT32) fReportStateQuality;
-      }
-    }
   }
 
   bPrint = 1;
-  if (bReportStateQuality) {
-   if (bWeighted) {
-     if (fSumFalseW != fReportStateQuality) {
-       bPrint = 0;
-     }
-   } else {
-     if (iNumFalse != iReportStateQuality) {
-       bPrint = 0;
-     }
-   }
-  }
 
   if ((bPrint) && (bReportStateLMOnly)) {
     bLocalMin = IsLocalMinimum(bWeighted);
@@ -1141,7 +1127,7 @@ void ReportStatePrint() {
     ReportPrint1(pRepState,"%s",sColSepString);
 
     if (bWeighted) {
-      ReportPrint1(pRepState,"%.12g",fSumFalseW);
+      ReportPrint1(pRepState,"%"P64,iSumFalseWeight);
       ReportPrint1(pRepState,"%s",sColSepString);
     } else {
       ReportPrint1(pRepState,"%"P32,iNumFalse);
@@ -1183,7 +1169,7 @@ void ReportBestSolPrint() {
   ReportPrint1(pRepBestSol,"%"P32,bSolutionFound);
   ReportPrint1(pRepBestSol,"%s",sColSepString);
   if (bWeighted) {
-    ReportPrint1(pRepBestSol,"%.12g",fBestSumFalseW);
+    ReportPrint1(pRepBestSol,"%"P64,iBestSumFalseWeight);
     ReportPrint1(pRepBestSol,"%s",sColSepString);
   } else {
     ReportPrint1(pRepBestSol,"%"P32,iBestNumFalse);
@@ -1217,12 +1203,12 @@ void ReportBestStepPrint() {
   }
 
   if (bWeighted) {
-    if (iBestStepSumFalseW == iStep) {
+    if (iBestStepSumFalseWeight == iStep) {
       ReportPrint1(pRepBestStep,"%"P32,iRun);
       ReportPrint1(pRepBestStep,"%s",sColSepString);
       ReportPrint1(pRepBestStep,"%"P64,iStep);
       ReportPrint1(pRepBestStep,"%s",sColSepString);
-      ReportPrint1(pRepBestStep,"%.12g ",fBestSumFalseW);
+      ReportPrint1(pRepBestStep,"%"P64,iBestSumFalseWeight);
       if (bReportBestStepVars) {
         ReportPrint1(pRepBestStep,"%s",sColSepString);
         for (j=1;j<=iNumVars;j++) {
@@ -1269,12 +1255,12 @@ void ReportTrajBestLMPostStep() {
   }
   if (iStep > 1) {
     if (bWeighted) {
-      if (iBestStepSumFalseW==(iStep-1)) {
+      if (iBestStepSumFalseWeight==(iStep-1)) {
         ReportPrint1(pRepTrajBestLM,"%"P32,iRun);
         ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
         ReportPrint1(pRepTrajBestLM,"%"P64,iStep-1);
         ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
-        ReportPrint1(pRepTrajBestLM,"%.12g\n",fBestSumFalseW);
+        ReportPrint1(pRepTrajBestLM,"%.12g\n",iBestSumFalseWeight);
       }
     } else {
       if (iBestStepNumFalse==(iStep-1)) {
@@ -1292,12 +1278,12 @@ void ReportTrajBestLMPostStep() {
 void ReportTrajBestLMPostRun() {
 
   if (bWeighted) {
-    if (iBestStepSumFalseW==(iStep)) {
+    if (iBestStepSumFalseWeight==(iStep)) {
         ReportPrint1(pRepTrajBestLM,"%"P32,iRun);
         ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
         ReportPrint1(pRepTrajBestLM,"%"P64,iStep);
         ReportPrint1(pRepTrajBestLM,"%s",sColSepString);
-        ReportPrint1(pRepTrajBestLM,"%.12g\n",fBestSumFalseW);
+        ReportPrint1(pRepTrajBestLM,"%"P64"\n",iBestSumFalseWeight);
     }
   } else {
     if (iBestStepNumFalse==(iStep)) {
@@ -1434,7 +1420,7 @@ void ReportDistancePrint() {
     ReportPrint1(pRepDistance,"%s",sColSepString);
 
     if (bWeighted) {
-      ReportPrint1(pRepDistance,"%.12g",fSumFalseW);
+      ReportPrint1(pRepDistance,"%"P64,iSumFalseWeight);
     } else {
       ReportPrint1(pRepDistance,"%"P32,iNumFalse);
     }
@@ -1596,7 +1582,7 @@ void ReportSQGridPrint() {
     if (bWeighted) {
       for (j=0;j<iNumLogDistValues;j++) {
         ReportPrint1(pRepSQGrid,"%s",sColSepString);
-        ReportPrint1(pRepSQGrid,"%.12g",aSQGridW[iNumLogDistValues * (iRun-1) + j]);
+        ReportPrint1(pRepSQGrid,"%"P64,aSQGridWeight[iNumLogDistValues * (iRun-1) + j]);
       }
     } else {
       for (j=0;j<iNumLogDistValues;j++) {
@@ -1722,7 +1708,7 @@ void ReportPenaltyPrintRun() {
       ReportPrint1(pRepPenalty,"%"P32,bSolutionFound);
       ReportPrint1(pRepPenalty,"%s",sColSepString);
       if (bWeighted) {
-        ReportPrint1(pRepPenalty,"%.12g",fBestSumFalseW);
+        ReportPrint1(pRepPenalty,"%"P64,iBestSumFalseWeight);
       } else {
         ReportPrint1(pRepPenalty,"%"P32,iBestNumFalse);
       }
@@ -2261,7 +2247,7 @@ void ReportParamILSPrint() {
   ReportPrint1(pRepParamILS,", %g",fRunTime);
   ReportPrint1(pRepParamILS,", %"P64,iStep);
   if (bWeighted) {
-    ReportPrint1(pRepParamILS,", %g",fBestSumFalseW );
+    ReportPrint1(pRepParamILS,", %"P64,iBestSumFalseWeight);
   } else {
     ReportPrint1(pRepParamILS,", %"P32,iBestNumFalse);
   }
@@ -2272,10 +2258,12 @@ void ReportParamILSPrint() {
 
 /***** Report -r satcomp *****/
 
+void ReportCompetitionComment() {
+  SetString(&sCommentString,"c");
+}
+
 void ReportSatCompetitionPrint() {
   UINT32 j;
-
-  SetString(&sCommentString,"c");
 
   PrintUBCSATHeader(pRepSATComp);
   PrintAlgParmSettings(pRepSATComp,&parmUBCSAT);
@@ -2421,11 +2409,14 @@ void ColumnInit() {
       pCol->fMinMaxVal = FLOATZERO;
       pCol->uiMinMaxVal = 0;
       pCol->siMinMaxVal = SINT32MIN;
+      pCol->ubiMinMaxVal = 0;
+      pCol->sbiMinMaxVal = SBIGINTMIN;
     } else {
       pCol->fMinMaxVal = FLOATMAX;
       pCol->uiMinMaxVal = UINT32MAX;
       pCol->siMinMaxVal = SINT32MAX;
-    }
+      pCol->ubiMinMaxVal = UBIGINTMAX;
+      pCol->sbiMinMaxVal = SBIGINTMAX;    }
   }
 }
 

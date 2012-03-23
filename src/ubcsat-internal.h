@@ -68,14 +68,11 @@ extern BOOL bReportOutputSuppress;
 
 extern BOOL bReportStateLMOnly;
 extern BOOL bReportDistanceLMOnly;
-extern FLOAT fReportStateQuality;
 extern BOOL bReportBestStepVars;
 extern BOOL bReportOptClausesSol;
 extern UINT32 iReportFalseHistCount;
 extern BOOL bReportDistanceLMOnly;
 extern UINT32 iReportDistHistCount;
-extern BOOL bReportStateQuality;
-extern UINT32 iReportStateQuality;
 
 extern BOOL bReportPenaltyEveryLM;
 extern BOOL bReportPenaltyReNormBase;

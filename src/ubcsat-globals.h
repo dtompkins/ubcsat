@@ -45,7 +45,7 @@ namespace ubcsat {
     iSeed                 initial seed for the system
 
     iTarget               target solution quality (# of false clauses)
-    fTargetW              weighted target solution quality (sum of false clause weights)
+    iTargetWeight         weighted target solution quality (sum of false clause weights)
 
     iFlipCandidate        current variable to flip
 
@@ -78,7 +78,7 @@ namespace ubcsat {
     bReportClean          flag to remove headers from output
 
     iBestScore            value of best score improvement this step
-    fBestScore            value of best weighted score improvement this step
+    iBestScoreWeight      value of best weighted score improvement this step
 */
 
 extern const char sNull;
@@ -96,7 +96,7 @@ extern FLOAT fGlobalTimeOut;
 extern UINT32 iSeed;
 
 extern UINT32 iTarget;
-extern FLOAT fTargetW;
+extern UBIGINT iTargetWeight;
 
 extern UINT32 iFlipCandidate;
 
@@ -129,7 +129,7 @@ extern BOOL bReportQuiet;
 extern BOOL bReportCSV;
 
 extern SINT32 iBestScore;
-extern FLOAT fBestScore;
+extern SBIGINT iBestScoreWeight;
 
 
 /***** UBCSAT GLOBAL ROUTINES *****/

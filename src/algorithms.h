@@ -104,7 +104,7 @@ void InitAdaptNoveltyNoise();
 void AdaptNoveltyNoiseAdjust();
 extern UBIGINT iLastAdaptStep;
 extern UINT32 iLastAdaptNumFalse;
-extern FLOAT fLastAdaptSumFalseW;
+extern UBIGINT iLastAdaptSumFalseWeight;
 extern UINT32 iInvPhi;
 extern UINT32 iInvTheta;
 extern FLOAT fAdaptPhi;

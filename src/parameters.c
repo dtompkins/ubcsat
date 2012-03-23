@@ -50,11 +50,11 @@ void AddParameters() {
 
   AddParmUBigInt(&parmUBCSAT,"-earlysteps","terminate run early after INT steps","if after INT steps the solution quality is greater than~the value specified in -earlyqual the run will terminate~(for solution quality description see -target and -wtarget)","EarlyTerm",&iEarlyTermSteps,0);
   AddParmUInt(&parmUBCSAT,"-earlyqual","terminate run early if quality is worse than INT","(see -earlysteps)","EarlyTerm",&iEarlyTermQual,0);
-  AddParmFloat(&parmUBCSAT,"-earlywqual","terminate run early if weighted quality is worse than FL","(see -earlysteps and -earlyqual)","EarlyTerm",&fEarlyTermQualW,0);
+  AddParmUBigInt(&parmUBCSAT,"-earlywqual","terminate run early if weighted quality is worse than INT","(see -earlysteps and -earlyqual)","EarlyTerm",&iEarlyTermQualWeight,0);
   AddParmUInt(&parmUBCSAT,"-strikes","terminate all runs after INT unsuccessful runs","","Strikes",&iStrikes,0);
   
   AddParmUInt(&parmUBCSAT,"-target","target solution quality","for regular (unweighted) algorithms, the solution quality~is measured as the number of false clauses~~for MAX-SAT (or for some other reason) you can set~the desired solution quality so that solution is found if~the number false clauses <= target~~default target solution quality is zero (no false clauses)","",&iTarget,0);
-  AddParmFloat(&parmUBCSAT,"-wtarget","weighted target solution quality","similar to -target, except the solution quality is the~sum of the weights of the false clauses","",&fTargetW,0);
+  AddParmUBigInt(&parmUBCSAT,"-wtarget","weighted target solution quality","similar to -target, except the solution quality is the~sum of the weights of the false clauses","",&iTargetWeight,0);
   
   AddParmUInt(&parmUBCSAT,"-seed","specify an initial random seed","","",&iSeed,iSeed);
   

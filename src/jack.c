@@ -187,7 +187,8 @@ void InitJackConfig() {
     fPropGWeightsSum += aPropGWeights[j];
   }
   if (fPropGWeightsSum == FLOATZERO) {
-    ReportPrint(pRepErr,"Warning! set Greedy Property weights \n");
+    ReportHdrPrefix(pRepErr);
+    ReportHdrPrint(pRepErr,"Warning! set Greedy Property weights \n");
     fPropGWeightsSum = 1.0;
     aPropGWeights[0] = 1.0;
   }
@@ -197,7 +198,8 @@ void InitJackConfig() {
     fPropDWeightsSum += aPropDWeights[j];
   }
   if (fPropDWeightsSum == FLOATZERO) {
-    ReportPrint(pRepErr,"Warning! set Div Property weights \n");
+    ReportHdrPrefix(pRepErr);
+    ReportHdrPrint(pRepErr,"Warning! set Div Property weights \n");
     fPropDWeightsSum = 1.0;
     aPropDWeights[0] = 1.0;
   }
@@ -205,7 +207,8 @@ void InitJackConfig() {
   for (j=0; j < JACK_NUM_CLAUSE_GROUPS; j++) {
     aSumGreedyMixedDivWeights[j] = aGreedyWeights[j] + aMixedWeights[j] + aDivWeights[j];
     if (aSumGreedyMixedDivWeights[j] == FLOATZERO) {
-      ReportPrint(pRepErr,"Warning! set Greedy/Mixed/Div weights \n");
+      ReportHdrPrefix(pRepErr);
+      ReportHdrPrint(pRepErr,"Warning! set Greedy/Mixed/Div weights \n");
       aSumGreedyMixedDivWeights[j] = 1.0;
       aGreedyWeights[j] = 1.0;
     }

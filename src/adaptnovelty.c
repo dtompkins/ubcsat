@@ -34,7 +34,7 @@ FLOAT fAdaptTheta;
 
 UBIGINT iLastAdaptStep;
 UINT32 iLastAdaptNumFalse;
-FLOAT fLastAdaptSumFalseW;
+UBIGINT iLastAdaptSumFalseWeight;
 
 void InitAdaptNoveltyNoise();
 void AdaptNoveltyNoise();
@@ -73,7 +73,7 @@ void AddAdaptNoveltyPlus() {
 void InitAdaptNoveltyNoise() {
   iLastAdaptStep=iStep;
   iLastAdaptNumFalse=iNumFalse;
-  fLastAdaptSumFalseW=fTotalWeight;
+  iLastAdaptSumFalseWeight=iTotalClauseWeight;
   iNovNoise = 0;
 }
 

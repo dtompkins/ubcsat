@@ -46,10 +46,10 @@ UINT32 iPerturbTabuTenureHigh;
 
 UBIGINT iIrotsLSBestStep;
 UBIGINT iIrotsLSBestValue;
-FLOAT fIrotsLSBestValueW;
+UBIGINT iIrotsLSBestValueWeight;
 
 UINT32 iIrotsSavedValue;
-FLOAT fIrotsSavedValueW;
+UBIGINT iIrotsSavedValueWeight;
 
 UINT32 iIrotsMode;
 
@@ -121,7 +121,7 @@ void InitIRoTS() {
 
   iIrotsLSBestStep = 1;
   iIrotsLSBestValue = iNumClauses + 1;
-  fIrotsLSBestValueW = fTotalWeight;
+  iIrotsLSBestValueWeight = iTotalClauseWeight;
 
   iVarLastChangeReset = 0;
 }
@@ -145,8 +145,8 @@ void PostStepIRoTS() {
     /* keep track of the 'step' with last best improvement */
 
     if (bWeighted) {
-      if (fSumFalseW < fIrotsLSBestValueW) {
-        fIrotsLSBestValueW = fSumFalseW;
+      if (iSumFalseWeight < iIrotsLSBestValueWeight) {
+        iIrotsLSBestValueWeight = iSumFalseWeight;
         iIrotsLSBestStep = iStep;
       }
     } else {
@@ -179,7 +179,7 @@ void PostStepIRoTS() {
       bSwitchMode = 1;
       iIrotsMode++;
       iIrotsLSBestValue = iNumFalse;
-      fIrotsLSBestValueW = fSumFalseW;
+      iIrotsLSBestValueWeight = iSumFalseWeight;
       iIrotsLSBestStep = iStep;
     }
     
@@ -192,8 +192,8 @@ void PostStepIRoTS() {
     /* keep track of the 'step' with last best improvement */
 
     if (bWeighted) {
-      if (fSumFalseW < fIrotsLSBestValueW) {
-        fIrotsLSBestValueW = fSumFalseW;
+      if (iSumFalseWeight < iIrotsLSBestValueWeight) {
+        iIrotsLSBestValueWeight = iSumFalseWeight;
         iIrotsLSBestStep = iStep;
       }
     } else {
@@ -215,7 +215,7 @@ void PostStepIRoTS() {
       otherwise, 'restore' the previously saved solution */
       
       if (bWeighted) {
-        if (fSumFalseW <= fIrotsSavedValueW) {
+        if (iSumFalseWeight <= iIrotsSavedValueWeight) {
           if (RandomProb(iIrotsNoise)) {
             bRestore = 1;
           } else {
@@ -277,7 +277,7 @@ void PostStepIRoTS() {
     IRoTSBackup();
 
     if (bWeighted) {
-      fIrotsSavedValueW = fSumFalseW;
+      iIrotsSavedValueWeight = iSumFalseWeight;
     } else {
       iIrotsSavedValue = iNumFalse;
     }
