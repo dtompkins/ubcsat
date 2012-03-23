@@ -436,6 +436,8 @@ extern UINT32 iStartSeed;
 
 /***** Trigger CheckTimeout *****/
 
+extern UINT32 iTimeResolution;
+
 
 /***** Trigger CheckForRestarts *****/
 

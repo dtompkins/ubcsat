@@ -46,6 +46,9 @@ void AddParameters() {
   AddParmUBigInt(&parmUBCSAT,"-cutoff","maximum number of search steps per run [default %s]","you can specify \"-cutoff max\" for largest integer limit","",&iCutoff,100000);
   AddParmFloat(&parmUBCSAT,"-timeout","maximum number of seconds per run","each run will terminate unsuccessfully after FL seconds,~or when the -cutoff is reached: whichever happens first~so use \"-cutoff max\" to ensure timeout times are reached","CheckTimeout",&fTimeOut,FLOATZERO);
   AddParmFloat(&parmUBCSAT,"-gtimeout","global timeout: maximum number of seconds for all runs","the current run and all remaining runs will terminate~after FL seconds","CheckTimeout",&fGlobalTimeOut,FLOATZERO);
+  AddParmBool(&parmUBCSAT,"-abstime","use absolute time (incl. startup) for global timeout","if true [1] timestamp is taken at startup~otherwise, it's taken after initialization","",&bUseAbsoluteTime,0);
+  AddParmBool(&parmUBCSAT,"-systime","include system time for timing information","if true [1] both user and system time are used for timing~otherwise, just user time is used","",&bUseSystemTime,0);
+  AddParmUInt(&parmUBCSAT,"-timeres","time resolution: check timer every INT search steps","number of search steps that will elapse~between checks for timeouts [default %s]","",&iTimeResolution,1000);
   AddParmUBigInt(&parmUBCSAT,"-noimprove","terminate run if no improvement in INT steps","if no improvement in the solution quality has been made~in INT steps, then the run will terminate~(for solution quality description see -target and -wtarget)","NoImprove",&iNoImprove,0);
 
   AddParmUBigInt(&parmUBCSAT,"-earlysteps","terminate run early after INT steps","if after INT steps the solution quality is greater than~the value specified in -earlyqual the run will terminate~(for solution quality description see -target and -wtarget)","EarlyTerm",&iEarlyTermSteps,0);

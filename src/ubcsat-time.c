@@ -31,6 +31,7 @@ namespace ubcsat {
     Hopefully you won't have any problems compiling in your environment
 */
 
+void StartAbsoluteClock();
 void StartTotalClock();
 void StopTotalClock();
 
@@ -40,9 +41,12 @@ void StopRunClock();
 double TotalTimeElapsed();
 double RunTimeElapsed();
 
+BOOL bUseAbsoluteTime;
+BOOL bUseSystemTime;
 double fTotalTime;
 double fRunTime;
 
+double fStartAbsoluteTimeStamp;
 double fStartTotalTimeStamp;
 double fStartRunTimeStamp;
 
@@ -76,7 +80,11 @@ double fCurrentTimeStamp;
 
   void CurrentTime() {
     times(&prog_tms);
-    fCurrentTimeStamp = (double)prog_tms.tms_utime / ((double)sysconf(_SC_CLK_TCK));
+    if (bUseSystemTime) {
+      fCurrentTimeStamp = (double)prog_tms.tms_utime / ((double)sysconf(_SC_CLK_TCK));
+    } else {
+      fCurrentTimeStamp = ((double)(prog_tms.tms_utime + prog_tms.tms_stime)) / ((double)sysconf(_SC_CLK_TCK));
+    }
   }
 
   void InitSeed() {
@@ -97,14 +105,27 @@ double TimeElapsed(double fStart) {
   }
 }
   
-void StartTotalClock() {
+void StartAbsoluteClock() {
   CurrentTime();
-  fStartTotalTimeStamp = fCurrentTimeStamp;
+  fStartAbsoluteTimeStamp = fCurrentTimeStamp;
+}
+
+void StartTotalClock() {
+  if (bUseAbsoluteTime) {
+    fStartTotalTimeStamp = fStartAbsoluteTimeStamp;
+  } else {
+    CurrentTime();
+    fStartTotalTimeStamp = fCurrentTimeStamp;
+  }
 }
 
 void StartRunClock() {
   CurrentTime();
   fStartRunTimeStamp = fCurrentTimeStamp;
+}
+
+double AbsoluteTimeElapsed() {
+  return(TimeElapsed(fStartAbsoluteTimeStamp));
 }
 
 double TotalTimeElapsed() {

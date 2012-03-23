@@ -428,6 +428,8 @@ UINT32 iStartSeed;
 
 void CheckTimeout();
 
+UINT32 iTimeResolution;
+
 
 /***** Trigger CheckForRestarts *****/
 
@@ -4358,17 +4360,19 @@ void StartSeed () {
 void CheckTimeout() {
   double fTimeElapsed;
 
-  if (fTimeOut > FLOATZERO) {
-    fTimeElapsed = RunTimeElapsed();
-    if (fTimeElapsed > (double) fTimeOut) {
-      bTerminateRun = 1;
+  if ((iTimeResolution <= 1) || ((iTimeResolution % iTimeResolution) == 0)) {
+    if (fTimeOut > FLOATZERO) {
+      fTimeElapsed = RunTimeElapsed();
+      if (fTimeElapsed > (double) fTimeOut) {
+        bTerminateRun = 1;
+      }
     }
-  }
-  if (fGlobalTimeOut > FLOATZERO) {
-    fTimeElapsed = TotalTimeElapsed();
-    if (fTimeElapsed > (double) fGlobalTimeOut) {
-      bTerminateRun = 1;
-      bTerminateAllRuns = 1;
+    if (fGlobalTimeOut > FLOATZERO) {
+      fTimeElapsed = TotalTimeElapsed();
+      if (fTimeElapsed > (double) fGlobalTimeOut) {
+        bTerminateRun = 1;
+        bTerminateAllRuns = 1;
+      }
     }
   }
 }
