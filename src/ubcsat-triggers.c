@@ -1126,6 +1126,10 @@ void ReadCNF() {
   iMaxClauseLen = 0;
   bHaveWarnedUnitClause = 0;
 
+  if ((bWeighted)||(iTarget)||(iTargetWeight)) {
+    bHaveWarnedUnitClause = 1;
+  }
+
   for (j=0;j<iNumClauses;j++) {
     if (bWeighted) {
       if (bIsWCNF) {
