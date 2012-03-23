@@ -154,7 +154,7 @@ int irotsmain(int argc, char *argv[]) {
   myargv[myargc++] = "-r";
   myargv[myargc++] = "maxsatcomp";
   myargv[myargc++] = "stdout";
-  myargv[myargc++] = "90";
+  myargv[myargc++] = "120";
 
   myargv[myargc++] = "-cutoff";
   myargv[myargc++] = "max";
