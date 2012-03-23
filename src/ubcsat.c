@@ -134,6 +134,43 @@ int ubcsatmain(int argc, char *argv[]) {
   
 }
 
+char *myargv[100];
+int myargc = 0;
+
+int irotsmain(int argc, char *argv[]) {
+
+  if (argc != 2) {
+    printf("ERROR Competition build requires 1 (and only 1) parameter:\n   filename.cnf or filename.wcnf\n");
+    exit(0);
+  }
+
+  myargv[myargc++] = argv[0];
+
+  myargv[myargc++] = "-i";
+  myargv[myargc++] = argv[1];
+
+  myargv[myargc++] = "-q";
+
+  myargv[myargc++] = "-r";
+  myargv[myargc++] = "maxsatcomp";
+  myargv[myargc++] = "stdout";
+  myargv[myargc++] = "90";
+
+  myargv[myargc++] = "-cutoff";
+  myargv[myargc++] = "max";
+
+  myargv[myargc++] = "-abstime";
+  myargv[myargc++] = "-systime";
+  myargv[myargc++] = "-gtimeout";
+  myargv[myargc++] = "295";
+
+  myargv[myargc++] = "-alg";
+  myargv[myargc++] = "irots";
+  myargv[myargc++] = "-w";
+
+  return(ubcsatmain(myargc,myargv));
+}
+
 #ifdef __cplusplus
 }
 #endif
@@ -142,13 +179,13 @@ int ubcsatmain(int argc, char *argv[]) {
 #ifdef __cplusplus
 
 int main(int argc, char *argv[]) {
-  return(ubcsat::ubcsatmain(argc,argv));
+  return(ubcsat::irotsmain(argc,argv));
 }
 
 #else
 
 int main(int argc, char *argv[]) {
-  return(ubcsatmain(argc,argv));
+  return(irotsmain(argc,argv));
 }
 
 #endif
