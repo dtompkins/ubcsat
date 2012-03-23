@@ -26,7 +26,7 @@
 namespace ubcsat {
 #endif
 
-const char sVersion[] = "1.2-m2 MAXSAT REDESIGN -- avoid using for published results";
+const char sVersion[] = "1.2-m3 MAXSAT REDESIGN -- avoid using for published results";
 
 #ifdef __cplusplus
 

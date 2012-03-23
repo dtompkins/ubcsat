@@ -63,6 +63,7 @@ REPORT *pRepAutoCorr;
 REPORT *pRepTriggers;
 REPORT *pRepParamILS;
 REPORT *pRepSATComp;
+REPORT *pRepMAXSATComp;
 
 void AddReports() {
 
@@ -164,6 +165,9 @@ void AddReports() {
   pRepParamILS = CreateReport("paramils","Output for ParamILS","Prints required output ParamILS~(use -r out null and -r stats null)~see http://www.cs.ubc.ca/labs/beta/Projects/ParamILS/","stdout","ReportParamILSPrint");
 
   pRepSATComp = CreateReport("satcomp","SAT Competition","Prints required output for 2005 SAT Competition (use -solve)","stdout","ReportSatCompetitionPrint,ReportCompetitionComment");
+
+  pRepMAXSATComp = CreateReport("maxsatcomp","MAXSAT Competition","Prints required output for 2012 SAT Competition","stdout","ReportMaxSatCompetitionPrint,ReportCompetitionComment");
+  AddReportParmFloat(pRepMAXSATComp,"if > 0, print sol'n (if new) every n seconds [default = 90]",&fMaxSatPrintInterval,90.0f);
 
   /***************************************************************************/
 

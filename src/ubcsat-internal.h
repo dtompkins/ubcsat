@@ -80,6 +80,8 @@ extern BOOL bReportPenaltyReNormFraction;
 
 extern BOOL bReportTriggersAll;
 
+extern FLOAT fMaxSatPrintInterval;
+
 extern FLOAT fDummy;
 extern FLOAT fFlipsPerSecond;
 extern FLOAT fPercentSuccess;

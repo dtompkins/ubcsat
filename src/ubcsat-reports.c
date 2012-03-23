@@ -158,6 +158,15 @@ void ReportSatCompetitionPrint();
 /***** Trigger ReportCompetitionComment *****/
 void ReportCompetitionComment();
 
+/***** Trigger ReportMaxSatCompetitionPrint *****/
+void ReportMaxSatCompetitionPrintStep();
+void ReportMaxSatCompetitionPrintFinal();
+void CreateReportMaxSatCompetitionSaveBest();
+FLOAT fMaxSatPrintInterval;
+FLOAT fMaxSatNextPrintTime;
+UBIGINT iLastMaxSatPrintStep;
+BOOL *aMaxSatSaveBest;
+
 /***** Trigger SetupCSV *****/
 void SetupCSV();
 
@@ -303,6 +312,11 @@ void AddReportTriggers() {
   CreateTrigger("ReportSatCompetitionPrint",FinalReports,ReportSatCompetitionPrint,"","");
 
   CreateTrigger("ReportCompetitionComment",PostParameters,ReportCompetitionComment,"","");
+
+  CreateTrigger("ReportMaxSatCompetitionPrintStep",PostStep,ReportMaxSatCompetitionPrintStep,"","");
+  CreateTrigger("ReportMaxSatCompetitionPrintFinal",FinalReports,ReportMaxSatCompetitionPrintFinal,"","");
+  CreateTrigger("CreateReportMaxSatCompetitionSaveBest",CreateStateInfo,CreateReportMaxSatCompetitionSaveBest,"","");
+  CreateContainerTrigger("ReportMaxSatCompetitionPrint","ReportMaxSatCompetitionPrintStep,ReportMaxSatCompetitionPrintFinal,CreateReportMaxSatCompetitionSaveBest,BestFalse");
 
   CreateTrigger("SetupCSV",PostParameters,SetupCSV,"","");
 
@@ -2294,6 +2308,69 @@ void ReportSatCompetitionPrint() {
   }
 }
 
+
+
+/***** Report -r maxsatcomp *****/
+
+void CreateReportMaxSatCompetitionSaveBest() {
+  aMaxSatSaveBest = (BOOL *) AllocateRAM((iNumVars+1)*sizeof(BOOL));
+}
+
+void ReporMaxSatCompetitionPrintValues() {
+  UINT32 j;
+  if (iBestStepSumFalseWeight > iLastMaxSatPrintStep) {
+    ReportPrint(pRepMAXSATComp,"v ");
+    for (j=1;j<=iNumVars;j++) {
+      if (!aMaxSatSaveBest[j]) {
+        ReportPrint1(pRepMAXSATComp," -%"P32,j);
+      } else {
+        ReportPrint1(pRepMAXSATComp," %"P32,j);
+      }
+      if (((j % 10) == 0) && (j < iNumVars)) {
+        ReportPrint(pRepMAXSATComp,"\nv ");
+      }
+    }
+    ReportPrint(pRepMAXSATComp,"\n");
+    ReportFlush(pRepMAXSATComp);
+    iLastMaxSatPrintStep = iStep;
+  }
+}
+
+void ReportMaxSatCompetitionPrintStep() {
+  double fTimeElapsed;
+  UINT32 j;
+
+  if ((iRun==1)&&(iStep==1)) {
+    PrintUBCSATHeader(pRepMAXSATComp);
+    fMaxSatNextPrintTime = fMaxSatPrintInterval;
+    iLastMaxSatPrintStep = 0;
+  }
+
+  if (iStep == iBestStepSumFalseWeight) {
+    ReportPrint1(pRepMAXSATComp,"u %"P64"\n",iBestSumFalseWeight);
+    ReportFlush(pRepMAXSATComp);
+    for (j=1;j<=iNumVars;j++) {
+      aMaxSatSaveBest[j] = aVarValue[j];
+    }
+  }
+
+  if (fMaxSatPrintInterval > FLOATZERO) {
+    if ((iTimeResolution <= 1) || ((iTimeResolution % iTimeResolution) == 0)) {
+      fTimeElapsed = TotalTimeElapsed();
+      if (fTimeElapsed > fMaxSatNextPrintTime) {
+        ReporMaxSatCompetitionPrintValues();
+        fMaxSatNextPrintTime += fMaxSatPrintInterval;
+      }
+    }
+  }
+}
+
+void ReportMaxSatCompetitionPrintFinal() {
+  ReporMaxSatCompetitionPrintValues();
+  ReportPrint(pRepMAXSATComp,"s UNKNOWN\n");
+  ReportFlush(pRepMAXSATComp);
+  exit(0);
+}
 
 
 /***** stat "percentsolve" *****/

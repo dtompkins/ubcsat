@@ -69,6 +69,7 @@ extern REPORT *pRepAutoCorr;
 extern REPORT *pRepTriggers;
 extern REPORT *pRepParamILS;
 extern REPORT *pRepSATComp;
+extern REPORT *pRepMAXSATComp;
 
 #ifdef __cplusplus
 }
