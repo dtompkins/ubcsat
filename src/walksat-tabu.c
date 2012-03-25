@@ -49,7 +49,7 @@ void AddWalkSatTabu() {
     "DefaultProceduresW,Flip+FalseClauseListW,VarLastChange",
     "default_w","default");
   
-  CopyParameters(pCurAlg,"walksat-tabu","",FALSE);
+  CopyParameters(pCurAlg,"walksat-tabu","",FALSE,0);
 
   CreateTrigger("PickWalkSatTabuW",ChooseCandidate,PickWalkSatTabuW,"","");
 

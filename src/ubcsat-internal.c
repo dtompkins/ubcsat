@@ -866,20 +866,25 @@ void ClearActiveProcedures() {
   memset(aNumActiveProcedures,0,sizeof(UINT32) * NUMEVENTPOINTS);
 }
 
-void CopyParameters(ALGORITHM *pDest, const char *sName, const char *sVar, BOOL bWeighted) {
+void CopyParameters(ALGORITHM *pDest, const char *sName, const char *sVar, BOOL bWeighted, int alreadyAddedParam) {
   UINT32 j;
-  ALGPARMLIST *pParmList;
+  ALGPARMLIST *pParmList,*pParmListDest;
   ALGORITHM *pSrc = FindAlgorithm(sName,sVar,bWeighted);
   if (pSrc==0) {
     ReportPrint1(pRepErr,"Unexpected Error: Can't find algorithm %s\n",(char *) sName);
     AbnormalExit();
   }
   pParmList = &pSrc->parmList;
+  pParmListDest =&pDest->parmList;
+
   pDest->parmList.iNumParms = pParmList->iNumParms;
   for (j=0;j<pParmList->iNumParms;j++) {
-    pDest->parmList.aParms[j] = pParmList->aParms[j];
+    pDest->parmList.aParms[j+alreadyAddedParam] = pParmList->aParms[j];
   }
+  pParmListDest->iNumParms += alreadyAddedParam;
+
 }
+
 
 ALGORITHM *CreateAlgorithm (const char *sName, const char *sVariant, BOOL bWeighted, 
                             const char *sDescription, 
@@ -1271,7 +1276,7 @@ void ParseParameters(ALGPARMLIST *pParmList) {
             HelpBadParm(aTotalParms[iCurParm-1]);
           }
           if (strcmp(aTotalParms[iCurParm],"max")==0) {
-            *((UINT32 *) pParm->pParmValue) = UINT32MAX;
+            *((UINT32 *) pParm->pParmValue) = 0xFFFFFFFF;
           } else {
             if (aTotalParms[iCurParm][strlen(aTotalParms[iCurParm])-1] == 'n') {
               if (strlen(aTotalParms[iCurParm]) > 1 ) {

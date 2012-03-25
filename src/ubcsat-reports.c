@@ -903,7 +903,7 @@ void ReportBestStepPrint() {
 
   if ((iRun==1)&&(iStep==1)) {
     ReportHdrPrefix(pRepBestStep);
-    ReportHdrPrint(pRepBestStep," Run ID | Step # | Best # false (or weighted best)");
+    ReportHdrPrint(pRepBestStep," Run ID | Step # | Best # false (or weighted best) | Runtime ");
     if (bReportBestStepVars) {
       ReportHdrPrint(pRepBestStep,"| vararray");
     }
@@ -912,7 +912,7 @@ void ReportBestStepPrint() {
 
   if (bWeighted) {
     if (iBestStepSumFalseW == iStep) {
-      ReportPrint3(pRepBestStep,"%u %u %f ",iRun, iStep, fBestSumFalseW);
+      ReportPrint4(pRepBestStep,"%u %u %f %f",iRun, iStep, fBestSumFalseW, dRunTime );
       if (bReportBestStepVars) {
         for (j=1;j<=iNumVars;j++) {
           if (aVarValue[j]) {
@@ -926,7 +926,7 @@ void ReportBestStepPrint() {
     }
   } else {
     if (iBestStepNumFalse == iStep) {
-      ReportPrint3(pRepBestStep,"%u %u %u ",iRun, iStep, iBestNumFalse);
+      ReportPrint4(pRepBestStep,"%u %u %u %f",iRun, iStep, iBestNumFalse, dRunTime);
       if (bReportBestStepVars) {
         for (j=1;j<=iNumVars;j++) {
           if (aVarValue[j]) {
@@ -1724,11 +1724,11 @@ void ColumnInit() {
     if (pCol->eColType == ColTypeMax) {
       pCol->fMinMaxVal = FLOATZERO;
       pCol->uiMinMaxVal = 0;
-      pCol->siMinMaxVal = SINT32MIN;
+      pCol->siMinMaxVal = 0x80000000;
     } else {
       pCol->fMinMaxVal = FLOATMAX;
-      pCol->uiMinMaxVal = UINT32MAX;
-      pCol->siMinMaxVal = SINT32MAX;
+      pCol->uiMinMaxVal = 0xFFFFFFFF;
+      pCol->siMinMaxVal = 0x7FFFFFFF;
     }
   }
 }

@@ -63,7 +63,7 @@ void PickDDFW() {
   UINT32 iLoopEnd;
 
   iNumCandidates = 0;
-  iBestScore = SINT32MAX;
+  iBestScore = 0x7FFFFFFF;
 
   /* look at all variables that appear in false clauses */
 

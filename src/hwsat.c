@@ -47,7 +47,7 @@ void AddHWSat() {
     "DefaultProceduresW,Flip+VarScoreW,VarLastChange,FalseClauseList",
     "default_w","default");
   
-  CopyParameters(pCurAlg,"hwsat","",FALSE);
+  CopyParameters(pCurAlg,"hwsat","",FALSE,0);
   
   CreateTrigger("PickHWSatW",ChooseCandidate,PickHWSatW,"","");
 

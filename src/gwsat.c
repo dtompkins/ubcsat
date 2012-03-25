@@ -49,7 +49,7 @@ void AddGWSat() {
     "DefaultProceduresW,VarScoreW,VarInFalse",
     "default_w","default");
 
-  CopyParameters(pCurAlg,"gwsat","",FALSE);
+  CopyParameters(pCurAlg,"gwsat","",FALSE,0);
 
   CreateTrigger("PickGWSatW",ChooseCandidate,PickGWSatW,"","");
 

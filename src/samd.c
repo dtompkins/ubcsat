@@ -36,7 +36,7 @@ void AddSAMD() {
     "DefaultProcedures,Flip+VarScore",
     "default","default");
   
-  CopyParameters(pCurAlg,"gsat-tabu","",FALSE);
+  CopyParameters(pCurAlg,"gsat-tabu","",FALSE,0);
 
   CreateTrigger("SAMDUpdateVarLastChange",UpdateStateInfo,SAMDUpdateVarLastChange,"VarLastChange","UpdateVarLastChange");
 
@@ -47,7 +47,7 @@ void AddSAMD() {
     "DefaultProceduresW,Flip+VarScoreW",
     "default_w","default");
   
-  CopyParameters(pCurAlg,"gsat-tabu","",1);
+  CopyParameters(pCurAlg,"gsat-tabu","",1,0);
 
   CreateTrigger("SAMDUpdateVarLastChangeW",UpdateStateInfo,SAMDUpdateVarLastChangeW,"VarLastChange","UpdateVarLastChange");
 }

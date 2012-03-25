@@ -45,9 +45,11 @@ extern LITTYPE **pClauseLits;
 
 extern FLOAT *aClauseWeight;
 extern FLOAT fTotalWeight;
+extern UINT32 iTotalWeight;
 
 extern UINT32 iVARSTATELen;
 
+extern double dRunTime;
 
 /***** Trigger LitOccurence *****/
 /* 
@@ -97,8 +99,10 @@ extern UINT32 *aNumTrueLit;
 extern UINT32 *aVarValue;
 extern UINT32 iNumFalse;
 extern FLOAT fSumFalseW;
+extern UINT32 iSumFalsePen;
 
-
+extern FLOAT fSumClauseVarFlipCount;
+extern FLOAT fSumClauseVarFlipCount; 
 /***** Trigger DefaultFlip[W] *****/
 
 
@@ -603,3 +607,26 @@ extern FLOAT fFDCRun;
 extern VARSTATELIST vslUnique;
 extern UINT32 iNumUniqueSolutions;
 extern UINT32 iLastUnique;
+
+
+/***** Trigger FlipCounts *****/
+/*
+   fClauseVarFlipCounts[j]        # average flipcount of a clause
+*/
+
+extern FLOAT *fClauseVarFlipCounts;
+
+extern UINT32 *aDecPromVarsList;
+extern UINT32 *aDecPromVarsListPos;
+extern UINT32 iNumDecPromVars;
+extern BOOL *aIsDecPromVar;
+
+extern UINT32 iNumWeighted;
+extern UINT32 *aWeightedList;
+extern UINT32 *aWhereWeight;
+extern BOOL bPerformNovelty;
+
+extern SINT32 *aVarPenScore;
+extern UINT32 *aClausePen;
+
+extern BOOL bPen;

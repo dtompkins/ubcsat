@@ -90,7 +90,7 @@ void AddIRoTS() {
     "DefaultProceduresW,Flip+VarScoreW,CreateIRoTSBackup",
     "default_w","default");
   
-  CopyParameters(pCurAlg,"irots","",FALSE);
+  CopyParameters(pCurAlg,"irots","",FALSE,0);
 
 }
 

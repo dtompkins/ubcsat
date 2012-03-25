@@ -49,7 +49,7 @@ void AddGSatTabu() {
     "DefaultProceduresW,Flip+VarScoreW,VarLastChange",
     "default_w","default");
   
-  CopyParameters(pCurAlg,"gsat-tabu","",FALSE);
+  CopyParameters(pCurAlg,"gsat-tabu","",FALSE,0);
 
   CreateTrigger("PickGSatTabuW",ChooseCandidate,PickGSatTabuW,"","");
 

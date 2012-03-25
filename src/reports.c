@@ -259,7 +259,10 @@ void AddReports() {
     &iBestStepNumFalse,"BestFalse",ColTypeFinal);
 
   AddStatCol("beststep","BestStep","mean",FALSE);
-  
+
+
+
+ 
   AddColumnUInt("beststep_w","Step of Best Weighted Solution Quality Found",
     "      Step",
     "        of",

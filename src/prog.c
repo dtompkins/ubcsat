@@ -19,64 +19,33 @@
   ------------------------------------------------------
 
 */
-
 #include "ubcsat.h"
 
-void AddAlgorithms() {
+void AddSatGen() {
 
-  AddGSat();  
-  AddGWSat();
-  AddGSatTabu();
+  ALGORITHM *pCurAlg;
 
-  AddHSat();
-  AddHWSat();
+  pCurAlg = CreateAlgorithm("generalized local search","",FALSE,
+    "Sat Gen",
+    "Yet to be published",
+    "PickSatGen",
+    "DefaultProcedures,Flip+FalseClauseList,VarLastChange",
+    "default","default");
+  
+  AddParmProbability(&pCurAlg->parmList,"-novnoise","novelty noise [default %s]","","",&iNovNoise,0.50);
 
-  AddWalkSat();
-  AddWalkSatTabu();
+  CreateTrigger("PickNovelty",ChooseCandidate,PickNovelty,"","");
 
-  AddNovelty();
-  AddNoveltyTabu();
-  AddNoveltyPlus();
-  AddNoveltyPlusTabu();
-  AddNoveltyPlusPlus();
-  AddNoveltyPlusPlusTabu();
-  AddNoveltyPlusPlusPrime();
-  AddNoveltyPromising();
-  AddNoveltyPromisingTabu();
-  AddNoveltyPlusPromising();
-  AddNoveltyPlusPromisingTabu();
-  AddNoveltyPlusPlusPromising();
-  AddNoveltyPlusPlusPromisingTabu();
-  AddNoveltyPlusPlusPrimePromising();
-  AddNoveltyPlusPlusPrimePromisingTabu();
-  AddNoveltyPlusFC(); 
 
-  AddAdaptNoveltyPlus();
+  pCurAlg = CreateAlgorithm("novelty","",TRUE,
+    "Novelty: (weighted)",
+    "McAllester, Selman, Kautz [AAAI 97]",
+    "PickNoveltyW",
+    "DefaultProceduresW,Flip+FalseClauseListW,VarLastChange",
+    "default_w","default");
+  
+  CopyParameters(pCurAlg,"novelty","",FALSE);
 
- // AddAdaptNovelty();
-
-  AddRNovelty();
-  AddRNoveltyPlus();
-
-  AddVW1();
-  AddVW2();
-
-  AddSAPS();
-
-  AddPAWS();
-
-  AddDDFW();
-
-  AddSatenstein();
-  //AddAdaptG2WSatPlus();
-
-  AddRoTS();
-  AddIRoTS();
-
-  AddSAMD();
-
- 
-  AddRandom();
+  CreateTrigger("PickNoveltyW",ChooseCandidate,PickNoveltyW,"","");
 
 }
-

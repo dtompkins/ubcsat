@@ -139,7 +139,7 @@ ALGORITHM *CreateAlgorithm (const char *sName, const char *sVariant, BOOL bWeigh
     CopyParameters()      copy the parameters from one algorithm to another
 */
 
-void CopyParameters(ALGORITHM *pDest, const char *sName, const char *sVar, BOOL bWeighted);
+void CopyParameters(ALGORITHM *pDest, const char *sName, const char *sVar, BOOL bWeighted, int alreadyAddedParam);
 
 /*
     InheritDataTriggers()   copy the data triggers from one algorithm to another

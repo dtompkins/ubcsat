@@ -60,7 +60,7 @@ void AddPAWS() {
     "PAWS: Pure Additive Weighting Scheme",
     "Thornton, Pham, Bain, Ferreira [AAAI 04]",
     "PickPAWS,PostFlipPAWS",
-    "DefaultProcedures,Flip+MBPINT+FCL+VIF,PenClauseList",
+    "DefaultProcedures,Flip+MBPINT+FCL+VIF,PenClauseList,VarLastChange",
     "default","default");
   
   AddParmUInt(&pCurAlg->parmList,"-maxinc","frequency of penalty reductions [default %s]","reduce (smooth) all clause penalties by 1~after every INT increases","",&iPAWSMaxInc,10);
@@ -82,17 +82,30 @@ void PickPAWS() {
   SINT32 iScore;
   SINT32 iBestScore;
   UINT32 iLoopEnd;
-
+  UINT32 iTabuCutoff;
   iNumCandidates = 0;
-  iBestScore = SINT32MAX;
-
+  iBestScore = 0x7FFFFFFF;
+     if(bTabu)
+  {
+      if (iStep > iTabuTenure) {
+       iTabuCutoff = iStep - iTabuTenure;
+      if (iVarLastChangeReset > iTabuCutoff) {
+       iTabuCutoff = iVarLastChangeReset;
+     }
+   } else {
+    iTabuCutoff = 1;
+   }
+  }  
   /* look at all variables that appear in false clauses */
-
+  if(bVarInFalse){
+  if(!bTabu){
   for (j=0;j<iNumVarsInFalseList;j++) {
     iVar = aVarInFalseList[j];
 
     /* use cached value of breakcount - makecount */
+    switch(iScoringMeasure){
 
+    case 1:
     iScore = aBreakPenaltyINT[iVar] - aMakePenaltyINT[iVar];
 
     /* build candidate list of best vars */
@@ -115,20 +128,380 @@ void PickPAWS() {
       while (iNumCandidates < iLoopEnd) {
         aCandidateList[iNumCandidates++] = iVar;
       }
+     }
+     
+     break;
+
+     case 2:
+        iScore =  -aMakePenaltyINT[iVar];
+
+    /* build candidate list of best vars */
+
+    
+     if (iScore <= iBestScore) {
+      if (iScore < iBestScore) {
+        iNumCandidates = 0;
+        iBestScore = iScore;
+      }
+
+      /* using the "Monte Carlo" method */
+
+      iLoopEnd = iNumCandidates + aMakeCount[iVar];
+
+      if (iLoopEnd >= iMaxCandidates) {
+        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%u]\n",iMaxCandidates);
+        AbnormalExit();
+      }
+
+      while (iNumCandidates < iLoopEnd) {
+        aCandidateList[iNumCandidates++] = iVar;
+      }
+     }
+
+
+
+
+     break;
+     case 3: 
+     iScore = aBreakPenaltyINT[iVar] - aMakePenaltyINT[iVar];
+
+    /* build candidate list of best vars */
+
+    if (iScore <= iBestScore) {
+      if ((iScore < iBestScore)||(aVarLastChange[iVar]<aVarLastChange[*aCandidateList])) {
+        iNumCandidates = 0;
+        iBestScore = iScore;
+      }
+
+      /* using the "Monte Carlo" method */
+
+      iLoopEnd = iNumCandidates + aMakeCount[iVar];
+
+      if (iLoopEnd >= iMaxCandidates) {
+        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%u]\n",iMaxCandidates);
+        AbnormalExit();
+      }
+
+      while (iNumCandidates < iLoopEnd) {
+        aCandidateList[iNumCandidates++] = iVar;
+      }
+     }
+
+     break;
+
+     
     }
   }
+ }
+ // If Tabu 
+ else{
+   for (j=0;j<iNumVarsInFalseList;j++) {
+    iVar = aVarInFalseList[j];
+    if (aVarLastChange[j] < iTabuCutoff) { 
+    /* use cached value of breakcount - makecount */
+    switch(iScoringMeasure){
+
+    case 1:
+    iScore = aBreakPenaltyINT[iVar] - aMakePenaltyINT[iVar];
+
+    /* build candidate list of best vars */
+
+    if (iScore <= iBestScore) {
+      if (iScore < iBestScore) {
+        iNumCandidates = 0;
+        iBestScore = iScore;
+      }
+
+      /* using the "Monte Carlo" method */
+
+      iLoopEnd = iNumCandidates + aMakeCount[iVar];
+
+      if (iLoopEnd >= iMaxCandidates) {
+        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%u]\n",iMaxCandidates);
+        AbnormalExit();
+      }
+
+      while (iNumCandidates < iLoopEnd) {
+        aCandidateList[iNumCandidates++] = iVar;
+      }
+     }
+
+     break;
+
+     case 2:
+        iScore =  -aMakePenaltyINT[iVar];
+
+    /* build candidate list of best vars */
+
+
+     if (iScore <= iBestScore) {
+      if (iScore < iBestScore) {
+        iNumCandidates = 0;
+        iBestScore = iScore;
+      }
+
+      /* using the "Monte Carlo" method */
+
+      iLoopEnd = iNumCandidates + aMakeCount[iVar];
+
+      if (iLoopEnd >= iMaxCandidates) {
+        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%u]\n",iMaxCandidates);
+        AbnormalExit();
+      }
+
+      while (iNumCandidates < iLoopEnd) {
+        aCandidateList[iNumCandidates++] = iVar;
+      }
+     }
+
+
+
+
+     break;
+     case 3:
+     iScore = aBreakPenaltyINT[iVar] - aMakePenaltyINT[iVar];
+
+    /* build candidate list of best vars */
+
+    if (iScore <= iBestScore) {
+      if ((iScore < iBestScore)||(aVarLastChange[iVar]<aVarLastChange[*aCandidateList])) {
+        iNumCandidates = 0;
+        iBestScore = iScore;
+      }
+
+      /* using the "Monte Carlo" method */
+
+      iLoopEnd = iNumCandidates + aMakeCount[iVar];
+
+      if (iLoopEnd >= iMaxCandidates) {
+        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%u]\n",iMaxCandidates);
+        AbnormalExit();
+      }
+
+      while (iNumCandidates < iLoopEnd) {
+        aCandidateList[iNumCandidates++] = iVar;
+      }
+     }
+
+     break;
+
+
+    }
+  }
+}
+}
+ 
+}
+  else{
+  if(!bTabu){
+  for (j=0;j<iNumVars;j++) {
+    iVar = j;
+
+    /* use cached value of breakcount - makecount */
+    switch(iScoringMeasure){
+
+    case 1:
+    iScore = aBreakPenaltyINT[iVar] - aMakePenaltyINT[iVar];
+
+    /* build candidate list of best vars */
+
+    if (iScore <= iBestScore) {
+      if (iScore < iBestScore) {
+        iNumCandidates = 0;
+        iBestScore = iScore;
+      }
+
+      /* using the "Monte Carlo" method */
+
+      iLoopEnd = iNumCandidates + aMakeCount[iVar];
+
+      if (iLoopEnd >= iMaxCandidates) {
+        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%u]\n",iMaxCandidates);
+        AbnormalExit();
+      }
+
+      while (iNumCandidates < iLoopEnd) {
+        aCandidateList[iNumCandidates++] = iVar;
+      }
+     }
+
+     break;
+
+     case 2:
+        iScore =  -aMakePenaltyINT[iVar];
+
+    /* build candidate list of best vars */
+
+
+     if (iScore <= iBestScore) {
+      if (iScore < iBestScore) {
+        iNumCandidates = 0;
+        iBestScore = iScore;
+      }
+
+      /* using the "Monte Carlo" method */
+
+      iLoopEnd = iNumCandidates + aMakeCount[iVar];
+
+      if (iLoopEnd >= iMaxCandidates) {
+        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%u]\n",iMaxCandidates);
+        AbnormalExit();
+      }
+
+      while (iNumCandidates < iLoopEnd) {
+        aCandidateList[iNumCandidates++] = iVar;
+      }
+     }
+
+
+
+
+     break;
+     case 3:
+     iScore = aBreakPenaltyINT[iVar] - aMakePenaltyINT[iVar];
+
+    /* build candidate list of best vars */
+
+    if (iScore <= iBestScore) {
+      if ((iScore < iBestScore)||(aVarLastChange[iVar]<aVarLastChange[*aCandidateList])) {
+        iNumCandidates = 0;
+        iBestScore = iScore;
+      }
+
+      /* using the "Monte Carlo" method */
+
+      iLoopEnd = iNumCandidates + aMakeCount[iVar];
+
+      if (iLoopEnd >= iMaxCandidates) {
+        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%u]\n",iMaxCandidates);
+        AbnormalExit();
+      }
+
+      while (iNumCandidates < iLoopEnd) {
+        aCandidateList[iNumCandidates++] = iVar;
+      }
+     }
+
+     break;
+
+
+    }
+  }
+ }
+ // If Tabu
+ else{
+   for (j=0;j<iNumVars;j++) {
+    iVar = j;
+    if (aVarLastChange[j] < iTabuCutoff) {
+    /* use cached value of breakcount - makecount */
+    switch(iScoringMeasure){
+
+    case 1:
+    iScore = aBreakPenaltyINT[iVar] - aMakePenaltyINT[iVar];
+
+    /* build candidate list of best vars */
+
+    if (iScore <= iBestScore) {
+      if (iScore < iBestScore) {
+        iNumCandidates = 0;
+        iBestScore = iScore;
+      }
+
+      /* using the "Monte Carlo" method */
+
+      iLoopEnd = iNumCandidates + aMakeCount[iVar];
+
+      if (iLoopEnd >= iMaxCandidates) {
+        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%u]\n",iMaxCandidates);
+        AbnormalExit();
+      }
+
+      while (iNumCandidates < iLoopEnd) {
+        aCandidateList[iNumCandidates++] = iVar;
+      }
+     }
+
+     break;
+
+     case 2:
+        iScore =  -aMakePenaltyINT[iVar];
+
+    /* build candidate list of best vars */
+
+
+     if (iScore <= iBestScore) {
+      if (iScore < iBestScore) {
+        iNumCandidates = 0;
+        iBestScore = iScore;
+      }
+
+      /* using the "Monte Carlo" method */
+
+      iLoopEnd = iNumCandidates + aMakeCount[iVar];
+
+      if (iLoopEnd >= iMaxCandidates) {
+        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%u]\n",iMaxCandidates);
+        AbnormalExit();
+      }
+
+      while (iNumCandidates < iLoopEnd) {
+        aCandidateList[iNumCandidates++] = iVar;
+      }
+     }
+
+
+
+
+     break;
+     case 3:
+     iScore = aBreakPenaltyINT[iVar] - aMakePenaltyINT[iVar];
+
+    /* build candidate list of best vars */
+
+    if (iScore <= iBestScore) {
+      if ((iScore < iBestScore)||(aVarLastChange[iVar]<aVarLastChange[*aCandidateList])) {
+        iNumCandidates = 0;
+        iBestScore = iScore;
+      }
+
+      /* using the "Monte Carlo" method */
+
+      iLoopEnd = iNumCandidates + aMakeCount[iVar];
+
+      if (iLoopEnd >= iMaxCandidates) {
+        ReportPrint1(pRepErr,"Unexpected Error: increase iMaxCandidates [%u]\n",iMaxCandidates);
+        AbnormalExit();
+      }
+
+      while (iNumCandidates < iLoopEnd) {
+        aCandidateList[iNumCandidates++] = iVar;
+      }
+     }
+
+     break;
+
+
+    }
+  }
+}
+}
+
+}
 
   iFlipCandidate = 0;
 
   if (iBestScore < 0) {
 
     /* select flip candidate uniformly from candidate list */
-    
+    //iFlipCandidate = TieBreaking();
+     
     if (iNumCandidates > 1) {
-      iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
+     // iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
+        iFlipCandidate = TieBreaking();
     } else {
       iFlipCandidate = *aCandidateList;
     }
+    
   } else {
     
     if (iBestScore == 0) {
@@ -137,11 +510,15 @@ void PickPAWS() {
          otherwise it's a null flip */
     
       if (RandomProb(iPAWSFlatMove)) {
+       // iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)]; 
+        
         if (iNumCandidates > 1) {
-          iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
+          //iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)]; 
+           iFlipCandidate = TieBreaking();
         } else {
           iFlipCandidate = *aCandidateList;
         }
+       
       }
     }
   }

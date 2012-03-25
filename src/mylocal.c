@@ -62,7 +62,7 @@ void AddWalkSatTabuNoNull() {
   
   InheritDataTriggers(pCurAlg,"walksat-tabu","",FALSE);     /* Copy the data triggers from walksat-tabu */
   
-  CopyParameters(pCurAlg,"walksat-tabu","",FALSE);          /* Copy the command line parameters from walksat-tabu */
+  CopyParameters(pCurAlg,"walksat-tabu","",FALSE,0);          /* Copy the command line parameters from walksat-tabu */
 
   CreateTrigger("PickWalkSatTabuNoNull",                    /* Add the new trigger for the heuristic */
     ChooseCandidate,                                        /* Occurs at the event point for choosing flip candidates */

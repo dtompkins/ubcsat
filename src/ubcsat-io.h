@@ -50,6 +50,9 @@ extern FILE *filReportPrint;
 #define ReportPrint1(pRep, sFormat, pVal1) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat,pVal1); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1); }
 #define ReportPrint2(pRep, sFormat, pVal1, pVal2) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat,pVal1,pVal2); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1,pVal2); }
 #define ReportPrint3(pRep, sFormat, pVal1, pVal2, pVal3) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat,pVal1,pVal2,pVal3); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1,pVal2,pVal3); }
+#define ReportPrint4(pRep, sFormat, pVal1, pVal2, pVal3, pVal4) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat,pVal1,pVal2,pVal3,pVal4); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1,pVal2,pVal3,pVal4); }
+
+
 
 
 #define ReportHdrPrefix(pRep) {if (!bReportClean) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,"%s ",sCommentString); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,"%s ",sCommentString); }}

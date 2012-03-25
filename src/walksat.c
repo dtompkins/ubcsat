@@ -24,6 +24,8 @@
 
 void PickWalkSatSKC();
 void PickWalkSatSKCW();
+UINT32 PickClauseWCSPen();
+PROBABILITY iWpWalk; 
 
 void AddWalkSat() {
 
@@ -36,7 +38,7 @@ void AddWalkSat() {
     "DefaultProcedures,Flip+FalseClauseList",
     "default","default");
   
-  AddParmProbability(&pCurAlg->parmList,"-wp","walk probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iWp,0.50);
+  AddParmProbability(&pCurAlg->parmList,"-wpwalk","walk probability [default %s]","with probability PR, select a random variable from a~randomly selected unsat clause","",&iWpWalk,0.50);
 
   CreateTrigger("PickWalkSatSKC",ChooseCandidate,PickWalkSatSKC,"","");
 
@@ -48,7 +50,7 @@ void AddWalkSat() {
     "DefaultProceduresW,Flip+FalseClauseListW",
     "default_w","default");
   
-  CopyParameters(pCurAlg,"walksat","",FALSE);
+  CopyParameters(pCurAlg,"walksat","",FALSE,0);
 
   CreateTrigger("PickWalkSatSKCW",ChooseCandidate,PickWalkSatSKCW,"","");
  
@@ -71,7 +73,7 @@ void PickWalkSatSKC() {
   iBestScore = iNumClauses;
 
   /* select an unsatisfied clause uniformly at random */
-
+  
   if (iNumFalse) {
     iClause = aFalseList[RandomInt(iNumFalse)];
     iClauseLen = aClauseLen[iClause];
@@ -96,13 +98,30 @@ void PickWalkSatSKC() {
     
     iNumOcc = aNumLitOcc[GetNegatedLit(*pLit)];
     pClause = pLitClause[GetNegatedLit(*pLit)];
-    
+  
+    if(!bPen)
+    {  
     for (i=0;i<iNumOcc;i++) {
       if (aNumTrueLit[*pClause]==1) {
         iScore++;
       }
       pClause++;
     }
+ 
+    }
+    else{
+
+      for (i=0;i<iNumOcc;i++) {
+      if (aNumTrueLit[*pClause]==1) {
+        iScore += aClausePen[*pClause];
+      }
+      pClause++;
+    }
+   }
+
+
+
+    
 
     /* build candidate list of best vars */
 
@@ -121,7 +140,7 @@ void PickWalkSatSKC() {
      probability (iWp) randomly choose the literal to flip */
 
   if (iBestScore > 0) {
-    if (RandomProb(iWp)) {
+    if (RandomProb(iWpWalk)) {
       litPick = pClauseLits[iClause][RandomInt(iClauseLen)];
       iFlipCandidate = GetVarFromLit(litPick);
       return;
@@ -163,6 +182,29 @@ UINT32 PickClauseWCS() {
   }
   return(iClause);
 }
+
+UINT32 PickClauseWCSPen() {
+
+  /* this routine randomly selects a weighted clause so that
+     clauses with larger weights are more likely to be selected
+     ('roulette' selection) */
+
+  UINT32 j;
+  UINT32 iRandClause;
+  UINT32 iClauseSum;
+  UINT32 iClause = 0;
+  iRandClause = RandomFloat() * iSumFalsePen;
+  iClauseSum = 0;
+  for (j=0;j<iNumFalse;j++) {
+    iClause = aFalseList[j];
+    iClauseSum += aClausePen[iClause];
+    if (iRandClause < iClauseSum) {
+      break;
+    }
+  }
+  return(iClause);
+}
+
 
 
 void PickWalkSatSKCW() {
@@ -222,7 +264,7 @@ void PickWalkSatSKCW() {
   }
 
   if (fBestScore > 0) {
-    if (RandomProb(iWp)) {
+    if (RandomProb(iWpWalk)) {
       litPick = pClauseLits[iClause][RandomInt(iClauseLen)];
       iFlipCandidate = GetVarFromLit(litPick);
       return;

@@ -62,14 +62,9 @@
 #define UINT32 unsigned long
 #endif
 
-#define UINT32MAX 0xFFFFFFFF
-
 #ifndef SINT32
 #define SINT32 signed long
 #endif
-
-#define SINT32MAX 0x7FFFFFFF
-#define SINT32MIN 0x80000000
 
 #ifndef FALSE
 #define FALSE 0

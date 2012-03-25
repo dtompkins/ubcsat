@@ -54,7 +54,7 @@ void AddRoTS() {
     "DefaultProceduresW,Flip+VarScoreW",
     "default_w","default");
   
-  CopyParameters(pCurAlg,"rots","",FALSE);
+  CopyParameters(pCurAlg,"rots","",FALSE,0);
   CreateTrigger("PickRoTSW",ChooseCandidate,PickRoTSW,"InitRoTS,VarLastChange,BestFalse","");
 
 }

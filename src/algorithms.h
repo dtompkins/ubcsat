@@ -50,6 +50,7 @@ void AddHWSat();
 
 void AddWalkSat();
 UINT32 PickClauseWCS();
+UINT32 PickClauseWCSPen();
 
 /* walksat-tabu.c */
 
@@ -60,13 +61,43 @@ extern UINT32 iWalkSATTabuClause;
 /* novelty.c */
 
 void AddNovelty();
+void AddNoveltyTabu();
 void AddNoveltyPlus();
+void AddNoveltyPlusTabu();
 void AddNoveltyPlusPlus();
+void AddNoveltyPlusPlusTabu();
+void AddNoveltyPlusPlusPrime();
+void AddNoveltyPromising();
+void AddNoveltyPromisingTabu();
+void AddNoveltyPlusPromising();
+void AddNoveltyPlusPromisingTabu();
+void AddNoveltyPlusPlusPromising();
+void AddNoveltyPlusPlusPromisingTabu();
+void PickNoveltyPlusPlusPromising();
+void AddNoveltyPlusPlusPrimePromising();
+void AddNoveltyPlusFC();
+void PickNoveltyTabu();
+void PickNoveltyPromisingTabu();
+void PickNoveltyTabu();
+void PickNoveltyPlusPromising();
+void PickNoveltyPlusPromisingTabu();
 void PickNoveltyPlusPlus();
+void PickNoveltyPlusPlusPromisingTabu();
+void PickNoveltyPlusPlusTabu();
+void PickNoveltyPlusPlusPrime();
+void PickNoveltyPlusPlusPrimePromising();
 void PickNoveltyPlusPlusW();
+void PickNoveltyPlusPlusPrimePromisingTabu();
+void AddNoveltyPlusPlusPrimePromisingTabu();
+void PickNoveltyPlusFC();
+void PickNoveltyPromisingFC();
+UINT32 SelectClause();
+SINT32 BestLookAheadScore();
+SINT32 BestLookAheadPenScore();
 
 extern PROBABILITY iNovNoise;
-
+extern PROBABILITY iDp;
+UINT32 iSelectClause;
 /* rnovelty.c */
 
 void AddRNovelty();
@@ -75,20 +106,43 @@ void AddRNoveltyPlus();
 /* adaptnovelty.c */
 
 void AddAdaptNoveltyPlus();
+void AddAdaptNovelty();
 extern UINT32 iLastAdaptStep;
 extern UINT32 iLastAdaptNumFalse;
 extern FLOAT fLastAdaptSumFalseW;
-extern const UINT32 iInvPhi;
-extern const UINT32 iInvTheta;
+extern  UINT32 iInvPhi;
+extern  UINT32 iInvTheta;
+extern  UINT32 iPromInvPhi;
+extern  UINT32 iPromInvTheta;
+extern int intNovNoise;
+extern int intDp;
+extern BOOL bAdaptPromWalkProb;
+
+
+extern PROBABILITY iWpWalk;
+extern BOOL bAdaptWalkProb;
 
 /* saps.c */
 
 void AddSAPS();
+void PickSAPS();
+
+extern FLOAT fAlpha;
+extern FLOAT fRho;
+extern FLOAT fPenaltyImprove;
+extern PROBABILITY iPs;
+extern PROBABILITY iRPs;
+extern const FLOAT fMaxClausePenalty;
 
 /* paws.c */
 
 void AddPAWS();
 extern PROBABILITY iPAWSFlatMove;
+extern UINT32 iPAWSMaxInc;
+extern UINT32 *aPenClauseList;
+extern UINT32 *aPenClauseListPos;
+extern UINT32 iNumPenClauseList;
+
 
 /* ddfw.c */
 
@@ -96,7 +150,21 @@ void AddDDFW();
 
 /* g2wsat.c */
 
-void AddG2WSat();
+void AddSatenstein();
+void AddAdaptG2WSatPlus();
+
+extern BOOL bTabu;
+extern BOOL bVarInFalse;
+extern BOOL bPromisingList;
+extern UINT32 iTieBreaking;
+extern BOOL bPerformNoveltyAlternate;
+extern UINT32 iUpdateSchemePromList;
+extern UINT32 iAdaptiveNoiseScheme;
+extern PROBABILITY iPromNovNoise;
+extern PROBABILITY iPromDp;
+extern PROBABILITY iPromWp;
+extern UINT32 iScoringMeasure;
+UINT32 TieBreaking();
 
 /* rots.c */
 
@@ -121,6 +189,12 @@ void AddRandom();
 
 /* vw.c */
 
-void AddVW();
-
+void AddVW1();
+void AddVW2();
+void PickVW1();
+void PickVW2();
+void PickVW1Tabu();
+void PickVW2Tabu();
+void PickVW2Automated();
+extern FLOAT *aVW2Weights;
 
