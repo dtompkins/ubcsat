@@ -49,7 +49,7 @@ void *AllocateRAM( size_t size ) {
   UINT32 iHeapID = 0;
   void *pReturn;
 
-  size = size + (4-(size % 4));
+  size = size + (8-(size % 8));
 
   iLastRequestSize = size;
   
@@ -89,7 +89,7 @@ void *AllocateRAM( size_t size ) {
 }
 
 void AdjustLastRAM( size_t size ) {
-  size = size + (4-(size % 4));
+  size = size + (8-(size % 8));
   aHeap[iLastHeap].iBytesFree += (iLastRequestSize - size);
   aHeap[iLastHeap].pFree -= (iLastRequestSize - size);
 }
