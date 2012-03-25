@@ -1,4 +1,3 @@
-
       ##  ##  #####    #####   $$$$$   $$$$   $$$$$$    
       ##  ##  ##  ##  ##      $$      $$  $$    $$      
       ##  ##  #####   ##       $$$$   $$$$$$    $$      
@@ -7,9 +6,15 @@
   ======================================================
   SLS SAT Solver from The University of British Columbia
   ======================================================
-  ...Developed by Dave Tompkins (davet [@] cs.ubc.ca)...
+  ...... Developed & Maintained by Dave Tompkins .......
   ------------------------------------------------------
-  ... project website: http://www.satlib.org/ubcsat ....
+  ...... consult legal.txt for legal information .......
+  ------------------------------------------------------
+  .... project website: http://ubcsat.dtompkins.com ....
+  ------------------------------------------------------
+  source repository: https://github.com/dtompkins/ubcsat
+  ------------------------------------------------------
+  ..... contact us at ubcsat [@] googlegroups.com ......
   ------------------------------------------------------
   
 

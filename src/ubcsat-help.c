@@ -8,14 +8,15 @@
   ======================================================
   SLS SAT Solver from The University of British Columbia
   ======================================================
-  ...Developed by Dave Tompkins (davet [@] cs.ubc.ca)...
+  ...... Developed & Maintained by Dave Tompkins .......
   ------------------------------------------------------
-  .......consult legal.txt for legal information........
-  ......consult revisions.txt for revision history......
+  ...... consult legal.txt for legal information .......
   ------------------------------------------------------
-  ... project website: http://www.satlib.org/ubcsat ....
+  .... project website: http://ubcsat.dtompkins.com ....
   ------------------------------------------------------
-  .....e-mail ubcsat-help [@] cs.ubc.ca for support.....
+  source repository: https://github.com/dtompkins/ubcsat
+  ------------------------------------------------------
+  ..... contact us at ubcsat [@] googlegroups.com ......
   ------------------------------------------------------
 
 */
@@ -82,7 +83,7 @@ void HelpShowHeader() {
     return;
   } else {
     ReportPrint1(pRepHelp,"\nUBCSAT version %s\n\n",sVersion);
-    ReportPrint(pRepHelp,"http://www.satlib.org/ubcsat\n\n");
+    ReportPrint(pRepHelp,"http://ubcsat.dtompkins.com\n\n");
     bHelpHeaderShown = 1;
   }
 }
@@ -120,7 +121,7 @@ void HelpShowBasic() {
   ReportPrint(pRepHelp,"  ubcsat -hc    For help with the [c]olumns of the default output report\n");
   ReportPrint(pRepHelp,"  ubcsat -hs    For help with the [s]tatistics report\n\n");
 
-  ReportPrint(pRepHelp,"Consult the website and email ubcsat-help [@] cs.ubc.ca for support\n\n\n");
+  ReportPrint(pRepHelp,"Consult the website and email ubcsat [@] googlegroups.com for support\n\n\n");
 
 }
 
@@ -167,7 +168,7 @@ void HelpPrintAlgorithms() {
 
   ReportPrint(pRepHelp,"SUPPORTED ALGORITHMS: (unweighted)\n");
   ReportPrint(pRepHelp,"==================================\n\n");
-  ReportPrint(pRepHelp,"see http://www.satlib.org/ubcsat/algorithms for additional info\n\n");
+  ReportPrint(pRepHelp,"see http://ubcsat.dtompkins.com/algorithms for additional info\n\n");
 
   for (j=0;j<iNumAlg;j++) {
     if (!aAlgorithms[j].bWeighted) {
@@ -184,7 +185,7 @@ void HelpPrintAlgorithmsW() {
 
   ReportPrint(pRepHelp,"SUPPORTED ALGORITHMS: (weighted)\n");
   ReportPrint(pRepHelp,"================================\n\n");
-  ReportPrint(pRepHelp,"see http://www.satlib.org/ubcsat/algorithms for additional info\n\n");
+  ReportPrint(pRepHelp,"see http://ubcsat.dtompkins.com/algorithms for additional info\n\n");
 
   for (j=0;j<iNumAlg;j++) {
     if (aAlgorithms[j].bWeighted) {
@@ -386,7 +387,7 @@ void PrintUBCSATHeader(REPORT *pRep) {
   ReportHdrPrefix(pRep);
   ReportHdrPrint(pRep,"\n");
   ReportHdrPrefix(pRep);
-  ReportHdrPrint(pRep,"http://www.satlib.org/ubcsat\n");
+  ReportHdrPrint(pRep,"http://ubcsat.dtompkins.com\n");
   ReportHdrPrefix(pRep);
   ReportHdrPrint(pRep,"\n");
   ReportHdrPrefix(pRep);

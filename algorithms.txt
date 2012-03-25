@@ -1,20 +1,27 @@
-#
-#     ##  ##  #####    #####   $$$$$   $$$$   $$$$$$    
-#     ##  ##  ##  ##  ##      $$      $$  $$    $$      
-#     ##  ##  #####   ##       $$$$   $$$$$$    $$      
-#     ##  ##  ##  ##  ##          $$  $$  $$    $$      
-#      ####   #####    #####  $$$$$   $$  $$    $$      
-# ======================================================
-# SLS SAT Solver from The University of British Columbia
-# ======================================================
-# ...Developed by Dave Tompkins (davet [@] cs.ubc.ca)...
-# ------------------------------------------------------
+#      ##  ##  #####    #####   $$$$$   $$$$   $$$$$$    
+#      ##  ##  ##  ##  ##      $$      $$  $$    $$      
+#      ##  ##  #####   ##       $$$$   $$$$$$    $$      
+#      ##  ##  ##  ##  ##          $$  $$  $$    $$      
+#       ####   #####    #####  $$$$$   $$  $$    $$      
+#  ======================================================
+#  SLS SAT Solver from The University of British Columbia
+#  ======================================================
+#  ...... Developed & Maintained by Dave Tompkins .......
+#  ------------------------------------------------------
+#  ...... consult legal.txt for legal information .......
+#  ------------------------------------------------------
+#  .... project website: http://ubcsat.dtompkins.com ....
+#  ------------------------------------------------------
+#  source repository: https://github.com/dtompkins/ubcsat
+#  ------------------------------------------------------
+#  ..... contact us at ubcsat [@] googlegroups.com ......
+#  ------------------------------------------------------
 #
 #
 # This file describes the algorithms currently available in UBCSAT
 #
 # You can view a more user-friendly and prettier version at:
-# http://www.satlib.org/ubcsat/algorithms
+# http://ubcsat.dtompkins.com/algorithms
 #
 # For entries such as {academic} in brace brackets, see the Notes at the bottom
 #
