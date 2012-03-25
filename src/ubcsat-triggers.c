@@ -4157,7 +4157,7 @@ void InitBestFalse() {
   iBestNumFalse = iNumClauses+1;
   iBestStepNumFalse = iStep; 
 
-  iBestSumFalseWeight = iTotalClauseWeight + 1;
+  iBestSumFalseWeight = UBIGINTMAX;
   iBestStepSumFalseWeight = iStep;
 }
 
@@ -5075,7 +5075,7 @@ void InitStepsUpDownSide() {
   iNumSideStepsW = 0;
 
   iSUDSLastNumFalse = iNumClauses;
-  iSUDSfLastSumFalseWeight = iTotalClauseWeight;
+  iSUDSfLastSumFalseWeight = UBIGINTMAX;
 }
 
 void UpdateStepsUpDownSide() {

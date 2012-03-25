@@ -69,8 +69,8 @@ void PickNoveltyW() {
   UINT32 iBestVar=0;
   UINT32 iSecondBestVar=0;
 
-  iBestScoreWeight = iTotalClauseWeight;
-  iSecondBestScore = iTotalClauseWeight;
+  iBestScoreWeight = SBIGINTMAX;
+  iSecondBestScore = SBIGINTMAX;
 
   /* select the clause according to a weighted scheme */
 
@@ -284,7 +284,7 @@ void PickGSatW() {
   SBIGINT iScore;
 
   iNumCandidates = 0;
-  iBestScoreWeight = iTotalClauseWeight;
+  iBestScoreWeight = SBIGINTMAX;
 
   /* check score of all variables */
 
@@ -332,7 +332,7 @@ void PickGSatTabuW() {
   }
 
   iNumCandidates = 0;
-  iBestScoreWeight = iTotalClauseWeight;
+  iBestScoreWeight = SBIGINTMAX;
 
   for (j=1;j<=iNumVars;j++) {
     
@@ -381,7 +381,7 @@ void PickGWSatW() {
   } else {
 
     iNumCandidates = 0;
-    iBestScoreWeight = iTotalClauseWeight;
+    iBestScoreWeight = SBIGINTMAX;
 
     /* check score of all variables */
 
@@ -418,7 +418,7 @@ void PickHSatW() {
   SBIGINT iScore;
 
   iNumCandidates = 0;
-  iBestScoreWeight = iTotalClauseWeight;
+  iBestScoreWeight = SBIGINTMAX;
 
   /* check score of all variables */
 
@@ -483,7 +483,7 @@ void PickRGSatW() {
   SBIGINT iScore;
 
   iNumCandidates = 0;
-  iBestScoreWeight = iTotalClauseWeight;
+  iBestScoreWeight = SBIGINTMAX;
   for (j=1;j<=iNumVars;j++) {
     iScore = aVarScoreWeight[j];
     if (iScore <= iBestScoreWeight) {
@@ -528,7 +528,7 @@ void PickRoTSW() {
     iTabuCutoff = 1;
   }
   iNumCandidates = 0;
-  iBestScoreWeight = iTotalClauseWeight;
+  iBestScoreWeight = SBIGINTMAX;
   for (j=1;j<=iNumVars;j++) {
     iScore = aVarScoreWeight[j];
     if (aVarLastChange[j] >= iTabuCutoff) { 
@@ -626,7 +626,7 @@ void PickWalkSatSKCW() {
   UINT32 iNumOcc;
 
   iNumCandidates = 0;
-  iBestScoreWeight = iTotalClauseWeight;
+  iBestScoreWeight = SBIGINTMAX;
 
   /* select the clause according to a weighted scheme */
 
@@ -687,7 +687,7 @@ void PickWalkSatTabuW() {
   UBIGINT iTabuCutoff;
 
   iNumCandidates = 0;
-  iBestScoreWeight = iTotalClauseWeight;
+  iBestScoreWeight = SBIGINTMAX;
 
   /* calculation of tabu cutoff */
 

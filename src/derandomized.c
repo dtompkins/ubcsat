@@ -262,7 +262,7 @@ void PickDANOVP() {
 void InitAdaptNoveltyNoiseDet() {
   iLastAdaptStep=iStep;
   iLastAdaptNumFalse=iNumFalse;
-  iLastAdaptSumFalseWeight=iTotalClauseWeight;
+  iLastAdaptSumFalseWeight=UBIGINTMAX;
   iNovNoise = 0;
   iCountNovNoise0 = 1;
   iCountNovNoise1 = 1;

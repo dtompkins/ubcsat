@@ -121,7 +121,7 @@ void InitIRoTS() {
 
   iIrotsLSBestStep = 1;
   iIrotsLSBestValue = iNumClauses + 1;
-  iIrotsLSBestValueWeight = iTotalClauseWeight;
+  iIrotsLSBestValueWeight = UBIGINTMAX;
 
   iVarLastChangeReset = 0;
 }

@@ -73,7 +73,7 @@ void AddAdaptNoveltyPlus() {
 void InitAdaptNoveltyNoise() {
   iLastAdaptStep=iStep;
   iLastAdaptNumFalse=iNumFalse;
-  iLastAdaptSumFalseWeight=iTotalClauseWeight;
+  iLastAdaptSumFalseWeight = UBIGINTMAX;
   iNovNoise = 0;
 }
 
