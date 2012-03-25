@@ -55,7 +55,7 @@ cfiles = src/adaptnovelty.c \
          src/weighted.c
 
 ubcsat: $(hfiles) $(cfiles)
-	gcc -Wall -O3 -static -o ubcsat $(cfiles) -lm
+	gcc -Wall -O3 -static -o ubcsat-irots $(cfiles) -lm
 
 clean:
-	rm -f ubcsat
+	rm -f ubcsat-irots
