@@ -298,7 +298,7 @@ void PostStepIRoTS() {
 
 
 void CreateIRoTSBackup() {
-  aIrotsBackup = (BOOL *) AllocateRAM((iNumVars+1)*sizeof(BOOL));
+  aIrotsBackup = (BOOL *) AllocateRAM((iNumVars+1)*sizeof(BOOL), HeapData);
 }
 
 void IRoTSBackup() {

@@ -1115,10 +1115,10 @@ void ReadCNF() {
     iVARSTATELen--;
   }
   
-  aClauseLen = (UINT32 *) AllocateRAM(iNumClauses * sizeof(UINT32));
-  pClauseLits = (LITTYPE **) AllocateRAM(iNumClauses * sizeof(LITTYPE *));
+  aClauseLen = (UINT32 *) AllocateRAM(iNumClauses * sizeof(UINT32), HeapData);
+  pClauseLits = (LITTYPE **) AllocateRAM(iNumClauses * sizeof(LITTYPE *), HeapData);
   if (bWeighted) {
-    aClauseWeight = (UBIGINT *) AllocateRAM(iNumClauses * sizeof(UBIGINT));
+    aClauseWeight = (UBIGINT *) AllocateRAM(iNumClauses * sizeof(UBIGINT), HeapData);
   }
   
   pLastLit = pNextLit = pData = 0;
@@ -1182,7 +1182,7 @@ void ReadCNF() {
       if (l) {
         
         if (pNextLit >= pLastLit) {
-          pData = (LITTYPE *) AllocateRAM(LITSPERCHUNK * sizeof(LITTYPE));
+          pData = (LITTYPE *) AllocateRAM(LITSPERCHUNK * sizeof(LITTYPE), HeapData);
           pNextLit = pData;
           pLastLit = pData + LITSPERCHUNK;
           for (k=0;k<aClauseLen[j];k++) {
@@ -1234,9 +1234,9 @@ void CreateLitOccurence() {
   LITTYPE *pLit;
   UINT32 *pCur;
 
-  aNumLitOcc = (UINT32 *) AllocateRAM((iNumVars+1)*2*sizeof(UINT32));
-  pLitClause = (UINT32 **) AllocateRAM((iNumVars+1)*2*sizeof(UINT32 *));
-  aLitOccData = (UINT32 *) AllocateRAM(iNumLits*sizeof(UINT32));
+  aNumLitOcc = (UINT32 *) AllocateRAM((iNumVars+1)*2*sizeof(UINT32), HeapData);
+  pLitClause = (UINT32 **) AllocateRAM((iNumVars+1)*2*sizeof(UINT32 *), HeapData);
+  aLitOccData = (UINT32 *) AllocateRAM(iNumLits*sizeof(UINT32), HeapData);
 
   memset(aNumLitOcc,0,(iNumVars+1)*2*sizeof(UINT32));
   
@@ -1268,7 +1268,7 @@ void CreateLitOccurence() {
 }
 
 void CreateCandidateList() {
-  aCandidateList = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aCandidateList = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
   iMaxCandidates = iNumClauses;
 }
 
@@ -1355,9 +1355,9 @@ void InitVarsFromFile() {
 
 
 void CreateDefaultStateInfo() {
-  aNumTrueLit = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
-  aVarValue = (BOOL *) AllocateRAM((iNumVars+1)*sizeof(BOOL));
-  aVarInit = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
+  aNumTrueLit = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
+  aVarValue = (BOOL *) AllocateRAM((iNumVars+1)*sizeof(BOOL), HeapData);
+  aVarInit = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32), HeapData);
 }
 
 void InitDefaultStateInfo() {
@@ -1549,8 +1549,8 @@ void CheckTermination() {
 }
 
 void CreateFalseClauseList() {
-  aFalseList = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
-  aFalseListPos = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aFalseList = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
+  aFalseListPos = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
 }
 
 void InitFalseClauseList() {
@@ -1676,8 +1676,8 @@ void FlipFalseClauseListW() {
 }
 
 void CreateVarScore() {
-  aVarScore = (SINT32 *) AllocateRAM((iNumVars+1)*sizeof(SINT32));
-  aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aVarScore = (SINT32 *) AllocateRAM((iNumVars+1)*sizeof(SINT32), HeapData);
+  aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
 }
 
 void InitVarScore() {
@@ -1846,8 +1846,8 @@ void FlipVarScore() {
 
 
 void CreateVarScoreW() {
-  aVarScoreWeight = (SBIGINT *) AllocateRAM((iNumVars+1)*sizeof(SBIGINT));
-  aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aVarScoreWeight = (SBIGINT *) AllocateRAM((iNumVars+1)*sizeof(SBIGINT), HeapData);
+  aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
 }
 
 void InitVarScoreW() {
@@ -2093,9 +2093,9 @@ void FlipVarScoreFalseClauseList() {
 }
 
 void CreateMakeBreak() {
-  aBreakCount = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
-  aMakeCount = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
-  aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aBreakCount = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32), HeapData);
+  aMakeCount = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32), HeapData);
+  aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
 }
 
 void InitMakeBreak() {
@@ -2267,9 +2267,9 @@ void FlipMakeBreak() {
 }
 
 void CreateMakeBreakW() {
-  aBreakCountWeight = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
-  amakeCountWeight = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
-  aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aBreakCountWeight = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT), HeapData);
+  amakeCountWeight = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT), HeapData);
+  aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
 }
 
 void InitMakeBreakW() {
@@ -2445,8 +2445,8 @@ void FlipMakeBreakW() {
 }
 
 void CreateVarInFalse() {
-  aVarInFalseList = (UINT32 *) AllocateRAM((iNumVars+1)* sizeof(UINT32));
-  aVarInFalseListPos = (UINT32 *) AllocateRAM((iNumVars+1)* sizeof(UINT32));
+  aVarInFalseList = (UINT32 *) AllocateRAM((iNumVars+1)* sizeof(UINT32), HeapData);
+  aVarInFalseListPos = (UINT32 *) AllocateRAM((iNumVars+1)* sizeof(UINT32), HeapData);
 }
 
 void InitVarInFalse() {
@@ -2629,7 +2629,7 @@ void FlipVarInFalse() {
 }
 
 void CreateVarLastChange() {
-  aVarLastChange = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
+  aVarLastChange = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT), HeapData);
 }
 
 void InitVarLastChange() {
@@ -2647,9 +2647,9 @@ void UpdateVarLastChange() {
 
 
 void CreateTrackChanges() {
-  aChangeList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
-  aChangeLastStep = (UBIGINT *) AllocateRAM((iNumVars+1) * sizeof(UBIGINT));
-  aChangeOldScore = (SINT32 *) AllocateRAM((iNumVars+1) * sizeof(SINT32));
+  aChangeList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32), HeapData);
+  aChangeLastStep = (UBIGINT *) AllocateRAM((iNumVars+1) * sizeof(UBIGINT), HeapData);
+  aChangeOldScore = (SINT32 *) AllocateRAM((iNumVars+1) * sizeof(SINT32), HeapData);
 }
 
 void InitTrackChanges() {
@@ -3007,9 +3007,9 @@ void FlipDecPromVarsFCL() {
 #define UpdateChangeW(var) {if(aChangeLastStepWeight[var]!=iStep) {aChangeOldScoreWeight[var] = aVarScoreWeight[var]; aChangeLastStepWeight[var]=iStep; aChangeListW[iNumChangesW++]=var;}}
 
 void CreateTrackChangesW() {
-  aChangeListW = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
-  aChangeLastStepWeight = (UBIGINT *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
-  aChangeOldScoreWeight = (SBIGINT *) AllocateRAM((iNumVars+1) * sizeof(SBIGINT));
+  aChangeListW = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32), HeapData);
+  aChangeLastStepWeight = (UBIGINT *) AllocateRAM((iNumVars+1) * sizeof(UINT32), HeapData);
+  aChangeOldScoreWeight = (SBIGINT *) AllocateRAM((iNumVars+1) * sizeof(SBIGINT), HeapData);
 }
 
 void InitTrackChangesW() {
@@ -3262,7 +3262,7 @@ void FlipTrackChangesFCLW() {
 
 void CreateDecPromVars() {
 
-  aDecPromVarsList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
+  aDecPromVarsList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32), HeapData);
 }
 
 void InitDecPromVars() {
@@ -3304,7 +3304,7 @@ void UpdateDecPromVars() {
 
 void CreateDecPromVarsW() {
 
-  aDecPromVarsListW = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
+  aDecPromVarsListW = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32), HeapData);
 
 }
 
@@ -3347,8 +3347,8 @@ void UpdateDecPromVarsW() {
 
 
 void CreateBestScoreList() {
-  aBestScoreList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
-  aBestScoreListPos = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
+  aBestScoreList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32), HeapData);
+  aBestScoreListPos = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32), HeapData);
 }
 
 
@@ -3419,7 +3419,7 @@ void UpdateBestScoreList() {
 }
 
 void CreateClausePenaltyFL() {
-  aClausePenaltyFL = (FLOAT *) AllocateRAM(iNumClauses * sizeof(FLOAT));
+  aClausePenaltyFL = (FLOAT *) AllocateRAM(iNumClauses * sizeof(FLOAT), HeapData);
   bClausePenaltyCreated = 1;
   bClausePenaltyFLOAT = 1;
 }
@@ -3452,9 +3452,9 @@ void InitClausePenaltyFLW() {
 
 
 void CreateMakeBreakPenaltyFL() {
-  aBreakPenaltyFL = (FLOAT *) AllocateRAM((iNumVars+1)*sizeof(FLOAT));
-  aMakePenaltyFL = (FLOAT *) AllocateRAM((iNumVars+1)*sizeof(FLOAT));
-  aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aBreakPenaltyFL = (FLOAT *) AllocateRAM((iNumVars+1)*sizeof(FLOAT), HeapData);
+  aMakePenaltyFL = (FLOAT *) AllocateRAM((iNumVars+1)*sizeof(FLOAT), HeapData);
+  aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
 }
 
 void InitMakeBreakPenaltyFL() {
@@ -3765,7 +3765,7 @@ void FlipMBPFLandFCLandVIFandW() {
 }
 
 void CreateClausePenaltyINT() {
-  aClausePenaltyINT = (UINT32 *) AllocateRAM(iNumClauses * sizeof(UINT32));
+  aClausePenaltyINT = (UINT32 *) AllocateRAM(iNumClauses * sizeof(UINT32), HeapData);
   bClausePenaltyCreated = 1;
   bClausePenaltyFLOAT = 0;
   iInitPenaltyINT = 1;
@@ -3800,9 +3800,9 @@ void InitClausePenaltyINTW() {
 
 
 void CreateMakeBreakPenaltyINT() {
-  aBreakPenaltyINT = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
-  aMakePenaltyINT = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
-  aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aBreakPenaltyINT = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32), HeapData);
+  aMakePenaltyINT = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32), HeapData);
+  aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
 }
 
 void InitMakeBreakPenaltyINT() {
@@ -4138,7 +4138,7 @@ void CreateLogDist() {
   FLOAT fFactor;
 
   iMaxLogDistValues = ((UINT32) log10((FLOAT) iCutoff)) * iLogDistStepsPerDecade + 2;
-  aLogDistValues = (UBIGINT *) AllocateRAM(iMaxLogDistValues * sizeof(UBIGINT));
+  aLogDistValues = (UBIGINT *) AllocateRAM(iMaxLogDistValues * sizeof(UBIGINT), HeapReports);
 
   fFactor = powf(10.0f,1.0f / (float) iLogDistStepsPerDecade);
   fCurValue = 10.0f;
@@ -4408,7 +4408,7 @@ void CheckForRestarts() {
 }      
 
 void CreateFlipCounts() {
-  aFlipCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
+  aFlipCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT), HeapReports);
 }
 
 void InitFlipCounts() {
@@ -4435,8 +4435,8 @@ void FlipCountStats() {
 }
 
 void CreateBiasCounts() {
-  aBiasTrueCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
-  aBiasFalseCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
+  aBiasTrueCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT), HeapReports);
+  aBiasFalseCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT), HeapReports);
 }
 
 void PreInitBiasCounts() {
@@ -4517,7 +4517,7 @@ void BiasStats() {
 }
 
 void CreateUnsatCounts() {
-  aUnsatCounts = (UBIGINT *) AllocateRAM(iNumClauses*sizeof(UBIGINT));
+  aUnsatCounts = (UBIGINT *) AllocateRAM(iNumClauses*sizeof(UBIGINT), HeapReports);
 }
 
 void InitUnsatCounts() {
@@ -4549,9 +4549,9 @@ void UnsatCountStats() {
 }
 
 void CreateNumFalseCounts() {
-  aNumFalseCounts = (UBIGINT *) AllocateRAM((iNumClauses+1)*sizeof(UBIGINT));
+  aNumFalseCounts = (UBIGINT *) AllocateRAM((iNumClauses+1)*sizeof(UBIGINT), HeapReports);
   if (iReportFalseHistCount) {
-    aNumFalseCountsWindow = (UBIGINT *) AllocateRAM(iReportFalseHistCount*sizeof(UBIGINT));
+    aNumFalseCountsWindow = (UBIGINT *) AllocateRAM(iReportFalseHistCount*sizeof(UBIGINT), HeapReports);
   }
 }
 
@@ -4576,9 +4576,9 @@ void UpdateNumFalseCounts() {
 }
 
 void CreateDistanceCounts() {
-  aDistanceCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
+  aDistanceCounts = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT), HeapReports);
   if (iReportDistHistCount) {
-    aDistanceCountsWindow = (UBIGINT *) AllocateRAM(iReportDistHistCount*sizeof(UBIGINT));
+    aDistanceCountsWindow = (UBIGINT *) AllocateRAM(iReportDistHistCount*sizeof(UBIGINT), HeapReports);
   }
 }
 
@@ -4604,7 +4604,7 @@ void UpdateDistanceCounts() {
 }
 
 void CreateClauseLast() {
-  aClauseLast = (UBIGINT *) AllocateRAM(iNumClauses*sizeof(UBIGINT));
+  aClauseLast = (UBIGINT *) AllocateRAM(iNumClauses*sizeof(UBIGINT), HeapData);
 }
 
 void InitClauseLast() {
@@ -4626,9 +4626,9 @@ UINT32 iNextSQGridCol;
 
 void CreateSQGrid() {
   if (bWeighted) {
-    aSQGridWeight = (UBIGINT *) AllocateRAM(iNumLogDistValues * iNumRuns * sizeof(UBIGINT));
+    aSQGridWeight = (UBIGINT *) AllocateRAM(iNumLogDistValues * iNumRuns * sizeof(UBIGINT), HeapReports);
   } else {
-    aSQGrid = (UINT32 *) AllocateRAM(iNumLogDistValues * iNumRuns * sizeof(UINT32));
+    aSQGrid = (UINT32 *) AllocateRAM(iNumLogDistValues * iNumRuns * sizeof(UINT32), HeapReports);
   }
 }
 
@@ -4662,19 +4662,19 @@ void FinishSQGrid() {
 }
 
 void CreatePenaltyStats() {
-  aPenaltyStatsMean = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
-  aPenaltyStatsStddev = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
-  aPenaltyStatsCV = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
+  aPenaltyStatsMean = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
+  aPenaltyStatsStddev = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
+  aPenaltyStatsCV = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
 
-  aPenaltyStatsSum = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
-  aPenaltyStatsSum2 = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
+  aPenaltyStatsSum = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
+  aPenaltyStatsSum2 = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
 
-  aPenaltyStatsMeanSum = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
-  aPenaltyStatsMeanSum2 = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
-  aPenaltyStatsStddevSum = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
-  aPenaltyStatsStddevSum2 = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
-  aPenaltyStatsCVSum = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
-  aPenaltyStatsCVSum2 = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
+  aPenaltyStatsMeanSum = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
+  aPenaltyStatsMeanSum2 = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
+  aPenaltyStatsStddevSum = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
+  aPenaltyStatsStddevSum2 = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
+  aPenaltyStatsCVSum = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
+  aPenaltyStatsCVSum2 = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
 
   memset(aPenaltyStatsMeanSum,0,iNumClauses*sizeof(FLOAT));
   memset(aPenaltyStatsMeanSum2,0,iNumClauses*sizeof(FLOAT));
@@ -4769,7 +4769,7 @@ void CreateVarFlipHistory() {
     iVarFlipHistoryLen = iNumVars + 1;
   }
 
-  aVarFlipHistory = (UINT32 *) AllocateRAM(iVarFlipHistoryLen * sizeof(UINT32));
+  aVarFlipHistory = (UINT32 *) AllocateRAM(iVarFlipHistoryLen * sizeof(UINT32), HeapData);
 }
 
 void UpdateVarFlipHistory() {
@@ -4781,10 +4781,10 @@ void CreateMobilityWindow() {
   if (iVarFlipHistoryLen == 0) {
     ReportPrint(pRepErr,"Unexpected Error: Variable Flip History Length = 0\n");
   }
-  aMobilityWindowVarChange = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
-  aMobilityWindow = (UINT32 *) AllocateRAM((iVarFlipHistoryLen+1) * sizeof(UINT32));
-  aMobilityWindowSum = (FLOAT *) AllocateRAM((iVarFlipHistoryLen+1) * sizeof(FLOAT));
-  aMobilityWindowSum2 = (FLOAT *) AllocateRAM((iVarFlipHistoryLen+1) * sizeof(FLOAT));
+  aMobilityWindowVarChange = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32), HeapReports);
+  aMobilityWindow = (UINT32 *) AllocateRAM((iVarFlipHistoryLen+1) * sizeof(UINT32), HeapReports);
+  aMobilityWindowSum = (FLOAT *) AllocateRAM((iVarFlipHistoryLen+1) * sizeof(FLOAT), HeapReports);
+  aMobilityWindowSum2 = (FLOAT *) AllocateRAM((iVarFlipHistoryLen+1) * sizeof(FLOAT), HeapReports);
 }
 
 void InitMobilityWindow() {
@@ -4848,7 +4848,7 @@ void CreateMobilityFixedFrequencies() {
     ReportPrint(pRepErr,"Unexpected Error: Mobility Fixed Size = 0\n");
   }
 
-  aMobilityFixedFrequencies = (UINT32 *)AllocateRAM((iMobFixedWindow+1) * sizeof(UINT32));
+  aMobilityFixedFrequencies = (UINT32 *)AllocateRAM((iMobFixedWindow+1) * sizeof(UINT32), HeapReports);
 }
 
 void InitMobilityFixedFrequencies() {
@@ -4870,7 +4870,7 @@ void CreateVarAgeFrequencies() {
   if (iMaxVarAgeFrequency == 0) {
     iMaxVarAgeFrequency = iNumVars*10;
   }
-  aVarAgeFrequency = (UBIGINT *)AllocateRAM((iMaxVarAgeFrequency + 1) * sizeof(UBIGINT));
+  aVarAgeFrequency = (UBIGINT *)AllocateRAM((iMaxVarAgeFrequency + 1) * sizeof(UBIGINT), HeapReports);
 }
 
 void InitVarAgeFrequencies() {
@@ -4894,10 +4894,10 @@ void CreateAutoCorr() {
   if (iAutoCorrMaxLen == 0) {
     iAutoCorrMaxLen = iNumVars;
   }
-  aAutoCorrValues = (FLOAT *) AllocateRAM((iAutoCorrMaxLen) * sizeof(FLOAT));
-  aAutoCorrStartBuffer = (FLOAT *) AllocateRAM((iAutoCorrMaxLen) * sizeof(FLOAT));
-  aAutoCorrEndCircBuffer = (FLOAT *) AllocateRAM((iAutoCorrMaxLen) * sizeof(FLOAT));
-  aAutoCorrCrossSum = (FLOAT *) AllocateRAM((iAutoCorrMaxLen) * sizeof(FLOAT));
+  aAutoCorrValues = (FLOAT *) AllocateRAM((iAutoCorrMaxLen) * sizeof(FLOAT), HeapReports);
+  aAutoCorrStartBuffer = (FLOAT *) AllocateRAM((iAutoCorrMaxLen) * sizeof(FLOAT), HeapReports);
+  aAutoCorrEndCircBuffer = (FLOAT *) AllocateRAM((iAutoCorrMaxLen) * sizeof(FLOAT), HeapReports);
+  aAutoCorrCrossSum = (FLOAT *) AllocateRAM((iAutoCorrMaxLen) * sizeof(FLOAT), HeapReports);
 }
 
 void InitAutoCorr() {
@@ -5128,7 +5128,7 @@ void LoadKnownSolutions() {
   if (strcmp(sFilenameSoln,"")) {
     SetupFile(&filKnown,"r",sFilenameSoln,stdin,0);
 
-    sKnownLine = (char *) AllocateRAM((iLineLen + 2) * sizeof(char));
+    sKnownLine = (char *) AllocateRAM((iLineLen + 2) * sizeof(char), HeapAdmin);
     vsKnownNew = NewVarState();
 
     while (!feof(filKnown)) {
@@ -5243,8 +5243,8 @@ void CreateVarsShareClauses() {
   LITTYPE *pLit;
   LITTYPE *pLit2;
 
-  aNumVarsShareClause = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32));
-  pVarsShareClause = (UINT32 **) AllocateRAM((iNumVars+1)*sizeof(UINT32 *));
+  aNumVarsShareClause = (UINT32 *) AllocateRAM((iNumVars+1)*sizeof(UINT32), HeapData);
+  pVarsShareClause = (UINT32 **) AllocateRAM((iNumVars+1)*sizeof(UINT32 *), HeapData);
 
   memset(aNumVarsShareClause,0,(iNumVars+1)*sizeof(UINT32));
 
@@ -5258,7 +5258,7 @@ void CreateVarsShareClauses() {
   } 
   
   for (j=0;j<(iNumVars+1);j++) {
-    pVarsShareClause[j] = (UINT32 *) AllocateRAM(aNumVarsShareClause[j]*sizeof(UINT32));;
+    pVarsShareClause[j] = (UINT32 *) AllocateRAM(aNumVarsShareClause[j]*sizeof(UINT32), HeapData);;
   }
 
   memset(aNumVarsShareClause,0,(iNumVars+1)*sizeof(UINT32));

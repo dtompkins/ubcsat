@@ -46,8 +46,8 @@ UINT32 *aPenClauseListPos;
 UINT32 iNumPenClauseList;
 
 void CreatePenClauseList() {
-  aPenClauseList = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
-  aPenClauseListPos = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aPenClauseList = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
+  aPenClauseListPos = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
 }
 
 void InitPenClauseList() {

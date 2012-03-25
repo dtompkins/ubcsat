@@ -88,7 +88,7 @@ void AddDerandomized() {
 }
 
 void CreateClausePickCount() {
-  aClausePickCount = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aClausePickCount = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
 }
 
 void InitClausePickCount() {
@@ -100,7 +100,7 @@ void UpdateClausePickCount() {
 }
 
 void CreateNextClauseLit() {
-  aNextClauseLit = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aNextClauseLit = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
 }
 
 void InitNextClauseLit() {

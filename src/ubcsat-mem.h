@@ -30,10 +30,16 @@
 namespace ubcsat {
 #endif
 
+enum HEAPTYPE {
+  HeapAdmin,
+  HeapString,
+  HeapData,
+  HeapReports,
+  NUMHEAPTYPES
+};
 
-void *AllocateRAM( size_t size );
-void AdjustLastRAM( size_t size );
-void PrintMemUsage();
+void *AllocateRAM( size_t size, enum HEAPTYPE type);
+void AdjustLastRAM( size_t size);
 void SetString(char **sNew, const char *sSrc);
 void FreeRAM();
 

@@ -227,9 +227,9 @@ SINT32 *aLookAheadScoreChange;
 #define UpdateLookAhead(var,diff) {if(!aIsLookAhead[var]) {aIsLookAhead[var]=1; aLookAheadList[iNumLookAhead++] = var; aLookAheadScoreChange[var] = (diff);} else {aLookAheadScoreChange[var] += (diff);}};
 
 void CreateLookAhead() {
-  aIsLookAhead = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
-  aLookAheadList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
-  aLookAheadScoreChange = (SINT32 *) AllocateRAM((iNumVars+1) * sizeof(SINT32));
+  aIsLookAhead = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32), HeapData);
+  aLookAheadList = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32), HeapData);
+  aLookAheadScoreChange = (SINT32 *) AllocateRAM((iNumVars+1) * sizeof(SINT32), HeapData);
 }
 
 void InitLookAhead() {

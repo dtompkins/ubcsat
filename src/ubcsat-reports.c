@@ -1035,7 +1035,7 @@ void ReportCNFStatsPrint() {
     }
     ReportPrint1(pRepCNFStats,"MaxClauseLen = %"P32"\n",iMaxClauseLen);
 
-    aClauseBins = (UINT32 *) AllocateRAM((iMaxClauseLen + 3) * sizeof(UINT32));
+    aClauseBins = (UINT32 *) AllocateRAM((iMaxClauseLen + 3) * sizeof(UINT32), HeapReports);
     
     for (j=0;j<iMaxClauseLen + 3;j++) {
       aClauseBins[j] = 0;
@@ -1081,7 +1081,7 @@ void ReportCNFStatsPrint() {
     fStdDevVarOccur = sqrt(fStdDevVarOccur);
     ReportPrint1(pRepCNFStats,"StdDevVariableOcc = %.12g \n",fStdDevVarOccur);
 
-    aVarBins = (UINT32 *) AllocateRAM((iMaxVarOcc + 1) * sizeof(UINT32));
+    aVarBins = (UINT32 *) AllocateRAM((iMaxVarOcc + 1) * sizeof(UINT32), HeapReports);
 
     for (j=0;j<iMaxVarOcc + 1;j++) {
       aVarBins[j] = 0;
@@ -1615,9 +1615,9 @@ void ReportSQGridPrint() {
 
 void ReportPenaltyCreate() {
 
-  aPenaltyStatsFinal = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
-  aPenaltyStatsFinalSum = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
-  aPenaltyStatsFinalSum2 = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT));
+  aPenaltyStatsFinal = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
+  aPenaltyStatsFinalSum = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
+  aPenaltyStatsFinalSum2 = (FLOAT *) AllocateRAM(iNumClauses*sizeof(FLOAT), HeapReports);
   memset(aPenaltyStatsFinalSum,0,iNumClauses*sizeof(FLOAT));
   memset(aPenaltyStatsFinalSum2,0,iNumClauses*sizeof(FLOAT));
 
@@ -2314,7 +2314,7 @@ void ReportSatCompetitionPrint() {
 /***** Report -r maxsatcomp *****/
 
 void CreateReportMaxSatCompetitionSaveBest() {
-  aMaxSatSaveBest = (BOOL *) AllocateRAM((iNumVars+1)*sizeof(BOOL));
+  aMaxSatSaveBest = (BOOL *) AllocateRAM((iNumVars+1)*sizeof(BOOL), HeapReports);
 }
 
 void ReporMaxSatCompetitionPrintValues() {
@@ -2442,23 +2442,23 @@ void AllocateColumnRAM() {
     if (pCol->bAllocateColumnRAM) {
       switch (pCol->eFinalDataType) {
         case DTypeUInt:
-          pCol->puiColumnData = (UINT32 *) AllocateRAM(iNumRuns * sizeof(UINT32));
+          pCol->puiColumnData = (UINT32 *) AllocateRAM(iNumRuns * sizeof(UINT32), HeapReports);
           memset(pCol->puiColumnData,0,(iNumRuns)*sizeof(UINT32));
           break;
         case DTypeSInt:
-          pCol->psiColumnData = (SINT32 *) AllocateRAM(iNumRuns * sizeof(SINT32));
+          pCol->psiColumnData = (SINT32 *) AllocateRAM(iNumRuns * sizeof(SINT32), HeapReports);
           memset(pCol->psiColumnData,0,(iNumRuns)*sizeof(SINT32));
           break;
         case DTypeUBigInt:
-          pCol->pubiColumnData = (UBIGINT *) AllocateRAM(iNumRuns * sizeof(UBIGINT));
+          pCol->pubiColumnData = (UBIGINT *) AllocateRAM(iNumRuns * sizeof(UBIGINT), HeapReports);
           memset(pCol->pubiColumnData,0,(iNumRuns)*sizeof(UBIGINT));
           break;
         case DTypeSBigInt:
-          pCol->psbiColumnData = (SBIGINT *) AllocateRAM(iNumRuns * sizeof(SBIGINT));
+          pCol->psbiColumnData = (SBIGINT *) AllocateRAM(iNumRuns * sizeof(SBIGINT), HeapReports);
           memset(pCol->psbiColumnData,0,(iNumRuns)*sizeof(SBIGINT));
           break;
         case DTypeFloat:
-          pCol->pfColumnData = (FLOAT *) AllocateRAM(iNumRuns * sizeof(FLOAT));
+          pCol->pfColumnData = (FLOAT *) AllocateRAM(iNumRuns * sizeof(FLOAT), HeapReports);
           memset(pCol->pfColumnData,0,(iNumRuns)*sizeof(FLOAT));
           break;
         case DTypeString:
@@ -2802,7 +2802,7 @@ void StringAlgParms() {
   char * pNext;
   ALGPARM *pCurParm;
   
-  sStringAlgParms = (char *) AllocateRAM(MAXPARMLINELEN);
+  sStringAlgParms = (char *) AllocateRAM(MAXPARMLINELEN, HeapString);
   
   pNext = sStringAlgParms;
   pNext += sprintf(pNext,"-alg %s",pActiveAlgorithm->sName);
@@ -3040,7 +3040,7 @@ void SortByCurrentColData(REPORTCOL *pCol) {
   UINT32 j;
   
   if (aSortedByCurrent == NULL) {
-    aSortedByCurrent = (UINT32 *) AllocateRAM(sizeof(UINT32) * (iRun));
+    aSortedByCurrent = (UINT32 *) AllocateRAM(sizeof(UINT32) * (iRun), HeapReports);
   }
 
   for (j=0;j<iRun;j++) {
@@ -3169,7 +3169,7 @@ void SortByCurrentColDataAndFound(REPORTCOL *pCol) {
   aFoundData = pColFound->puiColumnData;
   
   if (aSortedByCurrent == NULL) {
-    aSortedByCurrent = (UINT32 *) AllocateRAM(sizeof(UINT32) * (iRun));
+    aSortedByCurrent = (UINT32 *) AllocateRAM(sizeof(UINT32) * (iRun), HeapReports);
   }
 
   for (j=0;j<iRun;j++) {
@@ -3209,13 +3209,13 @@ void SortByStepPerformance() {
   pCol = &aColumns[FindItem(&listColumns,"steps")];
 
   SortByCurrentColData(pCol);
-  aSortedBySteps = (UINT32 *) AllocateRAM(sizeof(UINT32) * (iRun));
+  aSortedBySteps = (UINT32 *) AllocateRAM(sizeof(UINT32) * (iRun), HeapReports);
   for (j=0;j<iRun;j++) {
     aSortedBySteps[j] = aSortedByCurrent[j];
   }
 
   SortByCurrentColDataAndFound(pCol);
-  aSortedByStepsAndFound = (UINT32 *) AllocateRAM(sizeof(UINT32) * (iRun));
+  aSortedByStepsAndFound = (UINT32 *) AllocateRAM(sizeof(UINT32) * (iRun), HeapReports);
   for (j=0;j<iRun;j++) {
     aSortedByStepsAndFound[j] = aSortedByCurrent[j];
   }

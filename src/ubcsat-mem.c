@@ -31,7 +31,6 @@ namespace ubcsat {
     This file contains the simple memory managment of ubcsat
 */
 
-
 UINT32 iNumHeap;
 size_t iLastRequestSize;
 UINT32 iLastHeap;
@@ -40,11 +39,12 @@ typedef struct typeUBCSATHEAP {
   char *pHeap;
   char *pFree;
   size_t iBytesFree;
+  enum HEAPTYPE eHeapType;
 } UBCSATHEAP;
 
 UBCSATHEAP aHeap[MAXHEAPS];
 
-void *AllocateRAM( size_t size ) {
+void *AllocateRAM( size_t size , enum HEAPTYPE type) {
   UINT32 j;
   BOOL bFound;
   UINT32 iHeapID = 0;
@@ -57,7 +57,7 @@ void *AllocateRAM( size_t size ) {
   bFound = 0;
 
   for (j=0;j<iNumHeap;j++) {
-    if (aHeap[j].iBytesFree >= size) {
+    if ((aHeap[j].eHeapType == type)&&(aHeap[j].iBytesFree >= size)) {
       bFound = 1;
       iHeapID = j;
       break;
@@ -68,10 +68,12 @@ void *AllocateRAM( size_t size ) {
       aHeap[iNumHeap].pHeap = (char *) malloc(size);
       aHeap[iNumHeap].pFree = aHeap[iNumHeap].pHeap;
       aHeap[iNumHeap].iBytesFree = size;
+      aHeap[iNumHeap].eHeapType = type;
     } else {
       aHeap[iNumHeap].pHeap = (char *) malloc(DEFAULTHEAPSIZE);
       aHeap[iNumHeap].pFree = aHeap[iNumHeap].pHeap;
       aHeap[iNumHeap].iBytesFree = DEFAULTHEAPSIZE;
+      aHeap[iNumHeap].eHeapType = type;
     }
     iHeapID = iNumHeap;
     iNumHeap++;
@@ -96,7 +98,7 @@ void AdjustLastRAM( size_t size ) {
 }
 
 void SetString(char **sNew, const char *sSrc) {
-  (*sNew) = (char *) AllocateRAM(strlen(sSrc)+1);
+  (*sNew) = (char *) AllocateRAM(strlen(sSrc)+1, HeapString);
   strcpy(*sNew,sSrc);
 }
 

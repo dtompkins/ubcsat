@@ -911,7 +911,7 @@ void CheckParamterFile(int iCommandLineCount,char **aCommandLineArgs) {
     aTotalParms = &aCommandLineArgs[1];
   } else {
 
-    aTotalParms = (char **) AllocateRAM(MAXTOTALPARMS * sizeof(char *));
+    aTotalParms = (char **) AllocateRAM(MAXTOTALPARMS * sizeof(char *), HeapAdmin);
 
     for (j=0;j<(iCommandLineCount - 1);j++) {
       if (MatchParameter("-param,-fp",aCommandLineArgs[j])) {
@@ -1945,7 +1945,7 @@ VARSTATE NewVarState() {
     AbnormalExit();
     exit(1);
   } else {
-    vsNew = (BYTE *) AllocateRAM(iVARSTATELen * sizeof(BYTE));
+    vsNew = (BYTE *) AllocateRAM(iVARSTATELen * sizeof(BYTE), HeapReports);
     for (j=0;j<iVARSTATELen;j++) {
       vsNew[j] = 0x00;
     }
@@ -1956,7 +1956,7 @@ VARSTATE NewVarState() {
 VARSTATE NewCopyVarState(VARSTATE vsCopy) {
   VARSTATE vsNew;
   UINT32 j;
-  vsNew = (BYTE *) AllocateRAM(iVARSTATELen * sizeof(BYTE));
+  vsNew = (BYTE *) AllocateRAM(iVARSTATELen * sizeof(BYTE), HeapReports);
   for (j=0;j<iVARSTATELen;j++) {
     vsNew[j] = vsCopy[j];
   }
@@ -2105,7 +2105,7 @@ void AddToVarStateList(VARSTATELIST *vsList, VARSTATE vsAdd) {
   }
   if (vsList->vsState) {
     pNext = vsList->pNext;
-    vsList->pNext = (VARSTATELIST *) AllocateRAM(sizeof(VARSTATELIST));
+    vsList->pNext = (VARSTATELIST *) AllocateRAM(sizeof(VARSTATELIST), HeapReports);
     vsList->pNext->pNext = pNext;
     vsList->pNext->vsState = NewCopyVarState(vsAdd);
   } else {

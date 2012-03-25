@@ -619,8 +619,8 @@ void PickJack() {
 
 void CreateAgeHistory() {
   UINT32 j;
-  aVarAgeHistoryData = (UBIGINT *) AllocateRAM((iNumVars+1)*iVarAgeHistoryBufferLen*sizeof(UBIGINT));
-  pVarAgeHistory = (UBIGINT **) AllocateRAM((iNumVars+1)*sizeof(UBIGINT *));
+  aVarAgeHistoryData = (UBIGINT *) AllocateRAM((iNumVars+1)*iVarAgeHistoryBufferLen*sizeof(UBIGINT), HeapData);
+  pVarAgeHistory = (UBIGINT **) AllocateRAM((iNumVars+1)*sizeof(UBIGINT *), HeapData);
   for (j=0;j<=iNumVars;j++) {
     pVarAgeHistory[j] = &aVarAgeHistoryData[j*iVarAgeHistoryBufferLen];
   }
@@ -655,14 +655,14 @@ UBIGINT VarAge(UINT32 iVar, UINT32 iIndex) {
 
 
 void CreateJackScores() {
-  aJackGreedy = (FLOAT *) AllocateRAM(iMaxClauseLen*sizeof(FLOAT));
-  aJackDiv = (FLOAT *) AllocateRAM(iMaxClauseLen*sizeof(FLOAT));
-  aJackCandidates = (UINT32 *) AllocateRAM(iMaxClauseLen*sizeof(UINT32));
+  aJackGreedy = (FLOAT *) AllocateRAM(iMaxClauseLen*sizeof(FLOAT), HeapData);
+  aJackDiv = (FLOAT *) AllocateRAM(iMaxClauseLen*sizeof(FLOAT), HeapData);
+  aJackCandidates = (UINT32 *) AllocateRAM(iMaxClauseLen*sizeof(UINT32), HeapData);
 }
 
 
 void CreateClauseLastFlipVar() {
-  aClauseLastFlipVar = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
+  aClauseLastFlipVar = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32), HeapData);
 }
 
 void InitClauseLastFlipVar() {
@@ -671,9 +671,9 @@ void InitClauseLastFlipVar() {
 
 
 void CreateJackFlopCount() {
-  aLitJackFlopCount = (UBIGINT *) AllocateRAM((iNumVars+1)*2*sizeof(UBIGINT));
-  aLitJackResetFlopCount = (UBIGINT *) AllocateRAM((iNumVars+1)*2*sizeof(UBIGINT));
-  aLitJackNormFlopCount = (FLOAT *) AllocateRAM((iNumVars+1)*2*sizeof(FLOAT));
+  aLitJackFlopCount = (UBIGINT *) AllocateRAM((iNumVars+1)*2*sizeof(UBIGINT), HeapData);
+  aLitJackResetFlopCount = (UBIGINT *) AllocateRAM((iNumVars+1)*2*sizeof(UBIGINT), HeapData);
+  aLitJackNormFlopCount = (FLOAT *) AllocateRAM((iNumVars+1)*2*sizeof(FLOAT), HeapData);
 }
 
 void InitJackFlopCount() {
