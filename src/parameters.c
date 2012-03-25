@@ -46,15 +46,18 @@ void AddParameters() {
   AddParmUBigInt(&parmUBCSAT,"-cutoff","maximum number of search steps per run [default %s]","you can specify \"-cutoff max\" for largest integer limit","",&iCutoff,100000);
   AddParmFloat(&parmUBCSAT,"-timeout","maximum number of seconds per run","each run will terminate unsuccessfully after FL seconds,~or when the -cutoff is reached: whichever happens first~so use \"-cutoff max\" to ensure timeout times are reached","CheckTimeout",&fTimeOut,FLOATZERO);
   AddParmFloat(&parmUBCSAT,"-gtimeout","global timeout: maximum number of seconds for all runs","the current run and all remaining runs will terminate~after FL seconds","CheckTimeout",&fGlobalTimeOut,FLOATZERO);
+  AddParmBool(&parmUBCSAT,"-abstime","use absolute time (incl. startup) for global timeout","if true [1] timestamp is taken at startup~otherwise, it's taken after initialization","",&bUseAbsoluteTime,0);
+  AddParmBool(&parmUBCSAT,"-systime","include system time for timing information","if true [1] both user and system time are used for timing~otherwise, just user time is used","",&bUseSystemTime,0);
+  AddParmUInt(&parmUBCSAT,"-timeres","time resolution: check timer every INT search steps","number of search steps that will elapse~between checks for timeouts [default %s]","",&iTimeResolution,1000);
   AddParmUBigInt(&parmUBCSAT,"-noimprove","terminate run if no improvement in INT steps","if no improvement in the solution quality has been made~in INT steps, then the run will terminate~(for solution quality description see -target and -wtarget)","NoImprove",&iNoImprove,0);
 
   AddParmUBigInt(&parmUBCSAT,"-earlysteps","terminate run early after INT steps","if after INT steps the solution quality is greater than~the value specified in -earlyqual the run will terminate~(for solution quality description see -target and -wtarget)","EarlyTerm",&iEarlyTermSteps,0);
   AddParmUInt(&parmUBCSAT,"-earlyqual","terminate run early if quality is worse than INT","(see -earlysteps)","EarlyTerm",&iEarlyTermQual,0);
-  AddParmFloat(&parmUBCSAT,"-earlywqual","terminate run early if weighted quality is worse than FL","(see -earlysteps and -earlyqual)","EarlyTerm",&fEarlyTermQualW,0);
+  AddParmUBigInt(&parmUBCSAT,"-earlywqual","terminate run early if weighted quality is worse than INT","(see -earlysteps and -earlyqual)","EarlyTerm",&iEarlyTermQualWeight,0);
   AddParmUInt(&parmUBCSAT,"-strikes","terminate all runs after INT unsuccessful runs","","Strikes",&iStrikes,0);
   
   AddParmUInt(&parmUBCSAT,"-target","target solution quality","for regular (unweighted) algorithms, the solution quality~is measured as the number of false clauses~~for MAX-SAT (or for some other reason) you can set~the desired solution quality so that solution is found if~the number false clauses <= target~~default target solution quality is zero (no false clauses)","",&iTarget,0);
-  AddParmFloat(&parmUBCSAT,"-wtarget","weighted target solution quality","similar to -target, except the solution quality is the~sum of the weights of the false clauses","",&fTargetW,0);
+  AddParmUBigInt(&parmUBCSAT,"-wtarget","weighted target solution quality","similar to -target, except the solution quality is the~sum of the weights of the false clauses","",&iTargetWeight,0);
   
   AddParmUInt(&parmUBCSAT,"-seed","specify an initial random seed","","",&iSeed,iSeed);
   

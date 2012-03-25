@@ -61,8 +61,8 @@ BOOL bTerminateRun;
 BOOL bWeighted;
 FLOAT fDummy;
 FLOAT fFlipsPerSecond;
-FLOAT fBestScore;
-FLOAT fTargetW;
+SBIGINT iBestScoreWeight;
+UBIGINT iTargetWeight;
 SINT32 iBestScore;
 UBIGINT iCutoff;
 UINT32 iFind;
@@ -112,14 +112,11 @@ char sStringParm[MAXPARMLINELEN];
 char *sVarName;
 
 BOOL bReportStateLMOnly;
-FLOAT fReportStateQuality;
 BOOL bReportBestStepVars;
 BOOL bReportOptClausesSol;
 UINT32 iReportFalseHistCount;
 BOOL bReportDistanceLMOnly;
 UINT32 iReportDistHistCount;
-BOOL bReportStateQuality;
-UINT32 iReportStateQuality;
 BOOL bReportTriggersAll;
 
 void AddContainerItem(ITEMLIST *pList,const char *sID, const char *sList);
@@ -1223,13 +1220,13 @@ BOOL IsLocalMinimum(BOOL bUseWeighted) {
   UINT32 *pClause;
   LITTYPE litCur;
   SINT32 iScore;
-  FLOAT fScore;
+  SBIGINT iScoreWeight;
 
   if (bUseWeighted) {
 
     for (j=1;j<=iNumVars;j++) {
 
-      fScore = FLOATZERO;
+      iScoreWeight = 0;
     
       litCur = GetFalseLit(j);
 
@@ -1238,7 +1235,7 @@ BOOL IsLocalMinimum(BOOL bUseWeighted) {
   
       for (k=0;k<iNumOcc;k++) {
         if (aNumTrueLit[*pClause]==0) {
-          fScore -= aClauseWeight[*pClause];
+          iScoreWeight -= aClauseWeight[*pClause];
         }
         pClause++;
       }
@@ -1248,12 +1245,12 @@ BOOL IsLocalMinimum(BOOL bUseWeighted) {
   
       for (k=0;k<iNumOcc;k++) {
         if (aNumTrueLit[*pClause]==1) {
-          fScore += aClauseWeight[*pClause];
+          iScoreWeight += aClauseWeight[*pClause];
         }
         pClause++;
       }
 
-      if (fScore < FLOATZERO) {
+      if (iScoreWeight < 0) {
         return(0);
       }
     }

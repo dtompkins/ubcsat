@@ -38,6 +38,7 @@ namespace ubcsat {
 
 void InitSeed();
 
+void StartAbsoluteClock();
 void StartTotalClock();
 void StopTotalClock();
 
@@ -47,6 +48,8 @@ void StopRunClock();
 double TotalTimeElapsed();
 double RunTimeElapsed();
 
+extern BOOL bUseAbsoluteTime;
+extern BOOL bUseSystemTime;
 extern double fTotalTime;
 extern double fRunTime;
 

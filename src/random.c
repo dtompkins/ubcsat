@@ -102,7 +102,8 @@ void PickCRWalk() {
 void SchoeningRestart() {
 
   if (iPeriodicRestart != 0) {
-    ReportPrint(pRepErr,"Warning! Changing -prestart value to match Schoening's Algorithm\n");
+    ReportHdrPrefix(pRepErr);
+    ReportHdrPrint(pRepErr,"Warning! Changing -prestart value to match Schoening's Algorithm\n");
   }
 
   iPeriodicRestart = iNumVars * 3;

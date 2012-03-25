@@ -27,6 +27,8 @@ namespace ubcsat {
 #endif
 
 int ubcsatmain(int argc, char *argv[]) {
+
+  StartAbsoluteClock();
   
   InitSeed();
 

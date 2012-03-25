@@ -54,8 +54,8 @@ extern UINT32 *aClauseLen;
 extern LITTYPE **pClauseLits;
 extern UINT32 iMaxClauseLen;
 
-extern FLOAT *aClauseWeight;
-extern FLOAT fTotalWeight;
+extern UBIGINT *aClauseWeight;
+extern UBIGINT iTotalClauseWeight;
 
 extern UINT32 iVARSTATELen;
 
@@ -99,7 +99,7 @@ extern BOOL bVarInitGreedy;
 /***** Trigger DefaultStateInfo *****/
 /*
     iNumFalse             # of currently unsatisfied (false) clauses
-    fSumFalseW            sum of the weights of currently unsatisfied (false) clauses
+    iSumFalseWeight       sum of the weights of currently unsatisfied (false) clauses
     aNumTrueLit[j]        # of true literals occuring in clause[j] (i.e.: 0 -> false clause)
     aVarValue[j]          current value of variable[j] (0,1 => False,True)
 */
@@ -107,7 +107,7 @@ extern BOOL bVarInitGreedy;
 extern UINT32 *aNumTrueLit;
 extern BOOL *aVarValue;
 extern UINT32 iNumFalse;
-extern FLOAT fSumFalseW;
+extern UBIGINT iSumFalseWeight;
 
 
 /***** Trigger DefaultFlip[W] *****/
@@ -133,11 +133,11 @@ extern UINT32 iNumFalseList;
 /***** Trigger Flip+VarScore[W] *****/
 /*
     aVarScore[j]          score for variable[j]... Change in # false clauses if variable[j] is flipped
-    aVarScoreW[j]         weighted score for variable[j]... Change in sum of false clause weights if variable[j] is flipped
+    aVarScoreWeight[j]    weighted score for variable[j]... Change in sum of false clause weights if variable[j] is flipped
 */
 
 extern SINT32 *aVarScore;
-extern FLOAT *aVarScoreW;
+extern SBIGINT *aVarScoreWeight;
 
 
 /***** Trigger MakeBreak[W] *****/
@@ -146,16 +146,16 @@ extern FLOAT *aVarScoreW;
     aMakeCount[k]         # of clauses that flipping variable[j] will 'make'
     aBreakCount[k]        # of clauses that flipping variable[j] will 'break'
     aCritSat[k]           critical variable for clause[k] if clause has only one true literal
-    aMakeCountW[k]        (same as aMakeCount, but as a sum of clause weights)
-    aBreakCountW[k]       (same as aBreakCount, but as a sum of clause weights)
+    amakeCountWeight[k]   (same as aMakeCount, but as a sum of clause weights)
+    aBreakCountWeight[k]  (same as aBreakCount, but as a sum of clause weights)
 
 */
 
 extern UINT32 *aBreakCount;
 extern UINT32 *aMakeCount;
 extern UINT32 *aCritSat;
-extern FLOAT *aBreakCountW;
-extern FLOAT *aMakeCountW;
+extern UBIGINT *aBreakCountWeight;
+extern UBIGINT *amakeCountWeight;
 
 
 /***** Trigger VarInFalse *****/
@@ -197,8 +197,8 @@ extern UBIGINT *aChangeLastStep;
 
 extern UINT32 iNumChangesW;
 extern UINT32 *aChangeListW;
-extern FLOAT *aChangeOldScoreW;
-extern UBIGINT *aChangeLastStepW;
+extern SBIGINT *aChangeOldScoreWeight;
+extern UBIGINT *aChangeLastStepWeight;
 
 #define UpdateChange(var) {if(aChangeLastStep[var]!=iStep) {aChangeOldScore[var] = aVarScore[var]; aChangeLastStep[var]=iStep; aChangeList[iNumChanges++]=var;}}
 
@@ -312,14 +312,14 @@ extern UINT32 iLogDistStepsPerDecade;
 /*
     iBestNumFalse             best value of iNumFalse this run
     iBestStepNumFalse         step where iBestNumFalse occured
-    fBestSumFalseW            best weighted sum of false clauses seen this run
-    iBestStepSumFalseW        step where iBestSumFalseW occured
+    iBestSumFalseWeight       best weighted sum of false clauses seen this run
+    iBestStepSumFalseWeight   step where iBestSumFalseWeight occured
 */
 
 extern UINT32 iBestNumFalse;
 extern UBIGINT iBestStepNumFalse;
-extern FLOAT fBestSumFalseW;
-extern UBIGINT iBestStepSumFalseW;
+extern UBIGINT iBestSumFalseWeight;
+extern UBIGINT iBestStepSumFalseWeight;
 
 
 /***** Trigger SaveBest *****/
@@ -332,11 +332,11 @@ extern VARSTATE vsBest;
 /***** Trigger StartFalse *****/
 /*
     iStartNumFalse            value of iNumFalse on Step 1
-    fStartSumFalseW           value of fSumFalseW on Step 1
+    iStartSumFalseWeight      value of iSumFalseWeight on Step 1
 */
 
 extern UINT32 iStartNumFalse;
-extern FLOAT fStartSumFalseW;
+extern UBIGINT iStartSumFalseWeight;
 
 
 /***** Trigger ImproveMean *****/
@@ -354,13 +354,13 @@ extern FLOAT fImproveMeanW;
 /*
     iFirstLM                  # of false clauses @ first local minimum
     iFirstLMStep              step of the first local minimum encountered
-    fFirstLMW                 Solution quality @ first weighted local minimum
+    iFirstLMWeight            Solution quality @ first weighted local minimum
     iFirstLMStepW             step of the first weighted local minimum encountered
 */
 
 extern UINT32 iFirstLM;
 extern UBIGINT iFirstLMStep;
-extern FLOAT fFirstLMW;
+extern UBIGINT iFirstLMWeight;
 extern UBIGINT iFirstLMStepW;
 
 
@@ -368,7 +368,7 @@ extern UBIGINT iFirstLMStepW;
 
 /*
     fFirstLMRatio             (iStartNumFalse - iFirstLM) / (iStartNumFalse - iBestNumFalse)
-    fFirstLMRatioW            (fStartSumFalseW - fFirstLMW) / (fStartSumFalseW - fBestSumFalseW)
+    fFirstLMRatioW            (iStartSumFalseWeight - iFirstLMWeight) / (iStartSumFalseWeight - iBestSumFalseWeight)
 */
 
 extern FLOAT fFirstLMRatio;
@@ -402,12 +402,12 @@ extern UBIGINT iNoImprove;
 /*
     iEarlyTermSteps       terminate this run if after iEarlyTermSteps the quality is greater than iEarlyTermQual
     iEarlyTermQual
-    fEarlyTermQualW
+    iEarlyTermQualWeight
 */
 
 extern UBIGINT iEarlyTermSteps;
 extern UINT32 iEarlyTermQual;
-extern FLOAT fEarlyTermQualW;
+extern UBIGINT iEarlyTermQualWeight;
 
 
 /***** Trigger Strikes *****/
@@ -435,6 +435,8 @@ extern UINT32 iStartSeed;
 
 
 /***** Trigger CheckTimeout *****/
+
+extern UINT32 iTimeResolution;
 
 
 /***** Trigger CheckForRestarts *****/
@@ -531,10 +533,10 @@ extern UBIGINT *aClauseLast;
 /***** Trigger ClauseLast *****/
 /*
     aSQGrid[j][k]         for run [k], solution quality at step aLogDistValues[j]
-    aSQGridW[j][k]        for run [k], solution quality at step aLogDistValues[j]
+    aSQGridWeight[j][k]   for run [k], solution quality at step aLogDistValues[j]
 */
 
-extern FLOAT *aSQGridW;
+extern UBIGINT *aSQGridWeight;
 extern UINT32 *aSQGrid;
 
 /***** Trigger PenaltyStats *****/

@@ -37,7 +37,7 @@ UINT32 PickClauseWCS() {
   FLOAT fClauseSum;
   UINT32 iClause = 0;
 
-  fRandClause = RandomFloat() * fSumFalseW;
+  fRandClause = RandomFloat() * iSumFalseWeight;
 
   fClauseSum = FLOATZERO;
 
@@ -57,7 +57,7 @@ void PickNoveltyW() {
  
   UINT32 i;
   UINT32 j;
-  FLOAT fScore;
+  SBIGINT iScore;
   UINT32 iClause;
   UINT32 iClauseLen;
   LITTYPE *pLit;
@@ -65,12 +65,12 @@ void PickNoveltyW() {
   UINT32 iNumOcc;
   UINT32 iVar;
   UINT32 iYoungestVar;
-  FLOAT fSecondBestScore;
+  SBIGINT iSecondBestScore;
   UINT32 iBestVar=0;
   UINT32 iSecondBestVar=0;
 
-  fBestScore = fTotalWeight;
-  fSecondBestScore = fTotalWeight;
+  iBestScoreWeight = SBIGINTMAX;
+  iSecondBestScore = SBIGINTMAX;
 
   /* select the clause according to a weighted scheme */
 
@@ -84,13 +84,13 @@ void PickNoveltyW() {
   pLit = pClauseLits[iClause];
   iYoungestVar = GetVarFromLit(*pLit);
   for (j=0;j<iClauseLen;j++) {
-    fScore = FLOATZERO;
+    iScore = 0;
     iVar = GetVarFromLit(*pLit);
     iNumOcc = aNumLitOcc[*pLit];
     pClause = pLitClause[*pLit];
     for (i=0;i<iNumOcc;i++) {
       if (aNumTrueLit[*pClause]==0) {
-        fScore -= aClauseWeight[*pClause];
+        iScore -= aClauseWeight[*pClause];
       }
       pClause++;
     }
@@ -98,21 +98,21 @@ void PickNoveltyW() {
     pClause = pLitClause[GetNegatedLit(*pLit)];
     for (i=0;i<iNumOcc;i++) {
       if (aNumTrueLit[*pClause]==1) {
-        fScore += aClauseWeight[*pClause];
+        iScore += aClauseWeight[*pClause];
       }
       pClause++;
     }
     if (aVarLastChange[iVar] > aVarLastChange[iYoungestVar]) {
       iYoungestVar = iVar;
     }
-    if ((fScore < fBestScore) || ((fScore == fBestScore) && (aVarLastChange[iVar] < aVarLastChange[iBestVar]))) {
+    if ((iScore < iBestScoreWeight) || ((iScore == iBestScoreWeight) && (aVarLastChange[iVar] < aVarLastChange[iBestVar]))) {
       iSecondBestVar = iBestVar;
       iBestVar = iVar;
-      fSecondBestScore = fBestScore;
-      fBestScore = fScore;
-    } else if ((fScore < fSecondBestScore) || ((fScore == fSecondBestScore) && (aVarLastChange[iVar] < aVarLastChange[iSecondBestVar]))) {
+      iSecondBestScore = iBestScoreWeight;
+      iBestScoreWeight = iScore;
+    } else if ((iScore < iSecondBestScore) || ((iScore == iSecondBestScore) && (aVarLastChange[iVar] < aVarLastChange[iSecondBestVar]))) {
       iSecondBestVar = iVar;
-      fSecondBestScore = fScore;
+      iSecondBestScore = iScore;
     }
     pLit++;
   }
@@ -186,11 +186,11 @@ void AdaptNoveltyNoiseW() {
   if (iStep-iLastAdaptStep > iNumClauses/iInvTheta) {
     iNovNoise += (PROBABILITY) ((UINT32MAX - iNovNoise)/iInvPhi);
     iLastAdaptStep = iStep;
-    fLastAdaptSumFalseW = fSumFalseW;
-  } else if (fSumFalseW < fLastAdaptSumFalseW) {
+    iLastAdaptSumFalseWeight = iSumFalseWeight;
+  } else if (iSumFalseWeight < iLastAdaptSumFalseWeight) {
     iNovNoise -= (PROBABILITY) (iNovNoise / iInvPhi / 2);
     iLastAdaptStep = iStep;
-    fLastAdaptSumFalseW = fSumFalseW;
+    iLastAdaptSumFalseWeight = iSumFalseWeight;
   }
 }
 
@@ -202,11 +202,11 @@ void AdaptNoveltyNoiseAdjustW() {
     iNovNoise += (PROBABILITY) ((UINT32MAX - iNovNoise)*fAdaptPhi);
     iLastAdaptStep = iStep;
     iLastAdaptNumFalse = iNumFalse;
-    fLastAdaptSumFalseW = fSumFalseW;
-  } else if (fSumFalseW < fLastAdaptSumFalseW) {
+    iLastAdaptSumFalseWeight = iSumFalseWeight;
+  } else if (iSumFalseWeight < iLastAdaptSumFalseWeight) {
     iNovNoise -= (PROBABILITY) (iNovNoise * fAdaptPhi / 2);
     iLastAdaptStep = iStep;
-    fLastAdaptSumFalseW = fSumFalseW;
+    iLastAdaptSumFalseWeight = iSumFalseWeight;
   }
 }
 
@@ -281,10 +281,10 @@ void PickG2WSatGeneralW() {
 void PickGSatW() {
   
   UINT32 j;
-  FLOAT fScore;
+  SBIGINT iScore;
 
   iNumCandidates = 0;
-  fBestScore = fTotalWeight;
+  iBestScoreWeight = SBIGINTMAX;
 
   /* check score of all variables */
 
@@ -292,14 +292,14 @@ void PickGSatW() {
     
     /* use cached value of weighted score */
 
-    fScore = aVarScoreW[j];
+    iScore = aVarScoreWeight[j];
 
     /* build candidate list of best vars */
 
-    if (fScore <= fBestScore) {
-      if (fScore < fBestScore) {
+    if (iScore <= iBestScoreWeight) {
+      if (iScore < iBestScoreWeight) {
         iNumCandidates=0;
-        fBestScore = fScore;
+        iBestScoreWeight = iScore;
       }
       aCandidateList[iNumCandidates++] = j;
     }
@@ -317,7 +317,7 @@ void PickGSatW() {
 void PickGSatTabuW() {
   
   UINT32 j;
-  FLOAT fScore;
+  SBIGINT iScore;
   UBIGINT iTabuCutoff;
 
   /* calculation of tabu cutoff */
@@ -332,7 +332,7 @@ void PickGSatTabuW() {
   }
 
   iNumCandidates = 0;
-  fBestScore = fTotalWeight;
+  iBestScoreWeight = SBIGINTMAX;
 
   for (j=1;j<=iNumVars;j++) {
     
@@ -342,14 +342,14 @@ void PickGSatTabuW() {
       
       /* use cached value of weighted score */
 
-      fScore = aVarScoreW[j];
+      iScore = aVarScoreWeight[j];
 
       /* build candidate list of best vars */
 
-      if (fScore <= fBestScore) {
-        if (fScore < fBestScore) {
+      if (iScore <= iBestScoreWeight) {
+        if (iScore < iBestScoreWeight) {
           iNumCandidates=0;
-          fBestScore = fScore;
+          iBestScoreWeight = iScore;
         }
         aCandidateList[iNumCandidates++] = j;
       }
@@ -367,7 +367,7 @@ void PickGSatTabuW() {
 
 void PickGWSatW() {
   UINT32 j;
-  FLOAT fScore;
+  SBIGINT iScore;
 
   /* with probability (iWp) uniformly choose a variable from all
      variables that appear in false clauses */
@@ -381,7 +381,7 @@ void PickGWSatW() {
   } else {
 
     iNumCandidates = 0;
-    fBestScore = fTotalWeight;
+    iBestScoreWeight = SBIGINTMAX;
 
     /* check score of all variables */
 
@@ -389,14 +389,14 @@ void PickGWSatW() {
       
       /* use cached value of weighted score */
 
-      fScore = aVarScoreW[j];
+      iScore = aVarScoreWeight[j];
 
       /* build candidate list of best vars */
 
-      if (fScore <= fBestScore) {
-        if (fScore < fBestScore) {
+      if (iScore <= iBestScoreWeight) {
+        if (iScore < iBestScoreWeight) {
           iNumCandidates=0;
-          fBestScore = fScore;
+          iBestScoreWeight = iScore;
         }
         aCandidateList[iNumCandidates++] = j;
       }
@@ -415,10 +415,10 @@ void PickGWSatW() {
 void PickHSatW() {
   
   UINT32 j;
-  FLOAT fScore;
+  SBIGINT iScore;
 
   iNumCandidates = 0;
-  fBestScore = fTotalWeight;
+  iBestScoreWeight = SBIGINTMAX;
 
   /* check score of all variables */
 
@@ -426,17 +426,17 @@ void PickHSatW() {
 
     /* use cached value of weighted score */
 
-    fScore = aVarScoreW[j];
+    iScore = aVarScoreWeight[j];
 
     /* build candidate list of best vars */
 
-    if (fScore <= fBestScore) {
+    if (iScore <= iBestScoreWeight) {
       
       /* if 2 variables are tied, and one is 'older' then choose older var */
 
-      if ((fScore < fBestScore)||(aVarLastChange[j]<aVarLastChange[*aCandidateList])) {
+      if ((iScore < iBestScoreWeight)||(aVarLastChange[j]<aVarLastChange[*aCandidateList])) {
         iNumCandidates=0;
-        fBestScore = fScore;
+        iBestScoreWeight = iScore;
       }
       aCandidateList[iNumCandidates++] = j;
     }
@@ -480,21 +480,21 @@ void PickRGSatW() {
   /* weighted varaint -- see regular algorithm for comments */
   
   UINT32 j;
-  FLOAT fScore;
+  SBIGINT iScore;
 
   iNumCandidates = 0;
-  fBestScore = fTotalWeight;
+  iBestScoreWeight = SBIGINTMAX;
   for (j=1;j<=iNumVars;j++) {
-    fScore = aVarScoreW[j];
-    if (fScore <= fBestScore) {
-      if (fScore < fBestScore) {
+    iScore = aVarScoreWeight[j];
+    if (iScore <= iBestScoreWeight) {
+      if (iScore < iBestScoreWeight) {
         iNumCandidates=0;
-        fBestScore = fScore;
+        iBestScoreWeight = iScore;
       }
       aCandidateList[iNumCandidates++] = j;
     }
   }
-  if (fBestScore < FLOATZERO) {   
+  if (iBestScoreWeight < FLOATZERO) {
     if (iNumCandidates > 1) {
       iFlipCandidate = aCandidateList[RandomInt(iNumCandidates)];
     } else {
@@ -511,7 +511,7 @@ void PickRoTSW() {
   /* weighted varaint -- see regular algorithm for comments */
   
   UINT32 j;
-  FLOAT fScore;
+  SBIGINT iScore;
   UBIGINT iTabuCutoff;
 
   if (iTabuTenureLow != iTabuTenureHigh) {
@@ -528,11 +528,11 @@ void PickRoTSW() {
     iTabuCutoff = 1;
   }
   iNumCandidates = 0;
-  fBestScore = fTotalWeight;
+  iBestScoreWeight = SBIGINTMAX;
   for (j=1;j<=iNumVars;j++) {
-    fScore = aVarScoreW[j];
+    iScore = aVarScoreWeight[j];
     if (aVarLastChange[j] >= iTabuCutoff) { 
-      if ((fSumFalseW + fScore) < fBestSumFalseW) {
+      if ((iSumFalseWeight + iScore) < iBestSumFalseWeight) {
         iFlipCandidate = j;
         return;
       }
@@ -540,10 +540,10 @@ void PickRoTSW() {
       iFlipCandidate = j;
       return;
     } else { 
-      if (fScore <= fBestScore) {
-        if (fScore < fBestScore) {
+      if (iScore <= iBestScoreWeight) {
+        if (iScore < iBestScoreWeight) {
           iNumCandidates=0;
-          fBestScore = fScore;
+          iBestScoreWeight = iScore;
         }
         aCandidateList[iNumCandidates++] = j;
       }
@@ -557,7 +557,7 @@ void PickRoTSW() {
 }
 
 void SAMDUpdateVarLastChangeW() {
-  if (fBestScore >= FLOATZERO) {
+  if (iBestScoreWeight >= FLOATZERO) {
     UpdateVarLastChange();
   }
 }
@@ -616,7 +616,7 @@ void PickWalkSatSKCW() {
 
   UINT32 i;
   UINT32 j;
-  FLOAT fScore;
+  SBIGINT iScore;
   UINT32 iClause;
   UINT32 iClauseLen;
   UINT32 iVar;
@@ -626,7 +626,7 @@ void PickWalkSatSKCW() {
   UINT32 iNumOcc;
 
   iNumCandidates = 0;
-  fBestScore = fTotalWeight;
+  iBestScoreWeight = SBIGINTMAX;
 
   /* select the clause according to a weighted scheme */
 
@@ -640,26 +640,26 @@ void PickWalkSatSKCW() {
 
   pLit = pClauseLits[iClause];
   for (j=0;j<iClauseLen;j++) {
-    fScore = FLOATZERO;
+    iScore = 0;
     iVar = GetVarFromLit(*pLit);
     iNumOcc = aNumLitOcc[GetNegatedLit(*pLit)];
     pClause = pLitClause[GetNegatedLit(*pLit)];
     for (i=0;i<iNumOcc;i++) {
       if (aNumTrueLit[*pClause]==1) {
-        fScore += aClauseWeight[*pClause];
+        iScore += aClauseWeight[*pClause];
       }
       pClause++;
     }
-    if (fScore <= fBestScore) {
-      if (fScore < fBestScore) {
+    if (iScore <= iBestScoreWeight) {
+      if (iScore < iBestScoreWeight) {
         iNumCandidates=0;
-        fBestScore = fScore;
+        iBestScoreWeight = iScore;
       }
       aCandidateList[iNumCandidates++] = iVar;
     }
     pLit++;
   }
-  if (fBestScore > FLOATZERO) {
+  if (iBestScoreWeight > FLOATZERO) {
     if (RandomProb(iWp)) {
       litPick = pClauseLits[iClause][RandomInt(iClauseLen)];
       iFlipCandidate = GetVarFromLit(litPick);
@@ -677,7 +677,7 @@ void PickWalkSatTabuW() {
  
   UINT32 i;
   UINT32 j;
-  FLOAT fScore;
+  SBIGINT iScore;
   UINT32 iClauseLen;
   LITTYPE *pLit;
   UINT32 *pClause;
@@ -687,7 +687,7 @@ void PickWalkSatTabuW() {
   UBIGINT iTabuCutoff;
 
   iNumCandidates = 0;
-  fBestScore = fTotalWeight;
+  iBestScoreWeight = SBIGINTMAX;
 
   /* calculation of tabu cutoff */
 
@@ -714,7 +714,7 @@ void PickWalkSatTabuW() {
     
        note that in this case, score is the breakcount[] */
 
-    fScore = FLOATZERO;
+    iScore = 0;
       
     pClause = pLitClause[GetNegatedLit(*pLit)];
 
@@ -724,21 +724,21 @@ void PickWalkSatTabuW() {
     
     for (i=0;i<iNumOcc;i++) {
       if (aNumTrueLit[*pClause]==1) {
-        fScore += aClauseWeight[*pClause];
+        iScore += aClauseWeight[*pClause];
       }
       pClause++;
     }
     
     /* variables with breakcount (score) = 0 are never tabu */
 
-    if ((fScore==FLOATZERO)||(aVarLastChange[iVar] < iTabuCutoff)) { 
+    if ((iScore==FLOATZERO)||(aVarLastChange[iVar] < iTabuCutoff)) {
 
       /* build candidate list of best vars */
 
-      if (fScore <= fBestScore) {
-        if (fScore < fBestScore) {
+      if (iScore <= iBestScoreWeight) {
+        if (iScore < iBestScoreWeight) {
           iNumCandidates=0;
-          fBestScore = fScore;
+          iBestScoreWeight = iScore;
         }
         aCandidateList[iNumCandidates++] = iVar;
       }

@@ -42,8 +42,8 @@ UINT32 *aClauseLen;
 LITTYPE **pClauseLits;
 UINT32 iMaxClauseLen;
 
-FLOAT *aClauseWeight;
-FLOAT fTotalWeight;
+UBIGINT *aClauseWeight;
+UBIGINT iTotalClauseWeight;
 
 UINT32 iVARSTATELen;
 
@@ -85,7 +85,7 @@ void InitDefaultStateInfo();
 UINT32 *aNumTrueLit;
 BOOL *aVarValue;
 UINT32 iNumFalse;
-FLOAT fSumFalseW;
+UBIGINT iSumFalseWeight;
 
 
 /***** Trigger DefaultFlip[W] *****/
@@ -127,7 +127,7 @@ void UpdateVarScoreW();
 void FlipVarScoreW();
 
 SINT32 *aVarScore;
-FLOAT *aVarScoreW;
+SBIGINT *aVarScoreWeight;
 
 
 /***** Trigger MakeBreak[W] *****/
@@ -145,8 +145,8 @@ void FlipMakeBreakW();
 UINT32 *aBreakCount;
 UINT32 *aMakeCount;
 UINT32 *aCritSat;
-FLOAT *aBreakCountW;
-FLOAT *aMakeCountW;
+UBIGINT *aBreakCountWeight;
+UBIGINT *amakeCountWeight;
 
 
 /***** Trigger VarInFalse *****/
@@ -207,8 +207,8 @@ UBIGINT *aChangeLastStep;
 
 UINT32 iNumChangesW;
 UINT32 *aChangeListW;
-FLOAT *aChangeOldScoreW;
-UBIGINT *aChangeLastStepW;
+SBIGINT *aChangeOldScoreWeight;
+UBIGINT *aChangeLastStepWeight;
 
 
 /***** Trigger DecPromVars[W] *****/
@@ -325,8 +325,8 @@ void UpdateBestFalse();
 
 UINT32 iBestNumFalse;
 UBIGINT iBestStepNumFalse;
-FLOAT fBestSumFalseW;
-UBIGINT iBestStepSumFalseW;
+UBIGINT iBestSumFalseWeight;
+UBIGINT iBestStepSumFalseWeight;
 
 
 /***** Trigger SaveBest *****/
@@ -342,7 +342,7 @@ VARSTATE vsBest;
 void UpdateStartFalse();
 
 UINT32 iStartNumFalse;
-FLOAT fStartSumFalseW;
+UBIGINT iStartSumFalseWeight;
 
 
 /***** Trigger CalcImproveMean *****/
@@ -361,7 +361,7 @@ void CalcFirstLM();
 
 UINT32 iFirstLM;
 UBIGINT iFirstLMStep;
-FLOAT fFirstLMW;
+UBIGINT iFirstLMWeight;
 UBIGINT iFirstLMStepW;
 
 
@@ -404,7 +404,7 @@ void CheckEarlyTerm();
 
 UBIGINT iEarlyTermSteps;
 UINT32 iEarlyTermQual;
-FLOAT fEarlyTermQualW;
+UBIGINT iEarlyTermQualWeight;
 
 
 /***** Trigger Strikes *****/
@@ -427,6 +427,8 @@ UINT32 iStartSeed;
 /***** Trigger CheckTimeout *****/
 
 void CheckTimeout();
+
+UINT32 iTimeResolution;
 
 
 /***** Trigger CheckForRestarts *****/
@@ -525,7 +527,7 @@ void InitSQGrid();
 void UpdateSQGrid();
 void FinishSQGrid();
 
-FLOAT *aSQGridW;
+UBIGINT *aSQGridWeight;
 UINT32 *aSQGrid;
 
 
@@ -1023,10 +1025,12 @@ void ReadCNF() {
   UINT32 j;
   UINT32 k;
   UINT32 bIsWCNF;
-  float fDummy;
   SINT32 l;
+  UBIGINT w;
   SINT32 iScanRet;
   BOOL bHaveWarnedUnitClause;
+
+  UBIGINT iHardTopWeight;
   
 
   LITTYPE *pData;
@@ -1053,27 +1057,48 @@ void ReadCNF() {
       bIsWCNF = 1;
     }
 
-    if (sLine[0] =='p') {
+    if (sLine[0] == 'p') {
       if (bWeighted) {
         if (bIsWCNF) {
-          sscanf(sLine,"p wcnf %"SCAN32" %"SCAN32,&iNumVars,&iNumClauses);
+          iScanRet = sscanf(sLine,"p wcnf %"SCAN32" %"SCAN32" %"SCAN64,&iNumVars,&iNumClauses,&iHardTopWeight);
+          if (iScanRet == 2) {
+            iHardTopWeight = 0;
+          }
         } else {
-          ReportPrint(pRepErr,"Warning! reading .cnf file and setting all weights = 1\n");
-          sscanf(sLine,"p cnf %"SCAN32" %"SCAN32,&iNumVars,&iNumClauses);
+          ReportHdrPrefix(pRepErr);
+          ReportHdrPrint(pRepErr,"Warning! reading .cnf file and setting all weights = 1\n");
+          iScanRet = sscanf(sLine,"p cnf %"SCAN32" %"SCAN32,&iNumVars,&iNumClauses);
+          if (iScanRet != 2) {
+            ReportPrint(pRepErr,"Error: invalid instance file\n");
+            AbnormalExit();
+            exit(1);
+          }
         }
       } else {
         if (bIsWCNF) {
-          ReportPrint(pRepErr,"Warning! reading .wcnf file and ignoring all weights\n");
-          sscanf(sLine,"p wcnf %"SCAN32" %"SCAN32,&iNumVars,&iNumClauses);
+          ReportHdrPrefix(pRepErr);
+          ReportHdrPrint(pRepErr,"Warning! reading .wcnf file and ignoring all weights\n");
+          iScanRet = sscanf(sLine,"p wcnf %"SCAN32" %"SCAN32,&iNumVars,&iNumClauses);
+          if (iScanRet != 2) {
+            ReportPrint(pRepErr,"Error: invalid instance file\n");
+            AbnormalExit();
+            exit(1);
+          }
         } else {
-          sscanf(sLine,"p cnf %"SCAN32" %"SCAN32,&iNumVars,&iNumClauses);
+          iScanRet = sscanf(sLine,"p cnf %"SCAN32" %"SCAN32,&iNumVars,&iNumClauses);
+          if (iScanRet != 2) {
+            ReportPrint(pRepErr,"Error: invalid instance file\n");
+            AbnormalExit();
+            exit(1);
+          }
         }
       }
     } else {
       if (sLine[0] =='c') {
 
       } else {
-        ReportPrint1(pRepErr,"Warning: Ignoring line in input file:\n   %s",sLine);
+        ReportHdrPrefix(pRepErr);
+        ReportHdrPrint1(pRepErr,"Warning: Ignoring line in input file:\n   %s",sLine);
       }
     }
   }
@@ -1092,7 +1117,7 @@ void ReadCNF() {
   aClauseLen = (UINT32 *) AllocateRAM(iNumClauses * sizeof(UINT32));
   pClauseLits = (LITTYPE **) AllocateRAM(iNumClauses * sizeof(LITTYPE *));
   if (bWeighted) {
-    aClauseWeight = (FLOAT *) AllocateRAM(iNumClauses * sizeof(FLOAT));
+    aClauseWeight = (UBIGINT *) AllocateRAM(iNumClauses * sizeof(UBIGINT));
   }
   
   pLastLit = pNextLit = pData = 0;
@@ -1101,19 +1126,28 @@ void ReadCNF() {
   iMaxClauseLen = 0;
   bHaveWarnedUnitClause = 0;
 
-  for (j=0;j<iNumClauses;j++) {
+  if ((bWeighted)||(iTarget)||(iTargetWeight)) {
+    bHaveWarnedUnitClause = 1;
+  }
 
+  for (j=0;j<iNumClauses;j++) {
     if (bWeighted) {
       if (bIsWCNF) {
-        fscanf(filInput,"%f",&fDummy);
-        aClauseWeight[j] = (FLOAT) fDummy;
+        iScanRet = fscanf(filInput,"%"SCAN64,&w);
+        if (iScanRet != 1) {
+          ReportHdrPrefix(pRepErr);
+          ReportHdrPrint1(pRepErr,"Error reading clause weight at clause [%"P32"]\n",j);
+          ReportHdrPrint1(pRepErr,"  at or near: %s\n",sLine);
+          aClauseWeight[j] = 1;
+        }
+        aClauseWeight[j] = w;
       } else {
-        aClauseWeight[j] = 1.0f;
+        aClauseWeight[j] = 1;
       }
-      fTotalWeight += aClauseWeight[j];
+      iTotalClauseWeight += aClauseWeight[j];
     } else {
       if (bIsWCNF) {
-        fscanf(filInput,"%f",&fDummy);
+        fscanf(filInput,"%"SCAN64,&w);
       }
     }
 
@@ -1128,7 +1162,8 @@ void ReadCNF() {
           fgets(sLine,MAXCNFLINELEN,filInput);
 
           if (sLine[0] =='c') {
-            ReportPrint1(pRepErr,"Warning: Ingoring comment line mid instance:\n   %s",sLine);
+            ReportHdrPrefix(pRepErr);
+            ReportHdrPrint1(pRepErr,"Warning: Ingoring comment line mid instance:\n   %s",sLine);
             iScanRet = fscanf(filInput,"%"SCANS32,&l);
           } else {
             ReportPrint1(pRepErr,"Error reading instance at clause [%"P32"]\n",j);
@@ -1180,7 +1215,8 @@ void ReadCNF() {
       exit(1);
     }
     if ((!bHaveWarnedUnitClause)&&(aClauseLen[j] == 1)) {
-      ReportPrint(pRepErr,"Warning! Unit clause detected: consider using a pre-processor\n");
+      ReportHdrPrefix(pRepErr);
+      ReportHdrPrint(pRepErr,"Warning! Unit clause detected: consider using a pre-processor\n");
       bHaveWarnedUnitClause = 1;
     }
   }
@@ -1347,10 +1383,10 @@ void InitDefaultStateInfo() {
   }
 
   if (bWeighted) {
-    fSumFalseW = FLOATZERO;
+    iSumFalseWeight = 0;
     for (j=0;j<iNumClauses;j++) {
       if (aNumTrueLit[j]==0) {
-        fSumFalseW += aClauseWeight[j];
+        iSumFalseWeight += aClauseWeight[j];
       }
     }
   }
@@ -1407,7 +1443,8 @@ void DefaultInitVars() {
   if (iInitVarFlip) {
 
     if (iInitVarFlip > iNumVars) {
-      ReportPrint(pRepErr,"Warning! -varinitflip value is greater than the number of variables\n");
+      ReportHdrPrefix(pRepErr);
+      ReportHdrPrint(pRepErr,"Warning! -varinitflip value is greater than the number of variables\n");
       iInitVarFlip = iNumVars;
     }
 
@@ -1484,7 +1521,7 @@ void DefaultFlipW() {
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
     if (--aNumTrueLit[*pClause]==0) {
       iNumFalse++;
-      fSumFalseW += aClauseWeight[*pClause];
+      iSumFalseWeight += aClauseWeight[*pClause];
     }
     pClause++;
   }
@@ -1493,7 +1530,7 @@ void DefaultFlipW() {
   for (j=0;j<aNumLitOcc[litWasFalse];j++) {
     if (++aNumTrueLit[*pClause]==1) {
       iNumFalse--;
-      fSumFalseW -= aClauseWeight[*pClause];
+      iSumFalseWeight -= aClauseWeight[*pClause];
     }
     pClause++;
   }
@@ -1504,7 +1541,7 @@ void CheckTermination() {
     bSolutionFound = 1;
   }
   if (bWeighted) {
-    if (fSumFalseW <= fTargetW) {
+    if (iSumFalseWeight <= iTargetWeight) {
       bSolutionFound = 1;
     }
   }
@@ -1620,7 +1657,7 @@ void FlipFalseClauseListW() {
     if (aNumTrueLit[*pClause]==0) { 
       aFalseList[iNumFalse] = *pClause;
       aFalseListPos[*pClause] = iNumFalse++;
-      fSumFalseW += aClauseWeight[*pClause];
+      iSumFalseWeight += aClauseWeight[*pClause];
     }
     pClause++;
   }
@@ -1631,7 +1668,7 @@ void FlipFalseClauseListW() {
     if (aNumTrueLit[*pClause]==1) {
       aFalseList[aFalseListPos[*pClause]] = aFalseList[--iNumFalse];
       aFalseListPos[aFalseList[iNumFalse]] = aFalseListPos[*pClause];
-      fSumFalseW -= aClauseWeight[*pClause];
+      iSumFalseWeight -= aClauseWeight[*pClause];
     }
     pClause++;
   }
@@ -1808,7 +1845,7 @@ void FlipVarScore() {
 
 
 void CreateVarScoreW() {
-  aVarScoreW = (FLOAT *) AllocateRAM((iNumVars+1)*sizeof(FLOAT));
+  aVarScoreWeight = (SBIGINT *) AllocateRAM((iNumVars+1)*sizeof(SBIGINT));
   aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
 }
 
@@ -1818,22 +1855,20 @@ void InitVarScoreW() {
   UINT32 iVar;
   LITTYPE *pLit;
   
-  for (j=1;j<=iNumVars;j++) {
-    aVarScoreW[j] = FLOATZERO;
-  }
+  memset(aVarScoreWeight,0,(iNumVars+1)*sizeof(SBIGINT));
   memset(aCritSat,0,iNumClauses*sizeof(UINT32));
   
   for (j=0;j<iNumClauses;j++) {
     if (aNumTrueLit[j]==0) {
       for (k=0;k<aClauseLen[j];k++) {
-        aVarScoreW[GetVar(j,k)] -= aClauseWeight[j];
+        aVarScoreWeight[GetVar(j,k)] -= aClauseWeight[j];
       }
     } else if (aNumTrueLit[j]==1) {
       pLit = pClauseLits[j];
       for (k=0;k<aClauseLen[j];k++) {
         if IsLitTrue(*pLit) {
           iVar = GetVarFromLit(*pLit);
-          aVarScoreW[iVar] += aClauseWeight[j];
+          aVarScoreWeight[iVar] += aClauseWeight[j];
           aCritSat[j] = iVar;
           break;
         }
@@ -1864,11 +1899,11 @@ void UpdateVarScoreW() {
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
     if (aNumTrueLit[*pClause]==0) { 
       
-      aVarScoreW[iFlipCandidate] -= aClauseWeight[*pClause];
+      aVarScoreWeight[iFlipCandidate] -= aClauseWeight[*pClause];
       
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
-        aVarScoreW[GetVarFromLit(*pLit)] -= aClauseWeight[*pClause];
+        aVarScoreWeight[GetVarFromLit(*pLit)] -= aClauseWeight[*pClause];
         pLit++;
       }
     }
@@ -1877,7 +1912,7 @@ void UpdateVarScoreW() {
       for (k=0;k<aClauseLen[*pClause];k++) {
         if (IsLitTrue(*pLit)) {
           iVar = GetVarFromLit(*pLit);
-          aVarScoreW[iVar] += aClauseWeight[*pClause];
+          aVarScoreWeight[iVar] += aClauseWeight[*pClause];
           aCritSat[*pClause] = iVar;
           break;
         }
@@ -1893,14 +1928,14 @@ void UpdateVarScoreW() {
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
         iVar = GetVarFromLit(*pLit);
-        aVarScoreW[iVar] += aClauseWeight[*pClause];
+        aVarScoreWeight[iVar] += aClauseWeight[*pClause];
         pLit++;
       }
-      aVarScoreW[iFlipCandidate] += aClauseWeight[*pClause];
+      aVarScoreWeight[iFlipCandidate] += aClauseWeight[*pClause];
       aCritSat[*pClause] = iFlipCandidate;
     }
     if (aNumTrueLit[*pClause]==2) {
-      aVarScoreW[aCritSat[*pClause]] -= aClauseWeight[*pClause];
+      aVarScoreWeight[aCritSat[*pClause]] -= aClauseWeight[*pClause];
     }
     pClause++;
   }
@@ -1931,13 +1966,13 @@ void FlipVarScoreW() {
     if (aNumTrueLit[*pClause]==0) { 
       
       iNumFalse++;
-      fSumFalseW += aClauseWeight[*pClause];
+      iSumFalseWeight += aClauseWeight[*pClause];
 
-      aVarScoreW[iFlipCandidate] -= aClauseWeight[*pClause];
+      aVarScoreWeight[iFlipCandidate] -= aClauseWeight[*pClause];
       
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
-        aVarScoreW[GetVarFromLit(*pLit)] -= aClauseWeight[*pClause];
+        aVarScoreWeight[GetVarFromLit(*pLit)] -= aClauseWeight[*pClause];
         pLit++;
       }
     }
@@ -1946,7 +1981,7 @@ void FlipVarScoreW() {
       for (k=0;k<aClauseLen[*pClause];k++) {
         if (IsLitTrue(*pLit)) {
           iVar = GetVarFromLit(*pLit);
-          aVarScoreW[iVar] += aClauseWeight[*pClause];
+          aVarScoreWeight[iVar] += aClauseWeight[*pClause];
           aCritSat[*pClause] = iVar;
           break;
         }
@@ -1962,19 +1997,19 @@ void FlipVarScoreW() {
     if (aNumTrueLit[*pClause]==1) {
 
       iNumFalse--;
-      fSumFalseW -= aClauseWeight[*pClause];
+      iSumFalseWeight -= aClauseWeight[*pClause];
 
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
         iVar = GetVarFromLit(*pLit);
-        aVarScoreW[iVar] += aClauseWeight[*pClause];
+        aVarScoreWeight[iVar] += aClauseWeight[*pClause];
         pLit++;
       }
-      aVarScoreW[iFlipCandidate] += aClauseWeight[*pClause];
+      aVarScoreWeight[iFlipCandidate] += aClauseWeight[*pClause];
       aCritSat[*pClause] = iFlipCandidate;
     }
     if (aNumTrueLit[*pClause]==2) {
-      aVarScoreW[aCritSat[*pClause]] -= aClauseWeight[*pClause];
+      aVarScoreWeight[aCritSat[*pClause]] -= aClauseWeight[*pClause];
     }
     pClause++;
   }
@@ -2231,8 +2266,8 @@ void FlipMakeBreak() {
 }
 
 void CreateMakeBreakW() {
-  aBreakCountW = (FLOAT *) AllocateRAM((iNumVars+1)*sizeof(FLOAT));
-  aMakeCountW = (FLOAT *) AllocateRAM((iNumVars+1)*sizeof(FLOAT));
+  aBreakCountWeight = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
+  amakeCountWeight = (UBIGINT *) AllocateRAM((iNumVars+1)*sizeof(UBIGINT));
   aCritSat = (UINT32 *) AllocateRAM(iNumClauses*sizeof(UINT32));
 }
 
@@ -2242,23 +2277,21 @@ void InitMakeBreakW() {
   UINT32 iVar;
   LITTYPE *pLit;
 
-  for (j=1;j<=iNumVars;j++) {
-    aMakeCountW[j] = FLOATZERO;
-    aBreakCountW[j] = FLOATZERO;
-  }
+  memset(amakeCountWeight,0,(iNumVars+1)*sizeof(UBIGINT));
+  memset(aBreakCountWeight,0,(iNumVars+1)*sizeof(UBIGINT));
   memset(aCritSat,0,iNumClauses*sizeof(UINT32));
   
   for (j=0;j<iNumClauses;j++) {
     if (aNumTrueLit[j]==0) {
       for (k=0;k<aClauseLen[j];k++) {
-        aMakeCountW[GetVar(j,k)] += aClauseWeight[j];
+        amakeCountWeight[GetVar(j,k)] += aClauseWeight[j];
       }
     } else if (aNumTrueLit[j]==1) {
       pLit = pClauseLits[j];
       for (k=0;k<aClauseLen[j];k++) {
         if IsLitTrue(*pLit) {
           iVar = GetVarFromLit(*pLit);
-          aBreakCountW[iVar] += aClauseWeight[j];
+          aBreakCountWeight[iVar] += aClauseWeight[j];
           aCritSat[j] = iVar;
           break;
         }
@@ -2289,11 +2322,11 @@ void UpdateMakeBreakW() {
   pClause = pLitClause[litWasTrue];
   for (j=0;j<aNumLitOcc[litWasTrue];j++) {
     if (aNumTrueLit[*pClause]==0) { 
-      aBreakCountW[iFlipCandidate] -=  aClauseWeight[*pClause];
+      aBreakCountWeight[iFlipCandidate] -=  aClauseWeight[*pClause];
       
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
-        aMakeCountW[GetVarFromLit(*pLit)] += aClauseWeight[*pClause];
+        amakeCountWeight[GetVarFromLit(*pLit)] += aClauseWeight[*pClause];
         pLit++;
       }
     }
@@ -2302,7 +2335,7 @@ void UpdateMakeBreakW() {
       for (k=0;k<aClauseLen[*pClause];k++) {
         if (IsLitTrue(*pLit)) {
           iVar = GetVarFromLit(*pLit);
-          aBreakCountW[iVar] += aClauseWeight[*pClause];
+          aBreakCountWeight[iVar] += aClauseWeight[*pClause];
           aCritSat[*pClause] = iVar;
           break;
         }
@@ -2318,14 +2351,14 @@ void UpdateMakeBreakW() {
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
         iVar = GetVarFromLit(*pLit);
-        aMakeCountW[iVar] -= aClauseWeight[*pClause];
+        amakeCountWeight[iVar] -= aClauseWeight[*pClause];
         pLit++;
       }
-      aBreakCountW[iFlipCandidate] += aClauseWeight[*pClause];
+      aBreakCountWeight[iFlipCandidate] += aClauseWeight[*pClause];
       aCritSat[*pClause] = iFlipCandidate;
     }
     if (aNumTrueLit[*pClause]==2) {
-      aBreakCountW[aCritSat[*pClause]] -= aClauseWeight[*pClause];
+      aBreakCountWeight[aCritSat[*pClause]] -= aClauseWeight[*pClause];
     }
     pClause++;
   }
@@ -2359,13 +2392,13 @@ void FlipMakeBreakW() {
       aFalseList[iNumFalse] = *pClause;
       aFalseListPos[*pClause] = iNumFalse++;
 
-      fSumFalseW += aClauseWeight[*pClause];
+      iSumFalseWeight += aClauseWeight[*pClause];
 
-      aBreakCountW[iFlipCandidate] -= aClauseWeight[*pClause];
+      aBreakCountWeight[iFlipCandidate] -= aClauseWeight[*pClause];
       
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
-        aMakeCountW[GetVarFromLit(*pLit)] += aClauseWeight[*pClause];
+        amakeCountWeight[GetVarFromLit(*pLit)] += aClauseWeight[*pClause];
         pLit++;
       }
     }
@@ -2374,7 +2407,7 @@ void FlipMakeBreakW() {
       for (k=0;k<aClauseLen[*pClause];k++) {
         if (IsLitTrue(*pLit)) {
           iVar = GetVarFromLit(*pLit);
-          aBreakCountW[iVar] += aClauseWeight[*pClause];
+          aBreakCountWeight[iVar] += aClauseWeight[*pClause];
           aCritSat[*pClause] = iVar;
           break;
         }
@@ -2392,19 +2425,19 @@ void FlipMakeBreakW() {
       aFalseList[aFalseListPos[*pClause]] = aFalseList[--iNumFalse];
       aFalseListPos[aFalseList[iNumFalse]] = aFalseListPos[*pClause];
 
-      fSumFalseW -= aClauseWeight[*pClause];
+      iSumFalseWeight -= aClauseWeight[*pClause];
 
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
         iVar = GetVarFromLit(*pLit);
-        aMakeCountW[iVar] -= aClauseWeight[*pClause];
+        amakeCountWeight[iVar] -= aClauseWeight[*pClause];
         pLit++;
       }
-      aBreakCountW[iFlipCandidate] += aClauseWeight[*pClause];
+      aBreakCountWeight[iFlipCandidate] += aClauseWeight[*pClause];
       aCritSat[*pClause] = iFlipCandidate;
     }
     if (aNumTrueLit[*pClause]==2) {
-      aBreakCountW[aCritSat[*pClause]] -= aClauseWeight[*pClause];
+      aBreakCountWeight[aCritSat[*pClause]] -= aClauseWeight[*pClause];
     }
     pClause++;
   }
@@ -2970,16 +3003,16 @@ void FlipDecPromVarsFCL() {
 }
 
 
-#define UpdateChangeW(var) {if(aChangeLastStepW[var]!=iStep) {aChangeOldScoreW[var] = aVarScoreW[var]; aChangeLastStepW[var]=iStep; aChangeListW[iNumChangesW++]=var;}}
+#define UpdateChangeW(var) {if(aChangeLastStepWeight[var]!=iStep) {aChangeOldScoreWeight[var] = aVarScoreWeight[var]; aChangeLastStepWeight[var]=iStep; aChangeListW[iNumChangesW++]=var;}}
 
 void CreateTrackChangesW() {
   aChangeListW = (UINT32 *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
-  aChangeLastStepW = (UBIGINT *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
-  aChangeOldScoreW = (FLOAT *) AllocateRAM((iNumVars+1) * sizeof(FLOAT));
+  aChangeLastStepWeight = (UBIGINT *) AllocateRAM((iNumVars+1) * sizeof(UINT32));
+  aChangeOldScoreWeight = (SBIGINT *) AllocateRAM((iNumVars+1) * sizeof(SBIGINT));
 }
 
 void InitTrackChangesW() {
-  memset(aChangeLastStepW,0,(iNumVars+1) * sizeof(UBIGINT));
+  memset(aChangeLastStepWeight,0,(iNumVars+1) * sizeof(UBIGINT));
 }
 
 void UpdateTrackChangesW() {
@@ -3005,13 +3038,13 @@ void UpdateTrackChangesW() {
     if (aNumTrueLit[*pClause]==0) { 
       
       UpdateChangeW(iFlipCandidate);
-      aVarScoreW[iFlipCandidate] -= aClauseWeight[*pClause];
+      aVarScoreWeight[iFlipCandidate] -= aClauseWeight[*pClause];
 
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
         iVar = GetVarFromLit(*pLit);
         UpdateChangeW(iVar);
-        aVarScoreW[iVar] -= aClauseWeight[*pClause];
+        aVarScoreWeight[iVar] -= aClauseWeight[*pClause];
         pLit++;
       }
     }
@@ -3021,7 +3054,7 @@ void UpdateTrackChangesW() {
         if (IsLitTrue(*pLit)) {
           iVar = GetVarFromLit(*pLit);
           UpdateChangeW(iVar);
-          aVarScoreW[iVar] += aClauseWeight[*pClause];
+          aVarScoreWeight[iVar] += aClauseWeight[*pClause];
           aCritSat[*pClause] = iVar;
           break;
         }
@@ -3039,17 +3072,17 @@ void UpdateTrackChangesW() {
       for (k=0;k<aClauseLen[*pClause];k++) {
         iVar = GetVarFromLit(*pLit);
         UpdateChangeW(iVar);
-        aVarScoreW[iVar] += aClauseWeight[*pClause];
+        aVarScoreWeight[iVar] += aClauseWeight[*pClause];
         pLit++;
       }
       UpdateChangeW(iFlipCandidate);
-      aVarScoreW[iFlipCandidate] += aClauseWeight[*pClause];
+      aVarScoreWeight[iFlipCandidate] += aClauseWeight[*pClause];
       aCritSat[*pClause] = iFlipCandidate;
     }
     if (aNumTrueLit[*pClause]==2) {
       iVar = aCritSat[*pClause];
       UpdateChangeW(iVar);
-      aVarScoreW[iVar] -= aClauseWeight[*pClause];
+      aVarScoreWeight[iVar] -= aClauseWeight[*pClause];
     }
     pClause++;
   }
@@ -3082,16 +3115,16 @@ void FlipTrackChangesW() {
     if (aNumTrueLit[*pClause]==0) { 
       
       iNumFalse++;
-      fSumFalseW += aClauseWeight[*pClause];
+      iSumFalseWeight += aClauseWeight[*pClause];
       
       UpdateChangeW(iFlipCandidate);
-      aVarScoreW[iFlipCandidate] -= aClauseWeight[*pClause];
+      aVarScoreWeight[iFlipCandidate] -= aClauseWeight[*pClause];
 
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
         iVar = GetVarFromLit(*pLit);
         UpdateChangeW(iVar);
-        aVarScoreW[iVar] -= aClauseWeight[*pClause];
+        aVarScoreWeight[iVar] -= aClauseWeight[*pClause];
         pLit++;
       }
     }
@@ -3101,7 +3134,7 @@ void FlipTrackChangesW() {
         if (IsLitTrue(*pLit)) {
           iVar = GetVarFromLit(*pLit);
           UpdateChangeW(iVar);
-          aVarScoreW[iVar] += aClauseWeight[*pClause];
+          aVarScoreWeight[iVar] += aClauseWeight[*pClause];
           aCritSat[*pClause] = iVar;
           break;
         }
@@ -3117,23 +3150,23 @@ void FlipTrackChangesW() {
     if (aNumTrueLit[*pClause]==1) {
 
       iNumFalse--;
-      fSumFalseW -= aClauseWeight[*pClause];
+      iSumFalseWeight -= aClauseWeight[*pClause];
 
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
         iVar = GetVarFromLit(*pLit);
         UpdateChangeW(iVar);
-        aVarScoreW[iVar] += aClauseWeight[*pClause];
+        aVarScoreWeight[iVar] += aClauseWeight[*pClause];
         pLit++;
       }
       UpdateChangeW(iFlipCandidate);
-      aVarScoreW[iFlipCandidate] += aClauseWeight[*pClause];
+      aVarScoreWeight[iFlipCandidate] += aClauseWeight[*pClause];
       aCritSat[*pClause] = iFlipCandidate;
     }
     if (aNumTrueLit[*pClause]==2) {
       iVar = aCritSat[*pClause];
       UpdateChangeW(iVar);
-      aVarScoreW[iVar] -= aClauseWeight[*pClause];
+      aVarScoreWeight[iVar] -= aClauseWeight[*pClause];
     }
     pClause++;
   }
@@ -3167,16 +3200,16 @@ void FlipTrackChangesFCLW() {
 
       aFalseList[iNumFalse] = *pClause;
       aFalseListPos[*pClause] = iNumFalse++;
-      fSumFalseW += aClauseWeight[*pClause];
+      iSumFalseWeight += aClauseWeight[*pClause];
       
       UpdateChangeW(iFlipCandidate);
-      aVarScoreW[iFlipCandidate] -= aClauseWeight[*pClause];
+      aVarScoreWeight[iFlipCandidate] -= aClauseWeight[*pClause];
 
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
         iVar = GetVarFromLit(*pLit);
         UpdateChangeW(iVar);
-        aVarScoreW[iVar] -= aClauseWeight[*pClause];
+        aVarScoreWeight[iVar] -= aClauseWeight[*pClause];
         pLit++;
       }
     }
@@ -3186,7 +3219,7 @@ void FlipTrackChangesFCLW() {
         if (IsLitTrue(*pLit)) {
           iVar = GetVarFromLit(*pLit);
           UpdateChangeW(iVar);
-          aVarScoreW[iVar] += aClauseWeight[*pClause];
+          aVarScoreWeight[iVar] += aClauseWeight[*pClause];
           aCritSat[*pClause] = iVar;
           break;
         }
@@ -3203,23 +3236,23 @@ void FlipTrackChangesFCLW() {
 
       aFalseList[aFalseListPos[*pClause]] = aFalseList[--iNumFalse];
       aFalseListPos[aFalseList[iNumFalse]] = aFalseListPos[*pClause];
-      fSumFalseW -= aClauseWeight[*pClause];
+      iSumFalseWeight -= aClauseWeight[*pClause];
 
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
         iVar = GetVarFromLit(*pLit);
         UpdateChangeW(iVar);
-        aVarScoreW[iVar] += aClauseWeight[*pClause];
+        aVarScoreWeight[iVar] += aClauseWeight[*pClause];
         pLit++;
       }
       UpdateChangeW(iFlipCandidate);
-      aVarScoreW[iFlipCandidate] += aClauseWeight[*pClause];
+      aVarScoreWeight[iFlipCandidate] += aClauseWeight[*pClause];
       aCritSat[*pClause] = iFlipCandidate;
     }
     if (aNumTrueLit[*pClause]==2) {
       iVar = aCritSat[*pClause];
       UpdateChangeW(iVar);
-      aVarScoreW[iVar] -= aClauseWeight[*pClause];
+      aVarScoreWeight[iVar] -= aClauseWeight[*pClause];
     }
     pClause++;
   }
@@ -3281,7 +3314,7 @@ void InitDecPromVarsW() {
   iNumDecPromVarsW = 0;
 
   for (j=1;j<=iNumVars;j++) {
-    if (aVarScoreW[j] < FLOATZERO) {
+    if (aVarScoreWeight[j] < 0) {
       aDecPromVarsListW[iNumDecPromVarsW++] = j;
     }
   }
@@ -3294,7 +3327,7 @@ void UpdateDecPromVarsW() {
 
   for (j=0;j<iNumChangesW;j++) {
     iVar = aChangeListW[j];
-    if ((aVarScoreW[iVar] < FLOATZERO)&&(aChangeOldScoreW[iVar] >= 0)) {
+    if ((aVarScoreWeight[iVar] < 0)&&(aChangeOldScoreWeight[iVar] >= 0)) {
       aDecPromVarsListW[iNumDecPromVarsW++] = iVar;
     }
   }
@@ -3302,7 +3335,7 @@ void UpdateDecPromVarsW() {
   k=0;
   while (j < iNumDecPromVarsW) {
     iVar = aDecPromVarsListW[k];
-    if ((aVarScoreW[iVar] >= 0)||(iVar == iFlipCandidate)) {
+    if ((aVarScoreWeight[iVar] >= 0)||(iVar == iFlipCandidate)) {
       iNumDecPromVarsW--;
     } else {
       aDecPromVarsListW[j++]=aDecPromVarsListW[k];
@@ -3408,7 +3441,7 @@ void InitClausePenaltyFLW() {
   fTotalPenaltyFL = FLOATZERO;  
 
   for (j=0;j<iNumClauses;j++) {
-    aClausePenaltyFL[j] = aClauseWeight[j];
+    aClausePenaltyFL[j] = (FLOAT) aClauseWeight[j];
     fTotalPenaltyFL += aClausePenaltyFL[j];
   }
 
@@ -3656,7 +3689,7 @@ void FlipMBPFLandFCLandVIFandW() {
       aFalseList[iNumFalse] = *pClause;
       aFalseListPos[*pClause] = iNumFalse++;
 
-      fSumFalseW += aClauseWeight[*pClause];
+      iSumFalseWeight += aClauseWeight[*pClause];
 
       aBreakCount[iFlipCandidate]--;
       
@@ -3702,7 +3735,7 @@ void FlipMBPFLandFCLandVIFandW() {
       aFalseList[aFalseListPos[*pClause]] = aFalseList[--iNumFalse];
       aFalseListPos[aFalseList[iNumFalse]] = aFalseListPos[*pClause];
 
-      fSumFalseW -= aClauseWeight[*pClause];
+      iSumFalseWeight -= aClauseWeight[*pClause];
 
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
@@ -4004,7 +4037,7 @@ void FlipMBPINTandFCLandVIFandW() {
       aFalseList[iNumFalse] = *pClause;
       aFalseListPos[*pClause] = iNumFalse++;
 
-      fSumFalseW += aClauseWeight[*pClause];
+      iSumFalseWeight += aClauseWeight[*pClause];
 
       aBreakCount[iFlipCandidate]--;
       
@@ -4050,7 +4083,7 @@ void FlipMBPINTandFCLandVIFandW() {
       aFalseList[aFalseListPos[*pClause]] = aFalseList[--iNumFalse];
       aFalseListPos[aFalseList[iNumFalse]] = aFalseListPos[*pClause];
 
-      fSumFalseW -= aClauseWeight[*pClause];
+      iSumFalseWeight -= aClauseWeight[*pClause];
 
       pLit = pClauseLits[*pClause];
       for (k=0;k<aClauseLen[*pClause];k++) {
@@ -4124,8 +4157,8 @@ void InitBestFalse() {
   iBestNumFalse = iNumClauses+1;
   iBestStepNumFalse = iStep; 
 
-  fBestSumFalseW = fTotalWeight + 1.0f;
-  iBestStepSumFalseW = iStep;
+  iBestSumFalseWeight = UBIGINTMAX;
+  iBestStepSumFalseWeight = iStep;
 }
 
 void UpdateBestFalse() {
@@ -4134,9 +4167,9 @@ void UpdateBestFalse() {
     iBestStepNumFalse = iStep;
   }
   if (bWeighted) {
-    if (fSumFalseW < fBestSumFalseW) {
-      fBestSumFalseW = fSumFalseW;
-      iBestStepSumFalseW = iStep;
+    if (iSumFalseWeight < iBestSumFalseWeight) {
+      iBestSumFalseWeight = iSumFalseWeight;
+      iBestStepSumFalseWeight = iStep;
     }
   }
 }
@@ -4149,7 +4182,7 @@ void UpdateSaveBest() {
   BOOL bSave = 0;
 
   if (bWeighted) {
-    if (iBestStepSumFalseW == iStep) {
+    if (iBestStepSumFalseWeight == iStep) {
       bSave = 1;
     }
   } else {
@@ -4167,7 +4200,7 @@ void UpdateStartFalse() {
   if (iStep==1) {
     iStartNumFalse = iNumFalse;
     if (bWeighted) {
-      fStartSumFalseW = fSumFalseW;
+      iStartSumFalseWeight = iSumFalseWeight;
     }
   }
 }
@@ -4180,10 +4213,10 @@ void CalcImproveMean() {
     fImproveMean = (FLOAT) (iStartNumFalse - iBestNumFalse) / (FLOAT) (iBestStepNumFalse - 1);
   }
   if (bWeighted) {
-    if (iBestStepSumFalseW <= 1) {
+    if (iBestStepSumFalseWeight <= 1) {
       fImproveMeanW = FLOATZERO;
     } else {
-      fImproveMeanW = (FLOAT) (fStartSumFalseW - fBestSumFalseW) / (FLOAT) (iBestStepSumFalseW - 1);
+      fImproveMeanW = (FLOAT) (iStartSumFalseWeight - iBestSumFalseWeight) / (FLOAT) (iBestStepSumFalseWeight - 1);
     }
   }
 }
@@ -4192,7 +4225,7 @@ void CalcImproveMean() {
 void InitFirstLM() {
   iFirstLM = 0;
   iFirstLMStep = 0;
-  fFirstLMW = FLOATZERO;
+  iFirstLMWeight = 0;
   iFirstLMStepW = 0;
 }
 
@@ -4205,7 +4238,7 @@ void UpdateFirstLM() {
   }
   if ((bWeighted)&&(iFirstLMStepW==FLOATZERO)) {
     if (IsLocalMinimum(1)) {
-      fFirstLMW = fSumFalseW;
+      iFirstLMWeight = iSumFalseWeight;
       iFirstLMStepW = iStep;
     }
   }
@@ -4219,8 +4252,8 @@ void CalcFirstLMRatio() {
     fFirstLMRatio = (FLOAT)(iStartNumFalse - iFirstLM) / (FLOAT)(iStartNumFalse - iBestNumFalse);
   }
   if (bWeighted) {
-    if (fStartSumFalseW != fBestSumFalseW) {
-      fFirstLMRatioW = (fStartSumFalseW - fFirstLMW) / (fStartSumFalseW - fBestSumFalseW);
+    if (iStartSumFalseWeight != iBestSumFalseWeight) {
+      fFirstLMRatioW = (FLOAT) (iStartSumFalseWeight - iFirstLMWeight) / (iStartSumFalseWeight - iBestSumFalseWeight);
     }
   }
 }
@@ -4243,10 +4276,10 @@ void UpdateTrajBestLM() {
       fTrajBestLMSum2 += (FLOAT) (iBestNumFalse * iBestNumFalse);
     }
     if (bWeighted) {
-      if (iBestStepSumFalseW==(iStep-1)) {
+      if (iBestStepSumFalseWeight==(iStep-1)) {
         iTrajBestLMCountW++;
-        fTrajBestLMSumW += fBestSumFalseW;
-        fTrajBestLMSum2W += (fBestSumFalseW * fBestSumFalseW);
+        fTrajBestLMSumW += (FLOAT) iBestSumFalseWeight;
+        fTrajBestLMSum2W += (FLOAT) (iBestSumFalseWeight * iBestSumFalseWeight);
       }
     }
   }
@@ -4261,10 +4294,10 @@ void CalcTrajBestLM() {
     fTrajBestLMSum2 += (FLOAT) (iBestNumFalse * iBestNumFalse);
   }
   if (bWeighted) {
-    if (iBestStepSumFalseW==(iStep-1)) {
+    if (iBestStepSumFalseWeight==(iStep-1)) {
       iTrajBestLMCountW++;
-      fTrajBestLMSumW += fBestSumFalseW;
-      fTrajBestLMSum2W += (fBestSumFalseW * fBestSumFalseW);
+      fTrajBestLMSumW += (FLOAT) iBestSumFalseWeight;
+      fTrajBestLMSum2W += (FLOAT) (iBestSumFalseWeight * iBestSumFalseWeight);
     }
   }
   
@@ -4281,7 +4314,7 @@ void CheckNoImprove() {
       bTerminateRun = 1;
     }
     if (bWeighted) {
-      if (iStep > (iBestStepSumFalseW + iNoImprove)) {
+      if (iStep > (iBestStepSumFalseWeight + iNoImprove)) {
         bTerminateRun = 1;
       }
     }
@@ -4293,8 +4326,8 @@ void CheckEarlyTerm() {
   if (iEarlyTermSteps) {
     if (iStep == iEarlyTermSteps) {
       if (bWeighted) {
-        if (fEarlyTermQualW > FLOATZERO) {
-          if (fBestSumFalseW > fEarlyTermQualW) {
+        if (iEarlyTermQualWeight) {
+          if (iBestSumFalseWeight > iEarlyTermQualWeight) {
             bTerminateRun = 1;
           }
         }
@@ -4331,17 +4364,19 @@ void StartSeed () {
 void CheckTimeout() {
   double fTimeElapsed;
 
-  if (fTimeOut > FLOATZERO) {
-    fTimeElapsed = RunTimeElapsed();
-    if (fTimeElapsed > (double) fTimeOut) {
-      bTerminateRun = 1;
+  if ((iTimeResolution <= 1) || ((iTimeResolution % iTimeResolution) == 0)) {
+    if (fTimeOut > FLOATZERO) {
+      fTimeElapsed = RunTimeElapsed();
+      if (fTimeElapsed > (double) fTimeOut) {
+        bTerminateRun = 1;
+      }
     }
-  }
-  if (fGlobalTimeOut > FLOATZERO) {
-    fTimeElapsed = TotalTimeElapsed();
-    if (fTimeElapsed > (double) fGlobalTimeOut) {
-      bTerminateRun = 1;
-      bTerminateAllRuns = 1;
+    if (fGlobalTimeOut > FLOATZERO) {
+      fTimeElapsed = TotalTimeElapsed();
+      if (fTimeElapsed > (double) fGlobalTimeOut) {
+        bTerminateRun = 1;
+        bTerminateAllRuns = 1;
+      }
     }
   }
 }
@@ -4363,7 +4398,7 @@ void CheckForRestarts() {
       InitBestFalse();
     }
     if (bWeighted) {
-      if (iStep > (iBestStepSumFalseW + iStagnateRestart)) {
+      if (iStep > (iBestStepSumFalseWeight + iStagnateRestart)) {
         bRestart = 1;
         InitBestFalse();
       }
@@ -4590,7 +4625,7 @@ UINT32 iNextSQGridCol;
 
 void CreateSQGrid() {
   if (bWeighted) {
-    aSQGridW = (FLOAT *) AllocateRAM(iNumLogDistValues * iNumRuns * sizeof(FLOAT));
+    aSQGridWeight = (UBIGINT *) AllocateRAM(iNumLogDistValues * iNumRuns * sizeof(UBIGINT));
   } else {
     aSQGrid = (UINT32 *) AllocateRAM(iNumLogDistValues * iNumRuns * sizeof(UINT32));
   }
@@ -4607,7 +4642,7 @@ void UpdateSQGrid() {
   }
 
   if (bWeighted) {
-    aSQGridW[iNumLogDistValues * (iRun-1) + iNextSQGridCol++] = fBestSumFalseW;
+    aSQGridWeight[iNumLogDistValues * (iRun-1) + iNextSQGridCol++] = iBestSumFalseWeight;
   } else {
     aSQGrid[iNumLogDistValues * (iRun-1) + iNextSQGridCol++] = iBestNumFalse;
   }
@@ -4616,7 +4651,7 @@ void UpdateSQGrid() {
 void FinishSQGrid() {
   if (bWeighted) {
     while (iNextSQGridCol < iNumLogDistValues) {
-      aSQGridW[iNumLogDistValues * (iRun-1) + iNextSQGridCol++] = fBestSumFalseW;
+      aSQGridWeight[iNumLogDistValues * (iRun-1) + iNextSQGridCol++] = iBestSumFalseWeight;
     }
   } else {
     while (iNextSQGridCol < iNumLogDistValues) {
@@ -4877,7 +4912,7 @@ void UpdateAutoCorr() {
   UINT32 k;
   
   if (bWeighted) {
-    fCurValue = fSumFalseW;
+    fCurValue = (FLOAT) iSumFalseWeight;
   } else {
     fCurValue = (FLOAT) iNumFalse;
   }
@@ -4955,7 +4990,7 @@ void UpdateAutoCorrOne() {
   FLOAT fCurValue;
   
   if (bWeighted) {
-    fCurValue = fSumFalseW;
+    fCurValue = (FLOAT) iSumFalseWeight;
   } else {
     fCurValue = (FLOAT) iNumFalse;
   }
@@ -5020,7 +5055,7 @@ void BranchFactorW() {
   UINT32 j;
   fBranchFactorW = FLOATZERO;
   for (j=1; j<=iNumVars; j++) {
-    if (aVarScoreW[j] == FLOATZERO) {
+    if (aVarScoreWeight[j] ==  0) {
       fBranchFactorW += 1.0f;
     }
   }
@@ -5029,7 +5064,7 @@ void BranchFactorW() {
 
 
 UINT32 iSUDSLastNumFalse;
-FLOAT fSUDSfLastSumFalseW;
+UBIGINT iSUDSfLastSumFalseWeight;
 
 void InitStepsUpDownSide() {
   iNumUpSteps = 0;
@@ -5040,7 +5075,7 @@ void InitStepsUpDownSide() {
   iNumSideStepsW = 0;
 
   iSUDSLastNumFalse = iNumClauses;
-  fSUDSfLastSumFalseW = fTotalWeight;
+  iSUDSfLastSumFalseWeight = UBIGINTMAX;
 }
 
 void UpdateStepsUpDownSide() {
@@ -5056,16 +5091,16 @@ void UpdateStepsUpDownSide() {
   iSUDSLastNumFalse = iNumFalse;
 
   if (bWeighted) {
-    if (fSumFalseW < fSUDSfLastSumFalseW) {
+    if (iSumFalseWeight < iSUDSfLastSumFalseWeight) {
       iNumDownStepsW++;
     } else {
-      if (fSumFalseW > fSUDSfLastSumFalseW) {
+      if (iSumFalseWeight > iSUDSfLastSumFalseWeight) {
         iNumUpStepsW++;
       } else {
         iNumSideStepsW++;
       }
     }
-    fSUDSfLastSumFalseW = fSumFalseW;
+    iSUDSfLastSumFalseWeight = iSumFalseWeight;
   }
 }
 
@@ -5141,7 +5176,7 @@ void UpdateFDCRun() {
     fDist = (FLOAT) (iSolutionDistance);
 
     if (bWeighted) {
-      fHeight = fSumFalseW;
+      fHeight = (FLOAT) iSumFalseWeight;
     } else {
       fHeight = (FLOAT) iNumFalse;
     }

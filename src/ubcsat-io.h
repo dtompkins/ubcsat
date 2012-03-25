@@ -94,6 +94,8 @@ extern FILE *filReportPrint;
 #define ReportHdrPrint1(pRep, sFormat, pVal1) { if (!bReportClean) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat,pVal1); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1); }}
 #define ReportHdrPrint2(pRep, sFormat, pVal1, pVal2) { if (!bReportClean) { filReportPrint = 0; if (pRep) filReportPrint = pRep->fileOut; if ((filReportPrint)&&(pRep->bActive)) fprintf(filReportPrint,sFormat,pVal1,pVal2); if ((bReportEcho) && (pRep->bActive) && (filReportPrint != stdout)) fprintf(stdout,sFormat,pVal1,pVal2); }}
 
+#define ReportFlush(pRep) {if (pRep) fflush(pRep->fileOut);}
+
 extern char *sFilenameRandomData;
 extern char *sFilenameAbort;
 void CreateFileRandom();

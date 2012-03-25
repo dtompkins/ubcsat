@@ -63,6 +63,7 @@ REPORT *pRepAutoCorr;
 REPORT *pRepTriggers;
 REPORT *pRepParamILS;
 REPORT *pRepSATComp;
+REPORT *pRepMAXSATComp;
 
 void AddReports() {
 
@@ -84,7 +85,6 @@ void AddReports() {
   
   pRepState = CreateReport("state","State Information Trace","Provides detailed state information for each search step, including:~the solution quality, the variable flipped, and the state of all variables","stdout","ReportStatePrint");
   AddReportParmBool(pRepState,"Only print when in local minima",&bReportStateLMOnly,0);
-  AddReportParmFloat(pRepState,"Only print at a specific Solution Quality (all if -1)",&fReportStateQuality,-1.0f);
 
   pRepSolution = CreateReport("solution","Solutions","Prints solutions for every successful run in the format:~1001001101...~where variable 1 is true, 2 is false, 3 is false, etc...","stdout","ReportSolutionPrint");
 
@@ -164,7 +164,10 @@ void AddReports() {
 
   pRepParamILS = CreateReport("paramils","Output for ParamILS","Prints required output ParamILS~(use -r out null and -r stats null)~see http://www.cs.ubc.ca/labs/beta/Projects/ParamILS/","stdout","ReportParamILSPrint");
 
-  pRepSATComp = CreateReport("satcomp","SAT Competition","Prints required output for 2005 SAT Competition (use -solve)","stdout","ReportSatCompetitionPrint");
+  pRepSATComp = CreateReport("satcomp","SAT Competition","Prints required output for 2005 SAT Competition (use -solve)","stdout","ReportSatCompetitionPrint,ReportCompetitionComment");
+
+  pRepMAXSATComp = CreateReport("maxsatcomp","MAXSAT Competition","Prints required output for 2012 SAT Competition","stdout","ReportMaxSatCompetitionPrint,ReportCompetitionComment");
+  AddReportParmFloat(pRepMAXSATComp,"if > 0, print sol'n (if new) every n seconds [default = 90]",&fMaxSatPrintInterval,90.0f);
 
   /***************************************************************************/
 
@@ -217,12 +220,12 @@ void AddReports() {
 
   AddStatCol("best","BestSolution","mean",0);
 
-  AddColumnFloat("best_w","Best Weighted Solution Quality Found",
-    "        Best",
-    "    Solution",
-    "     Quality",
-    "%12.8f",
-    &fBestSumFalseW,"",ColTypeMin);
+  AddColumnUBigInt("best_w","Best Weighted Solution Quality Found",
+    "                Best",
+    "            Solution",
+    "             Quality",
+    "%20"P64,
+    &iBestSumFalseWeight,"",ColTypeMin);
 
   AddStatCol("best_w","BestWeightedSolution","mean",0);
 
@@ -236,12 +239,12 @@ void AddReports() {
 
   AddStatCol("worst","WorstSolution","mean",0);
 
-  AddColumnFloat("worst_w","Worst Weighted Solution Quality Found",
-    "       Worst",
-    "    Solution",
-    "     Quality",
-    "%12.8f",
-    &fSumFalseW,"",ColTypeMax);
+  AddColumnUBigInt("worst_w","Worst Weighted Solution Quality Found",
+    "               Worst",
+    "            Solution",
+    "             Quality",
+    "%20"P64,
+    &iSumFalseWeight,"",ColTypeMax);
 
   AddStatCol("worst_w","WorstWeightedSolution","mean",0);
 
@@ -255,12 +258,12 @@ void AddReports() {
 
   AddStatCol("last","LastSolution","mean",0);
 
-  AddColumnFloat("last_w","Last (on final step) Weighted Solution Quality",
-    "        Last",
-    "    Solution",
-    "     Quality",
-    "%12.8f",
-    &fSumFalseW,"",ColTypeFinal);
+  AddColumnUBigInt("last_w","Last (on final step) Weighted Solution Quality",
+    "               Last",
+    "            Solution",
+    "             Quality",
+    "%20"P64,
+    &iSumFalseWeight,"",ColTypeFinal);
 
   AddStatCol("last_w","LastWeightedSolution","mean",0);
 
@@ -274,12 +277,12 @@ void AddReports() {
 
   AddStatCol("start","StartSolution","mean",0);
 
-  AddColumnFloat("start_w","Start (on first step) Weighted Solution Quality",
-    "       Start",
-    "    Solution",
-    "     Quality",
-    "%12.8f",
-    &fStartSumFalseW,"StartFalse",ColTypeFinal);
+  AddColumnUBigInt("start_w","Start (on first step) Weighted Solution Quality",
+    "               Start",
+    "            Solution",
+    "             Quality",
+    "%20"P64,
+    &iStartSumFalseWeight,"StartFalse",ColTypeFinal);
 
   AddStatCol("start_w","StartWeightedSolution","mean",0);
 
@@ -298,7 +301,7 @@ void AddReports() {
     "                  of",
     "              W Best",
     "%20"P64,
-    &iBestStepSumFalseW,"BestFalse",ColTypeFinal);
+    &iBestStepSumFalseWeight,"BestFalse",ColTypeFinal);
 
   AddStatCol("beststep_w","BestWeightedStep","mean",0);
 
@@ -331,12 +334,12 @@ void AddReports() {
 
   AddStatCol("firstlm","FirstLocalMin","mean",0);
 
-  AddColumnFloat("firstlm_w","First Weighted Local Minimum Solution Quality",
-    "    Solution",
-    "     Quality",
-    " @ 1st WLMin",
-    "%12.8f",
-    &fFirstLMW,"FirstLM",ColTypeFinal);
+  AddColumnUBigInt("firstlm_w","First Weighted Local Minimum Solution Quality",
+    "            Solution",
+    "             Quality",
+    " @ 1st Weighted LMin",
+    "%20"P64,
+    &iFirstLMWeight,"FirstLM",ColTypeFinal);
 
   AddStatCol("firstlm_w","FirstWeightedLocalMin","mean",0);
 
@@ -424,12 +427,12 @@ void AddReports() {
 
   AddStatCol("qualmean","SolutionQualityMean","mean",0);
   
-  AddColumnFloat("qualmean_w","Average (Mean) of Weighted Solution Quality",
+  AddColumnUBigInt("qualmean_w","Average (Mean) of Weighted Solution Quality",
     "Average",
     "W.Sol'n",
     "Quality",
-    "%7.3f",
-    &fSumFalseW,"",ColTypeMean);
+    "%7.1f",
+    &iSumFalseWeight,"",ColTypeMean);
 
   AddStatCol("qualmean_w","WeightedSolutionQualityMean","mean",0);
   
@@ -443,12 +446,12 @@ void AddReports() {
 
   AddStatCol("qualstddev","SolutionQualityStdDev","mean",0);
   
-  AddColumnFloat("qualstddev_w","Std.Dev. of Weighted Solution Quality",
+  AddColumnUBigInt("qualstddev_w","Std.Dev. of Weighted Solution Quality",
     "Std.Dev",
     "W.Sol'n",
     "Quality",
     "%7.3f",
-    &fSumFalseW,"",ColTypeStddev);
+    &iSumFalseWeight,"",ColTypeStddev);
 
   AddStatCol("qualstddev_w","WeightedSolutionQualityStdDev","mean",0);
 
@@ -461,12 +464,12 @@ void AddReports() {
 
   AddStatCol("qualcv","SolutionQualityCV","mean",0);
   
-  AddColumnFloat("qualcv_w","Coeff. of Var. of Weighted Solution Quality",
+  AddColumnUBigInt("qualcv_w","Coeff. of Var. of Weighted Solution Quality",
     "   C.V.",
     "W.Sol'n",
     "Quality",
     "%7.3f",
-    &fSumFalseW,"",ColTypeCV);
+    &iSumFalseWeight,"",ColTypeCV);
 
   AddStatCol("qualcv_w","WeightedSolutionQualityCV","mean",0);
 
