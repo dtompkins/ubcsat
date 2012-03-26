@@ -38,6 +38,8 @@ INTRO | FIXED | DESCRIPTION
 
 * new feature: Now support runs of length 2^64
 
+* MAJOR change to weighted MAX-SAT: .wcnf files now only support 64-bit integers, not floating point values (see sample.wcnf)
+
 * new algorithm: VW2/2005 (-alg vw2 -v 2005) -- vw2 variant from the SAT 2005 Competition
 
 * new algorithm: Captain Jack (-alg jack) presented at SAT 2011
@@ -47,7 +49,11 @@ INTRO | FIXED | DESCRIPTION
 * changed parameter behaviour: probability parameters are now always between 0..1 or a ratio (eg: 70 100)
                                so to specify a 90% probability, use -paramname 0.9 or -paramname 90 100
 
-* changed algorithms: G2WSAT (and adaptG2WSAT) are now more generaland with parameters to control behaviour
+* changed algorithms: G2WSAT (and adaptG2WSAT) are now more generalized with parameters to control behaviour
+
+* new option: -abstime starts timer immediately on startup instead of after initialization
+* new option: -systime includes system time (not just user time) in time calculations [unix only]
+* new option: -timeres checks for timeouts every N steps instead of every step
 
 * new option: -rcsv: prints reports in a .csv compatible mode
 * new option: -q turns off the default reports (-r out) and (-r stats)
@@ -234,6 +240,3 @@ Changes in version 1.0.0
 ------------------------
 
 * The changes in 1.0.0 (from 0.9.7) are far too numerous to list
-
-* consult the archive section of the website for older revisions
-
