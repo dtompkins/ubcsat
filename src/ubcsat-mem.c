@@ -31,6 +31,8 @@ namespace ubcsat {
     This file contains the simple memory managment of ubcsat
 */
 
+#define UBCSAT_MALLOC_ALIGN 16
+
 UINT32 iNumHeap;
 size_t iLastRequestSize;
 UINT32 iLastHeap;
@@ -44,13 +46,28 @@ typedef struct typeUBCSATHEAP {
 
 UBCSATHEAP aHeap[MAXHEAPS];
 
+// #define UBCSAT_NO_HEAPS
+
+#ifdef UBCSAT_NO_HEAPS
+
+void *AllocateRAM( size_t size , enum HEAPTYPE type) {
+  NOREF(type);
+  return(malloc(size));
+}
+
+void AdjustLastRAM( size_t size ) {
+  NOREF(size);
+}
+
+#else
+
 void *AllocateRAM( size_t size , enum HEAPTYPE type) {
   UINT32 j;
   BOOL bFound;
   UINT32 iHeapID = 0;
   void *pReturn;
 
-  size = size + (8-(size % 8));
+  size = size + (UBCSAT_MALLOC_ALIGN - (size % UBCSAT_MALLOC_ALIGN));
 
   iLastRequestSize = size;
   
@@ -75,6 +92,11 @@ void *AllocateRAM( size_t size , enum HEAPTYPE type) {
       aHeap[iNumHeap].iBytesFree = DEFAULTHEAPSIZE;
       aHeap[iNumHeap].eHeapType = type;
     }
+    if (aHeap[iNumHeap].pHeap == NULL) {
+      ReportPrint(pRepErr,"Unexpected Error: malloc failed\n");
+      AbnormalExit();
+      exit(1);
+    }
     iHeapID = iNumHeap;
     iNumHeap++;
     if (iNumHeap == MAXHEAPS) {
@@ -92,10 +114,12 @@ void *AllocateRAM( size_t size , enum HEAPTYPE type) {
 }
 
 void AdjustLastRAM( size_t size ) {
-  size = size + (8-(size % 8));
+  size = size + (UBCSAT_MALLOC_ALIGN - (size % UBCSAT_MALLOC_ALIGN));
   aHeap[iLastHeap].iBytesFree += (iLastRequestSize - size);
   aHeap[iLastHeap].pFree -= (iLastRequestSize - size);
 }
+
+#endif
 
 void SetString(char **sNew, const char *sSrc) {
   (*sNew) = (char *) AllocateRAM(strlen(sSrc)+1, HeapString);
