@@ -225,11 +225,11 @@ UINT32 FileRandomUInt32() {
           iRandomBufferRemaining = iCycleDataLen;
           pNextRandomData = pRandomDataBuffer;
         } else {
-          iRandomBufferRemaining = fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);
+          iRandomBufferRemaining = (UINT32) fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);
           if (iRandomBufferRemaining==0) {
             CloseSingleFile(filRandomData);
             SetupFile(&filRandomData,"rb",sFilenameRandomData,NULL,0);
-            iRandomBufferRemaining = fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);
+            iRandomBufferRemaining = (UINT32) fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);
           }
           pNextRandomData = pRandomDataBuffer;
         }
@@ -253,7 +253,7 @@ void CreateFileRandom() {
     exit(1);
   }
 
-  iRandomBufferRemaining = fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);
+  iRandomBufferRemaining = (UINT32) fread(pRandomDataBuffer,1,RANDOMFILEBUFFERSIZE,filRandomData);
 
   if ((iRandomBufferRemaining < RANDOMFILEBUFFERSIZE)||(feof(filRandomData))) {
     bCycleData = 1;

@@ -596,7 +596,7 @@ void HelpPrintParameter(ALGPARM *pCurParm, BOOL bAlgOffset) {
       break;
   }  
   if (pCurParm->eType != PTypeBool) {
-    iNumSpaces = 15 - strlen(pCurParm->sSwitch);
+    iNumSpaces = 15 - (UINT32) strlen(pCurParm->sSwitch);
     if (bAlgOffset) {
       iNumSpaces -= 4;
     }
