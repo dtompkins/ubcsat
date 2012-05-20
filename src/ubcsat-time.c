@@ -81,9 +81,9 @@ double fCurrentTimeStamp;
   void CurrentTime() {
     times(&prog_tms);
     if (bUseSystemTime) {
-      fCurrentTimeStamp = (double)prog_tms.tms_utime / ((double)sysconf(_SC_CLK_TCK));
+      fCurrentTimeStamp = ((double)(prog_tms.tms_utime + prog_tms.tms_stime)) / ((double)sysconf(_SC_CLK_TCK));      
     } else {
-      fCurrentTimeStamp = ((double)(prog_tms.tms_utime + prog_tms.tms_stime)) / ((double)sysconf(_SC_CLK_TCK));
+      fCurrentTimeStamp = (double)prog_tms.tms_utime / ((double)sysconf(_SC_CLK_TCK));
     }
   }
 
