@@ -26,7 +26,7 @@
 namespace ubcsat {
 #endif
 
-const char sVersion[] = "1.2-m4 (MAXSAT REDESIGN) IRoTS for MAXSAT 2012 competition";
+const char sVersion[] = "1.2-m6 (MAXSAT REDESIGN) IRoTS for MAXSAT 2012 competition";
 
 #ifdef __cplusplus
 
