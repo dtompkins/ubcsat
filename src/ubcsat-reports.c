@@ -2327,9 +2327,6 @@ void ReporMaxSatCompetitionPrintValues() {
       } else {
         ReportPrint1(pRepMAXSATComp," %"P32,j);
       }
-      if (((j % 10) == 0) && (j < iNumVars)) {
-        ReportPrint(pRepMAXSATComp,"\nv ");
-      }
     }
     ReportPrint(pRepMAXSATComp,"\n");
     ReportFlush(pRepMAXSATComp);
@@ -2348,7 +2345,7 @@ void ReportMaxSatCompetitionPrintStep() {
   }
 
   if (iStep == iBestStepSumFalseWeight) {
-    ReportPrint1(pRepMAXSATComp,"u %"P64"\n",iBestSumFalseWeight);
+    ReportPrint1(pRepMAXSATComp,"o %"P64"\n",iBestSumFalseWeight);
     ReportFlush(pRepMAXSATComp);
     for (j=1;j<=iNumVars;j++) {
       aMaxSatSaveBest[j] = aVarValue[j];
