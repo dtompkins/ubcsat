@@ -40,6 +40,7 @@ cfiles = src/adaptnovelty.c \
          src/rots.c \
          src/samd.c \
          src/saps.c \
+         src/sparrow.c \
          src/ubcsat-help.c \
          src/ubcsat-internal.c \
          src/ubcsat-io.c \
