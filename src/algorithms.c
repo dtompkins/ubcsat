@@ -61,6 +61,8 @@ void AddAlgorithms() {
 
   AddG2WSat();
 
+  AddSparrow();
+
   AddVW();
 
   AddRoTS();

@@ -125,6 +125,9 @@ extern PROBABILITY iRPs;
 
 void AddPAWS();
 extern PROBABILITY iPAWSFlatMove;
+extern UINT32 *aPenClauseList;
+extern UINT32 *aPenClauseListPos;
+extern UINT32 iNumPenClauseList;
 
 /* ddfw.c */
 
@@ -144,6 +147,9 @@ void PromisingSelectBest();
 void DiversificationRandom();
 void DiversificationOldest();
 void DiversificationMinusOne();
+
+/* sparrow.c */
+void AddSparrow();
 
 /* vw.c */
 
