@@ -31,9 +31,7 @@ void PickRGSat();
 
 void AddRGSat() {
 
-  ALGORITHM *pCurAlg;
-
-  pCurAlg = CreateAlgorithm("rgsat","",0,
+  CreateAlgorithm("rgsat","",0,
     "RGSAT: Restarting GSAT (poor algorithm -- academic use only)",
     "Tompkins, Hoos [SAIM 04]",
     "PickRGSat",

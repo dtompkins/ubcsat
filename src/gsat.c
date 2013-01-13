@@ -32,9 +32,7 @@ void PickGSatWithBSL();
 
 void AddGSat() {
 
-  ALGORITHM *pCurAlg;
-
-  pCurAlg = CreateAlgorithm("gsat","",0,
+  CreateAlgorithm("gsat","",0,
     "GSAT: Greedy search for SAT",
     "Selman, Levesque, Mitchell [AAAI 93]",
     "PickGSatWithBSL",
@@ -43,7 +41,7 @@ void AddGSat() {
 
   CreateTrigger("PickGSatWithBSL",ChooseCandidate,PickGSatWithBSL,"","");  
 
-  pCurAlg = CreateAlgorithm("gsat","simple",0,
+  CreateAlgorithm("gsat","simple",0,
     "GSAT: Greedy search for SAT (simple, but slower version)",
     "Selman, Levesque, Mitchell [AAAI 93]",
     "PickGSatSimple",
