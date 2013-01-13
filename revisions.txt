@@ -40,6 +40,8 @@ INTRO | FIXED | DESCRIPTION
 
 * MAJOR change to weighted MAX-SAT: .wcnf files now only support 64-bit integers, not floating point values (see sample.wcnf)
 
+* new algorithm: Sparrow (-alg sparrow) & Sparrow 2011 (-alg sparrow -v sat11)
+
 * new algorithm: VW2/2005 (-alg vw2 -v 2005) -- vw2 variant from the SAT 2005 Competition
 
 * new algorithm: Captain Jack (-alg jack) presented at SAT 2011
