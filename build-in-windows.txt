@@ -1,0 +1,42 @@
+This is a quick guide to building UBCSAT in Windows.
+
+-Dave Tompkins (2013.01.12)
+
+Step 1: Create an "empty project" in visual studio
+  * Dave recommends keeping your build files separate from your source:
+    \parent\ubcsat    <-- put the ubcsat files here 
+    \parent\vs-ubcsat <-- put your visual studio project here
+    (this avoids cluttering up your ubcsat directory)
+
+Step 2: PROJECT -> Add Existing Item...
+  Add all the .c files in the ..\ubcsat\src directory
+
+Step 3: Set Visual Studio Compilation settings
+  PROJECT -> Properties
+  
+  Configuration: All Configurations
+  
+  Configuration Properties -> C/C++ 
+  
+  -> Preprocessor
+     -> Preprocessor Definitions
+        * add _CRT_SECURE_NO_WARNINGS;
+          (this may not be necessary for VS 2012)    
+
+  -> Language
+    -> Disable Language Extensions
+        * set to YES 
+    
+  Advanced
+    -> Compile As
+        * Compile as C++ Code
+    -> Disable Specific Warnings
+        * 4514;4820;4255;4001;4668
+
+  (optional -- this is here for Dave to remind himself)
+
+  -> General
+    -> Warning Level
+        * set to 4
+    
+    
